@@ -24,6 +24,7 @@ The following options are mandatory
 
 On **baremetal**
 ```
+<<<<<<< HEAD
 kubespray generate --masters <master1> <master2> --nodes <node1> <node2>
 ```
 
