@@ -44,9 +44,11 @@ kubespray gce --masters 2 --nodes 3 --image <gce_image> --type=<aws_machine_type
 ### Deploy cluster
 
 ```
-kubespray deploy [--network-plugin <net_plugin>] [--aws|--gce] [--upgrade] [--ansible_opts]
+kubespray deploy [-n|--network-plugin <net_plugin>] [--aws|--gce] [--upgrade] [--ansible_opts] [-i|--inventory <inventory>]
 ```
 default network plugin : flannel (vxlan)
+default inventory path : "{{ inventory_path }}/inventory.cfg".
+The option `--inventory` allows to use an existing inventory (file or dynamic)
 
 ### Infos
 ```
