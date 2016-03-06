@@ -4,7 +4,7 @@ It must support all ansible parameters.
 
 
 ## Config file
-A config file can be updated (yaml).
+A config file can be updated (yaml). (default: _/etc/kubespray/kubespray.yml_ )
 This file contains default values for some parameters that doesn't change frequently
 ```
 inventory_path: "/usr/lib/kubespray/ansible/inventory"
@@ -25,7 +25,7 @@ The following options are mandatory
 On **baremetal**
 ```
 <<<<<<< HEAD
-kubespray generate --masters <master1> <master2> --nodes <node1> <node2>
+kubespray preprare --masters <master1> <master2> --nodes <node1> <node2> [--coreos]
 ```
 
 
@@ -33,12 +33,12 @@ On cloud providers create vms and generate the inventory
 **AWS** 
 ```
 kubespray aws --masters 2 --nodes 3 --ami <myami> --type <aws_instance_type> \
-[ --aws_access_key <access_key> --aws_secret_key <secret_key> ]
+[ --aws_access_key <access_key> --aws_secret_key <secret_key> ] [--coreos]
 ```
 **GCE**
 ```
 kubespray gce --masters 2 --nodes 3 --image <gce_image> --type=<aws_machine_type> --zone=<gce_zone> \
-[--sshkey <keypath>]
+[--sshkey <keypath>] [--coreos]
 ```
 
 ### Deploy cluster
