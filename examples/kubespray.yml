@@ -1,0 +1,56 @@
+---
+# Path where Ansible's binaries are installed
+ansible_path: "/usr/bin"
+# Default inventory path
+inventory_path: "/usr/lib/kubespray/ansible/inventory"
+
+# Logging options
+logfile: "/var/log/kubespray.log"
+loglevel: "info"
+
+# The following options would be overwritten by the command line
+# ---------------------------------------------------------
+# List of the kubernetes master servers and their hostvars
+# k8s_masters:
+#   - master1:
+#       ip: "192.168.0.1"
+#       local_as: "42xxxxxx"
+#       hostvarN: "foo"
+#   - master2:
+#       ip: "192.168.0.2"
+#       local_as: "42xxxxxx"
+#       hostvarN: "bar"
+#
+# List of nodes and their hostvars
+# k8s_nodes:
+#   - node1:
+#   ...
+#
+# During the prepare phase on cloud providers : Number of kubernetes masters to create
+# cloud_masters_count: 2
+# This is the total number of instances (note: this includes the master nodes)
+# cloud_instances_count: 3
+#
+# Amazon web services options
+# ---
+# aws_access_key: "<aws_key>"
+# aws_secret_key: "<aws_secret_key>"
+# aws_ami: "<aws_ami>"
+# aws_instance_type: "<aws_instance_type>"
+# aws_security_group: "<aws_security_group>"
+# aws_region: "<aws_region>"
+#
+# Google Compute Engine options
+# ---
+# gce_image="debian-8-jessie-v20160301"
+# gce_machine_type: "n1-standard-1"
+# gce_sshkey_path: /root/.ssh/gce_id.rsa
+# gce_zone: "us-east1-c"
+#
+# All the options to be passed to the 'ansible-playbook' command line
+# ansible_opts:
+#   - '-vvv'
+#   - '-e'
+#   - 'myvar1=bar'
+#   - '-e'
+#   - 'myvar2=foo'
