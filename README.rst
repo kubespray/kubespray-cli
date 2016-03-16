@@ -34,7 +34,7 @@ On **baremetal**
 
 ::
 
-    kubespray preprare --masters <master1> <master2> --nodes <node1> <node2> [--coreos]
+    kubespray preprare --masters master1[hostvar1=v1,hostvar2=v2] master2[hostvarX=Y] --nodes <node1> <node2> --etcd node1[hostvar1=v1] [--coreos]
 
 On cloud providers create vms and generate the inventory **AWS**
 

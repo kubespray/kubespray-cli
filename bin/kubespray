@@ -21,7 +21,7 @@ __version__ = '0.1'
 import sys
 import yaml
 import time
-import re
+import os
 import argparse
 import getpass
 try:
@@ -30,7 +30,7 @@ except ImportError:
     raise ImportError('Cannot find Ansible: Please check your installation')
 import kubespray.common
 from kubespray.configure import Config
-import kubespray.prepare
+from kubespray.inventory import CfgInventory
 #import kubespray.deploy.aws
 #import kubespray.deploy.gce
 #import kubespray.deploy.baremetal
@@ -41,8 +41,8 @@ def cluster_info(options):
     display.warning('info not configured yet')
 
 def prepare(options):
-    kubespray.prepare.gen_inventory(options)
-    display.warning('prepare not configured yet')
+    C = CfgInventory(os.path.join(options['inventory_path'], 'inventory.cfg'))
+    C.write_inventory(options)
 
 def aws(options):
     display.warning('aws not configured yet')
@@ -68,6 +68,7 @@ if __name__ == '__main__':
     # prepare
     prepare_parser = subparsers.add_parser('prepare', help='generate inventory and create vms on cloud providers')
     prepare_parser.add_argument('--nodes', dest='k8s_nodes', metavar='N', nargs='+', help='List of nodes')
+    prepare_parser.add_argument('--etcd', dest='etcd_members', metavar='N', nargs='+', help='List of etcd members')
     prepare_parser.add_argument('--masters', dest='k8s_masters',metavar='N', nargs='+', help='List of masters')
     prepare_parser.set_defaults(func=prepare)
     
@@ -109,10 +110,13 @@ if __name__ == '__main__':
     # Parse arguments
     args = parser.parse_args()
     arguments = dict(args._get_kwargs())
-    # Read configfile
+    if arguments['configfile'] is None:
+        arguments['configfile'] = '/etc/kubespray/kubespray.yml'
+    # Read configfile and update options dict
     configfile = arguments.get('configfile')
     C = Config(configfile)
-    config = C.parse_configfile()
+    config = C.parse_configfile
     config.update(arguments) 
-    # Run functions with the options from the command line and from the configfile
+    print(arguments)
+    # Run functions with all the options
     args.func(config)

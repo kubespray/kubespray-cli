@@ -28,12 +28,13 @@ from ansible.utils.display import Display
 
 class Config(object):
 
-    def __init__(self, configfile='/etc/kubespray/kubespray.yml'):
+    def __init__(self, configfile):
         self.display = Display()
         self.configfile = configfile
         self.logfile = None
         self.loglevel = None
 
+    @property
     def parse_configfile(self):
         """
         Retrieve configuration parameters from the config file
