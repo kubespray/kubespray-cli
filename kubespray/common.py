@@ -17,9 +17,14 @@
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import shutil
+import os
 import netaddr
 import netaddr.core
+from git import Repo
 from netaddr.strategy import eui48
+from ansible.utils.display import Display
+display = Display()
 
 def validate_port(port):
     """
@@ -105,3 +110,10 @@ def get_logger(logfile, loglevel):
     logger.addHandler(handler)
     logger.setLevel(getattr(logging, loglevel.upper()))
     return logger
+
+def clone_git_repo(directory, git_repo):
+    if os.path.isdir(directory):
+        shutil.rmtree(directory)
+    display.banner('CLONING KUBESPRAY GIT REPO')
+    Repo.clone_from(git_repo,directory)
+    display.display('Kubespray repo cloned', color='green')

@@ -41,8 +41,9 @@ def cluster_info(options):
     display.warning('info not configured yet')
 
 def prepare(options):
-    C = CfgInventory(os.path.join(options['inventory_path'], 'inventory.cfg'))
-    C.write_inventory(options)
+    kubespray.common.clone_git_repo(options['kubespray_path'], options['kubespray_git_repo'])
+    C = CfgInventory(options)
+    C.write_inventory()
 
 def aws(options):
     display.warning('aws not configured yet')
@@ -67,9 +68,10 @@ if __name__ == '__main__':
 
     # prepare
     prepare_parser = subparsers.add_parser('prepare', help='generate inventory and create vms on cloud providers')
-    prepare_parser.add_argument('--nodes', dest='k8s_nodes', metavar='N', nargs='+', help='List of nodes')
-    prepare_parser.add_argument('--etcd', dest='etcd_members', metavar='N', nargs='+', help='List of etcd members')
-    prepare_parser.add_argument('--masters', dest='k8s_masters',metavar='N', nargs='+', help='List of masters')
+    prepare_parser.add_argument('--nodes', dest='k8s_nodes', metavar='N', nargs='+',
+                                required=True, help='List of nodes')
+    prepare_parser.add_argument('--masters', dest='k8s_masters',metavar='N', nargs='+',
+                                required=True, help='List of masters')
     prepare_parser.set_defaults(func=prepare)
     
     # aws
@@ -116,7 +118,12 @@ if __name__ == '__main__':
     configfile = arguments.get('configfile')
     C = Config(configfile)
     config = C.parse_configfile
-    config.update(arguments) 
-    print(arguments)
+    if 'kubespray_path' not in config.keys():
+        config['kubespray_path'] = os.path.join(os.path.expanduser("~"), 'kubespray')
+    if 'logfile' not in config.keys():
+        config['logfile'] = os.path.join(config['kubespray_path'], 'kubespray.log')
+    for key,value in arguments.items():
+        if value is not None:
+            config[key] = value
     # Run functions with all the options
     args.func(config)

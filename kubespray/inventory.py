@@ -47,9 +47,11 @@ class CfgInventory(object):
     Read classic ansible inventory file. Basic reading searching for ambari_server
     '''
 
-    def __init__(self, filename):
-        self.filename = filename
-        file = open(filename, 'w+')
+    def __init__(self, options):
+        self.options = options
+        self.filename = os.path.join(options['kubespray_path'], 'inventory/inventory.cfg')
+        file = open(self.filename, 'w+')
+        self.logger = get_logger(options.get('logfile'), options.get('loglevel'))
 
         ###
         # stack overflow code. I  bear you to jump the 4 following lines. Please forgive me
@@ -146,28 +148,36 @@ class CfgInventory(object):
         else:
             raise AttributeError('No such attribute because '
                                     'no such section \'%s\' in file'%section)
-    def write_inventory(self, options):
+    def write_inventory(self):
         '''Generates inventory'''
-        if len(options['k8s_masters']) < 2:
+        if len(self.options['k8s_masters']) < 2:
             display.warning('You should set at least 2 masters')
-        if len(options['etcd_members']) < 3:
-            display.warning('You should set at least 3 etcd members')
-        self.format_inventory_line('kube-master', options['k8s_masters'])
-        self.format_inventory_line('kube-node', options['k8s_nodes'])
-        self.format_inventory_line('etcd', options['etcd_members'])
+        if len(self.options['k8s_nodes']) > 2:
+            self.options['etcd_members'] = self.options['k8s_nodes'][0:3]
+        else:
+            self.options['etcd_members'] = [self.options['k8s_nodes'][0]]
+            display.warning('You should set at least 3 nodes for etcd clustering')
+        self.format_inventory_line('kube-master', self.options['k8s_masters'])
+        self.format_inventory_line('kube-node', self.options['k8s_nodes'])
+        self.format_inventory_line('etcd', self.options['etcd_members'])
         self.cparser.add_section('k8s-cluster')
         self.cparser.set('k8s-cluster', 'kube-master')
         self.cparser.set('k8s-cluster', 'kube-node')
         with open(self.filename, 'wb') as configfile:
+            display.banner('WRITTING INVENTORY')
             self.cparser.write(configfile)
+            self.logger.info('the inventory %s was successfuly generated' % self.filename)
+            self.logger.debug('The following options were used to generate the inventory: %s' % self.options)
+            display.display('Inventory generated : %s' % self.filename, color='green')
 
     def format_inventory_line(self, section, servers):
         self.cparser.add_section(section)
         for srv in servers:
+            self.cparser.set(section, srv.split('[')[0])
             srv = srv.replace('[','\t\t')
             srv = srv.replace(']','')
             srv = srv.replace(',',' ')
-            self.cparser.set(section, srv)
+            self.cparser.set('HEADsection', srv)
             
         
 
