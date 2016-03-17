@@ -33,7 +33,7 @@ from kubespray.configure import Config
 from kubespray.inventory import CfgInventory
 #import kubespray.deploy.aws
 #import kubespray.deploy.gce
-#import kubespray.deploy.baremetal
+import kubespray.baremetal
 #import kubespray.info
 display = Display()
 
@@ -52,8 +52,7 @@ def gce(options):
     display.warning('gce not configured yet')
 
 def deploy(options):
-    display.warning('deploy not configured yet')
-
+    kubespray.baremetal.run_playbook(options)
 
 if __name__ == '__main__':
 

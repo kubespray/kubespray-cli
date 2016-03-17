@@ -157,12 +157,12 @@ class CfgInventory(object):
         else:
             self.options['etcd_members'] = [self.options['k8s_nodes'][0]]
             display.warning('You should set at least 3 nodes for etcd clustering')
-        self.format_inventory_line('kube-master', self.options['k8s_masters'])
         self.format_inventory_line('kube-node', self.options['k8s_nodes'])
+        self.format_inventory_line('kube-master', self.options['k8s_masters'])
         self.format_inventory_line('etcd', self.options['etcd_members'])
-        self.cparser.add_section('k8s-cluster')
-        self.cparser.set('k8s-cluster', 'kube-master')
-        self.cparser.set('k8s-cluster', 'kube-node')
+        self.cparser.add_section('k8s-cluster:children')
+        self.cparser.set('k8s-cluster:children', 'kube-master')
+        self.cparser.set('k8s-cluster:children', 'kube-node')
         with open(self.filename, 'wb') as configfile:
             display.banner('WRITTING INVENTORY')
             self.cparser.write(configfile)
@@ -171,15 +171,18 @@ class CfgInventory(object):
             display.display('Inventory generated : %s' % self.filename, color='green')
 
     def format_inventory_line(self, section, servers):
+        inventory_hostnames = list()
         self.cparser.add_section(section)
         for srv in servers:
-            self.cparser.set(section, srv.split('[')[0])
+            inventory_hostname = srv.split('[')[0]
+            self.cparser.set(section, inventory_hostname)
+            inventory_hostnames.append(inventory_hostname)
             srv = srv.replace('[','\t\t')
             srv = srv.replace(']','')
             srv = srv.replace(',',' ')
-            self.cparser.set('HEADsection', srv)
+            if srv not in inventory_hostnames:
+                 self.cparser.set('HEADsection', srv)
             
-        
 
 class Server(str):
 
