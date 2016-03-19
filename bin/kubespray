@@ -105,7 +105,7 @@ if __name__ == '__main__':
     deploy_parser.add_argument('--aws', default=False, action='store_true', help='Kubernetes deployment on AWS')
     deploy_parser.add_argument('--gce', default=False, action='store_true', help='Kubernetes deployment on GCE')
     deploy_parser.add_argument('--upgrade', default=False, action='store_true', help='Upgrade Kubernetes cluster')
-    deploy_parser.add_argument('--ansible_opts', dest='ansible_opts', metavar='N', nargs='+', help='Ansible options')
+    deploy_parser.add_argument('--ansible_opts', help='Ansible options')
     deploy_parser.set_defaults(func=deploy)
 
     # Parse arguments
