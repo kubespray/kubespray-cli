@@ -8,10 +8,10 @@ except ImportError:
     from distutils.core import setup
 
 
-with open('README.md') as readme_file:
+with open('README.rst') as readme_file:
     readme = readme_file.read()
 
-with open('HISTORY.md') as history_file:
+with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
@@ -51,7 +51,7 @@ setup(
     keywords='kubespray',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
-        'Intended Audience :: System Administrators',
+        'Intended Audience :: Developers',
         'Natural Language :: English',
         "Programming Language :: Python :: 2",
         'Programming Language :: Python :: 2.7',
