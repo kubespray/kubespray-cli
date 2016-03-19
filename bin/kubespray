@@ -46,10 +46,10 @@ def prepare(options):
     C.write_inventory()
 
 def aws(options):
-    display.warning('aws not configured yet')
+    display.warning('aws not implemented yet, coming soon :)')
 
 def gce(options):
-    display.warning('gce not configured yet')
+    display.warning('gce not implemented yet, coming soon :)')
 
 def deploy(options):
     kubespray.baremetal.run_playbook(options)
@@ -84,7 +84,6 @@ if __name__ == '__main__':
     aws_parser.add_argument('--ami', dest='aws_ami', help='AWS AMI')
     aws_parser.add_argument('--instances', dest='cloud_instances_count', type=int, help='Number of nodes')
     aws_parser.add_argument('--masters', dest='cloud_masters_count', type=int, help='Number of masters')
-    aws_parser.add_argument('--coreos', default=False, action='store_true', help='bootstrap python on CoreOS')
     aws_parser.set_defaults(func=aws)
 
     # gce
@@ -95,7 +94,6 @@ if __name__ == '__main__':
     gce_parser.add_argument('--image', dest='gce_image', help='GCE image')
     gce_parser.add_argument('--instances', dest='cloud_instances_count', type=int, help='Number of nodes')
     gce_parser.add_argument('--masters', dest='cloud_masters_count', type=int, help='Number of masters')
-    gce_parser.add_argument('--coreos', default=False, action='store_true', help='bootstrap python on CoreOS')
     gce_parser.set_defaults(func=gce)
 
     # deploy
@@ -105,6 +103,8 @@ if __name__ == '__main__':
     deploy_parser.add_argument('--aws', default=False, action='store_true', help='Kubernetes deployment on AWS')
     deploy_parser.add_argument('--gce', default=False, action='store_true', help='Kubernetes deployment on GCE')
     deploy_parser.add_argument('--upgrade', default=False, action='store_true', help='Upgrade Kubernetes cluster')
+    deploy_parser.add_argument('--coreos', default=False, action='store_true', help='bootstrap python on CoreOS')
+    deploy_parser.add_argument('--non-interactive', default=True, dest='interactive', action='store_false', help='Don\'t prompt user for input')
     deploy_parser.add_argument('--ansible_opts', help='Ansible options')
     deploy_parser.set_defaults(func=deploy)
 

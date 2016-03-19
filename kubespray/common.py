@@ -19,6 +19,7 @@
 import logging
 import shutil
 import os
+import sys
 import netaddr
 import netaddr.core
 from git import Repo
