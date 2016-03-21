@@ -92,7 +92,7 @@ def query_yes_no(question, default="yes"):
     elif default == "no":
       prompt = " [y/N] "
     else:
-      raise ValueError("%s invalid default answer: '%s'" % (Colors.error, default))
+      raise ValueError("Invalid default answer: '%s'" % default)
     while True:
         sys.stdout.write(question + prompt)
         choice = raw_input().lower()
@@ -101,7 +101,7 @@ def query_yes_no(question, default="yes"):
         elif choice in valid:
             return valid[choice]
         else:
-            sys.stdout.write("%s Please answer with 'yes' or 'no' (or 'y' or 'n').\n" % Colors.warning)
+            sys.stdout.write("Please answer with 'yes' or 'no' (or 'y' or 'n').\n")
 
 def get_logger(logfile, loglevel):
     logger = logging.getLogger()

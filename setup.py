@@ -2,17 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
-
-
-with open('README.rst') as readme_file:
-    readme = readme_file.read()
-
-with open('HISTORY.rst') as history_file:
-    history = history_file.read()
+from setuptools import setup, find_packages
 
 requirements = [
     'requests',
@@ -27,24 +17,21 @@ test_requirements = [
 
 setup(
     name='kubespray',
-    version='0.1.0',
+    version='0.2.2-4',
     description="Kubespray kubernetes cluster deployment",
-    long_description=readme + '\n\n' + history,
     author="Smaine Kahlouch",
     author_email='smainklh@gmail.com',
     url='https://github.com/kubespray/kubespray',
     data_files=[
-        ('/etc/kubespray', ['examples/kubespray.yml'])
+        ('/etc/kubespray', ['src/kubespray/examples/kubespray.yml'])
     ],
-    packages=[
-        'kubespray',
-    ],
+    packages= find_packages('src'),
+    include_package_data=True,
     scripts=[
         'bin/kubespray'
     ],
-    package_dir={'kubespray':
-                 'kubespray'},
-    include_package_data=True,
+    package_dir={'': 'src'},
+    package_data={'kubespray': ['examples/*.yml'],},
     install_requires=requirements,
     license="GPLv3",
     zip_safe=False,

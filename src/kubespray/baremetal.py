@@ -48,7 +48,7 @@ def run_playbook(options):
     display.display(response_stdout)
     if response_stderr:
         display.error(response_stderr)
-        logger.info('Deployment stopped because of ssh credentials' % self.filename)
+        logger.critical('Deployment stopped because of ssh credentials' % self.filename)
         os.kill(int(os.environ.get('SSH_AGENT_PID')), signal.SIGTERM)
         sys.exit(1)
     
@@ -60,7 +60,7 @@ def run_playbook(options):
     proc = Popen(cmd, stdout=PIPE, stderr=STDOUT, universal_newlines=True, shell=False)
     with proc.stdout:
         for line in iter(proc.stdout.readline, b''):
-             print line,
+             print(line),
     proc.wait()
     if proc.returncode != 0:
         display.error('Some of your hosts from the inventory %s are not reachable' % inventorycfg)
@@ -84,11 +84,11 @@ def run_playbook(options):
     proc = Popen(cmd, stdout=PIPE, stderr=STDOUT, universal_newlines=True, shell=False)
     with proc.stdout:
         for line in iter(proc.stdout.readline, b''):
-             print line,
+             print(line),
     proc.wait()
     if proc.returncode != 0:
         display.error('Cluster deployment failed')
-        logger.info('Deployment failed: %s' % proc.stderr)
+        logger.critical('Deployment failed')
         os.kill(int(os.environ.get('SSH_AGENT_PID')), signal.SIGTERM)
         sys.exit(1)
     display.display('Kubernetes deployed successfuly', color='green')

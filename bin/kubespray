@@ -16,7 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '0.1'
+__version__ = '0.1.2'
 
 import sys
 import yaml
@@ -71,6 +71,7 @@ if __name__ == '__main__':
                                 required=True, help='List of nodes')
     prepare_parser.add_argument('--masters', dest='k8s_masters',metavar='N', nargs='+',
                                 required=True, help='List of masters')
+    prepare_parser.add_argument('-p','--path', dest='kubespray_path', help='Where the Ansible playbooks are installed')
     prepare_parser.set_defaults(func=prepare)
     
     # aws
@@ -105,6 +106,7 @@ if __name__ == '__main__':
     deploy_parser.add_argument('--upgrade', default=False, action='store_true', help='Upgrade Kubernetes cluster')
     deploy_parser.add_argument('--coreos', default=False, action='store_true', help='bootstrap python on CoreOS')
     deploy_parser.add_argument('--non-interactive', default=True, dest='interactive', action='store_false', help='Don\'t prompt user for input')
+    deploy_parser.add_argument('-p','--path', dest='kubespray_path', help='Where the Ansible playbooks are installed')
     deploy_parser.add_argument('--ansible_opts', help='Ansible options')
     deploy_parser.set_defaults(func=deploy)
 
@@ -117,12 +119,12 @@ if __name__ == '__main__':
     configfile = arguments.get('configfile')
     C = Config(configfile)
     config = C.parse_configfile
-    if 'kubespray_path' not in config.keys():
+    if 'kubespray_path' not in config.keys() and arguments['kubespray_path'] is None:
         config['kubespray_path'] = os.path.join(os.path.expanduser("~"), 'kubespray')
-    if 'logfile' not in config.keys():
-        config['logfile'] = os.path.join(config['kubespray_path'], 'kubespray.log')
     for key,value in arguments.items():
         if value is not None:
             config[key] = value
+    if 'logfile' not in config.keys():
+        config['logfile'] = os.path.join(config['kubespray_path'], 'kubespray.log')
     # Run functions with all the options
     args.func(config)
