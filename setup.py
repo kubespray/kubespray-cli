@@ -17,7 +17,7 @@ test_requirements = [
 
 setup(
     name='kubespray',
-    version='0.2.2-4',
+    version='0.2.3',
     description="Kubespray kubernetes cluster deployment",
     author="Smaine Kahlouch",
     author_email='smainklh@gmail.com',
@@ -26,7 +26,6 @@ setup(
         ('/etc/kubespray', ['src/kubespray/examples/kubespray.yml'])
     ],
     packages= find_packages('src'),
-    include_package_data=True,
     scripts=[
         'bin/kubespray'
     ],

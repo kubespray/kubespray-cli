@@ -1,15 +1,33 @@
 Kubespray wrapper
 =================
-
 This tools helps to deploy a kubernetes cluster with ansible. It must
 support all ansible parameters.
+
+
+Requirements
+=================
+
+* **Ansible v2.x**
+* The current user must have its ssh **public key** installed on the remote servers.
+* The current user must be in the sudoers
+
+
+
+Installation
+=================
+
+::
+    pip2 install kubespray
+
 
 Config file
 -----------
 
 A config file can be updated (yaml). (default:
-*/etc/kubespray/kubespray.yml* ) This file contains default values for
+*/etc/kubespray/kubespray.yml* )
+This file contains default values for
 some parameters that doesn't change frequently
+Note these values are overwritten by the command line
 
 ::
 
@@ -55,7 +73,14 @@ Deploy cluster
 
 ::
 
-    kubespray deploy [-n|--network-plugin <net_plugin>] [--aws|--gce] [--upgrade] [--ansible_opts] [-i|--inventory <inventory>] [-u|--user <ssh_user>]
+    kubespray deploy \
+    [-n|--network-plugin <net_plugin>] \
+    [--aws|--gce] \
+    [--upgrade] \
+    [--ansible_opts] \
+    [-i|--inventory <inventory>] \
+    [--coreos] \
+    [-p|--path <kubespray_path>
 
 - default network plugin : flannel (vxlan) default
 - inventory path : "home/<current_user/kubespray/inventory.cfg".
@@ -63,8 +88,6 @@ Deploy cluster
 - You can use all Ansible's variables with
 ``--ansible_opts '-e foo=bar -e titi=toto -vvv'``
 **Note** : the value must be enclosed by simple quotes
-- option ``--user`` : if the user (default value: current user) is not root the following options are passed to ansible
-``-u <user> -e ansible_ssh_user=<user> -b --become-user=root``
 
 Infos
 ~~~~~

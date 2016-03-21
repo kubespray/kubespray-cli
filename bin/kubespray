@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 #
 # This file is part of Kubespray.
@@ -99,7 +99,7 @@ if __name__ == '__main__':
 
     # deploy
     deploy_parser = subparsers.add_parser('deploy', help='Create GCE machines and generate inventory')
-    deploy_parser.add_argument('-u','--user', dest='ansible_user', default=getpass.getuser(), help='Ansible SSH user')
+    #deploy_parser.add_argument('-u','--user', dest='ansible_user', default=getpass.getuser(), help='Ansible SSH user')
     deploy_parser.add_argument('-n','--network-plugin', default='flannel', choices=['flannel', 'weave', 'calico'])
     deploy_parser.add_argument('--aws', default=False, action='store_true', help='Kubernetes deployment on AWS')
     deploy_parser.add_argument('--gce', default=False, action='store_true', help='Kubernetes deployment on GCE')
