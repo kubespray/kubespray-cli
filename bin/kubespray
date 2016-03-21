@@ -115,6 +115,8 @@ if __name__ == '__main__':
     arguments = dict(args._get_kwargs())
     if arguments['configfile'] is None:
         arguments['configfile'] = '/etc/kubespray/kubespray.yml'
+    # TODO User management
+    arguments['ansible_user'] = getpass.getuser()
     # Read configfile and update options dict
     configfile = arguments.get('configfile')
     C = Config(configfile)

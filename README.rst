@@ -17,6 +17,7 @@ Installation
 =================
 
 ::
+
     pip2 install kubespray
 
 

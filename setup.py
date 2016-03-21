@@ -17,7 +17,7 @@ test_requirements = [
 
 setup(
     name='kubespray',
-    version='0.2.3',
+    version='0.2.4',
     description="Kubespray kubernetes cluster deployment",
     author="Smaine Kahlouch",
     author_email='smainklh@gmail.com',
