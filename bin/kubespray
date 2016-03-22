@@ -16,7 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '0.1.2'
+__version__ = '0.2.4'
 
 import sys
 import yaml
@@ -31,9 +31,9 @@ except ImportError:
 import kubespray.common
 from kubespray.configure import Config
 from kubespray.inventory import CfgInventory
+from kubespray.deploy import RunPlaybook
 #import kubespray.deploy.aws
 #import kubespray.deploy.gce
-import kubespray.baremetal
 #import kubespray.info
 display = Display()
 
@@ -52,12 +52,16 @@ def gce(options):
     display.warning('gce not implemented yet, coming soon :)')
 
 def deploy(options):
-    kubespray.baremetal.run_playbook(options)
+    Run = RunPlaybook(options)
+    Run.ssh_prepare()
+    Run.check_ping()
+    Run.deploy_kubernetes()
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(prog='kubespray', description='%(prog)s Kubernetes cluster deployment tool')
     parser.add_argument('--config', dest='configfile', help="Config file")
+    parser.add_argument('--version', action='version', version='%(prog)s' + ' %s' %  __version__)
 
     subparsers = parser.add_subparsers(help='commands')
 
@@ -76,12 +80,14 @@ if __name__ == '__main__':
     
     # aws
     aws_parser = subparsers.add_parser('aws', help='Create AWS instances and generate inventory')
-    aws_parser.add_argument('--access_key', dest='aws_access_key', help='AWS access key')
-    aws_parser.add_argument('--secret_key', dest='aws_secret_key', help='AWS secret key')
+    aws_parser.add_argument('--access-key', dest='aws_access_key', help='AWS access key')
+    aws_parser.add_argument('--secret-key', dest='aws_secret_key', help='AWS secret key')
     aws_parser.add_argument('--type', dest='aws_instance_type', help='AWS instance type')
     aws_parser.add_argument('--keypair', dest='aws_keypair_name', help='AWS key pair name')
     aws_parser.add_argument('--region', dest='aws_region', help='AWS region')
     aws_parser.add_argument('--security-group', dest='aws_security_group', help='AWS security group')
+    aws_parser.add_argument('--vpc-id', dest='aws_vpc_id', help='EC2 VPC id')
+    aws_parser.add_argument('--vpc-subnet', dest='aws_vpc_subnet', help='EC2 VPC regional subnet')
     aws_parser.add_argument('--ami', dest='aws_ami', help='AWS AMI')
     aws_parser.add_argument('--instances', dest='cloud_instances_count', type=int, help='Number of nodes')
     aws_parser.add_argument('--masters', dest='cloud_masters_count', type=int, help='Number of masters')
