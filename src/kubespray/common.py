@@ -112,9 +112,9 @@ def get_logger(logfile, loglevel):
     logger.setLevel(getattr(logging, loglevel.upper()))
     return logger
 
-def clone_git_repo(directory, git_repo):
+def clone_git_repo(name, directory, git_repo):
     if os.path.isdir(directory):
         shutil.rmtree(directory)
-    display.banner('CLONING KUBESPRAY GIT REPO')
+    display.banner('CLONING %s GIT REPO' % name.upper())
     Repo.clone_from(git_repo,directory)
-    display.display('Kubespray repo cloned', color='green')
+    display.display('%s repo cloned' % name, color='green')

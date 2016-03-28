@@ -23,12 +23,10 @@ kubespray.inventory
 Ansible inventory management for Kubespray
 """
 
-import logging
-import sys
 import os
 import re
 import functools
-from kubespray.common import get_logger,query_yes_no
+from kubespray.common import get_logger
 from ansible.utils.display import Display
 display = Display()
 
@@ -42,14 +40,17 @@ try:
 except ImportError:
     import ConfigParser as configparser
 
+
 class CfgInventory(object):
     '''
-    Read classic ansible inventory file. Basic reading searching for ambari_server
+    Read classic ansible inventory file.
     '''
 
     def __init__(self, options):
         self.options = options
-        self.filename = os.path.join(options['kubespray_path'], 'inventory/inventory.cfg')
+        self.filename = os.path.join(
+            options['kubespray_path'], 'inventory/inventory.cfg'
+        )
         file = open(self.filename, 'w+')
         self.logger = get_logger(options.get('logfile'), options.get('loglevel'))
 

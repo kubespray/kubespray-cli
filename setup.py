@@ -9,6 +9,7 @@ requirements = [
     'gitpython',
     'netaddr',
     'pyyaml',
+    'boto',
 ]
 
 test_requirements = [
@@ -25,12 +26,12 @@ setup(
     data_files=[
         ('/etc/kubespray', ['src/kubespray/examples/kubespray.yml'])
     ],
-    packages= find_packages('src'),
+    packages=find_packages('src'),
     scripts=[
         'bin/kubespray'
     ],
     package_dir={'': 'src'},
-    package_data={'kubespray': ['examples/*.yml'],},
+    package_data={'kubespray': ['examples/*.yml'], },
     install_requires=requirements,
     license="GPLv3",
     zip_safe=False,

@@ -18,9 +18,6 @@
 
 __version__ = '0.2.4'
 
-import sys
-import yaml
-import time
 import os
 import argparse
 import getpass
@@ -28,12 +25,11 @@ try:
     from ansible.utils.display import Display
 except ImportError:
     raise ImportError('Cannot find Ansible: Please check your installation')
-import kubespray.common
+from kubespray.common import clone_git_repo
 from kubespray.configure import Config
 from kubespray.inventory import CfgInventory
 from kubespray.deploy import RunPlaybook
-#import kubespray.deploy.aws
-#import kubespray.deploy.gce
+from kubespray.cloud import AWS #, GCE
 #import kubespray.info
 display = Display()
 
@@ -41,14 +37,19 @@ def cluster_info(options):
     display.warning('info not configured yet')
 
 def prepare(options):
-    kubespray.common.clone_git_repo(options['kubespray_path'], options['kubespray_git_repo'])
-    C = CfgInventory(options)
-    C.write_inventory()
+    clone_git_repo('kubespray', options['kubespray_path'], options['kubespray_git_repo'])
+    Cfg = CfgInventory(options)
+    Cfg.write_inventory()
 
 def aws(options):
-    display.warning('aws not implemented yet, coming soon :)')
+    clone_git_repo('kubespray', options['kubespray_path'], options['kubespray_git_repo'])
+    A = AWS(options)
+    A.gen_playbook()
+    #A.create_instances()
+    #display.warning('aws not implemented yet, coming soon :)')
 
 def gce(options):
+    clone_git_repo('', os.path.join(options['kubespray_path'], "roles"), options['ec2_provision_repo'])
     display.warning('gce not implemented yet, coming soon :)')
 
 def deploy(options):
@@ -82,15 +83,15 @@ if __name__ == '__main__':
     aws_parser = subparsers.add_parser('aws', help='Create AWS instances and generate inventory')
     aws_parser.add_argument('--access-key', dest='aws_access_key', help='AWS access key')
     aws_parser.add_argument('--secret-key', dest='aws_secret_key', help='AWS secret key')
-    aws_parser.add_argument('--type', dest='aws_instance_type', help='AWS instance type')
-    aws_parser.add_argument('--keypair', dest='aws_keypair_name', help='AWS key pair name')
-    aws_parser.add_argument('--region', dest='aws_region', help='AWS region')
-    aws_parser.add_argument('--security-group', dest='aws_security_group', help='AWS security group')
+    aws_parser.add_argument('--type', dest='instance_type', help='AWS instance type')
+    aws_parser.add_argument('--keypair', dest='key_name', help='AWS key pair name')
+    aws_parser.add_argument('--region', dest='region', help='AWS region')
+    aws_parser.add_argument('--security-group', dest='group', help='AWS security group')
     aws_parser.add_argument('--vpc-id', dest='aws_vpc_id', help='EC2 VPC id')
-    aws_parser.add_argument('--vpc-subnet', dest='aws_vpc_subnet', help='EC2 VPC regional subnet')
+    aws_parser.add_argument('--vpc-subnet', dest='vpc_subnet_id', help='EC2 VPC regional subnet')
     aws_parser.add_argument('--ami', dest='aws_ami', help='AWS AMI')
-    aws_parser.add_argument('--instances', dest='cloud_instances_count', type=int, help='Number of nodes')
-    aws_parser.add_argument('--masters', dest='cloud_masters_count', type=int, help='Number of masters')
+    aws_parser.add_argument('--instances', dest='count', type=int, help='Number of nodes', required=True)
+    aws_parser.add_argument('--masters', dest='masters_count', type=int, default=1, help='Number of masters')
     aws_parser.set_defaults(func=aws)
 
     # gce
@@ -127,7 +128,7 @@ if __name__ == '__main__':
     configfile = arguments.get('configfile')
     C = Config(configfile)
     config = C.parse_configfile
-    if 'kubespray_path' not in config.keys() and arguments['kubespray_path'] is None:
+    if 'kubespray_path' not in config.keys() and 'kubespray_path' not in arguments.keys():
         config['kubespray_path'] = os.path.join(os.path.expanduser("~"), 'kubespray')
     for key,value in arguments.items():
         if value is not None:
