@@ -28,7 +28,6 @@ import os
 import yaml
 from kubespray.common import get_logger, query_yes_no, run_command
 from ansible.utils.display import Display
-from pprint import pprint
 display = Display()
 
 try:
@@ -101,7 +100,7 @@ class AWS(Cloud):
         self.pbook[0]['tasks'].append(ec2_task)
         # Debug
         # self.pbook[0]['tasks'].append(
-            {'debug': {'msg': '{{ec2.instances}}'}}
+        #    {'debug': {'msg': '{{ec2.instances}}'}}
         # )
         # Create inventory from template task
         inventory_template = os.path.join(
@@ -147,6 +146,7 @@ class AWS(Cloud):
             os.path.join(self.options['ansible_path'], 'ansible-playbook'), '-i',
             self.localcfg, '-e', 'ansible_connection=local', self.playbook
         ]
+        query_yes_no('Create %s instances on EC2 ?' % self.options['count'])
         rcode, emsg = run_command('Write playbook', cmd)
         if rcode != 0:
             self.logger.critical('Cannot create instances: %s' % emsg)

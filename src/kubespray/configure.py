@@ -26,6 +26,7 @@ import sys
 import yaml
 from ansible.utils.display import Display
 
+
 class Config(object):
 
     def __init__(self, configfile):
@@ -43,6 +44,8 @@ class Config(object):
             with open(self.configfile, "r") as f:
                 config = yaml.load(f)
         except:
-            self.display.error("Can't read configuration file %s" % self.configfile)
+            self.display.error(
+                "Can't read configuration file %s" % self.configfile
+            )
             sys.exit(1)
         return config

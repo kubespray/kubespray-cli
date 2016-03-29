@@ -82,11 +82,11 @@ class CfgInventory(object):
         '''
         machine_list = []
         for line, properties_str in self.cparser.items(section_name):
-            machine_part = line.split('#', 1)[0] # get read of comments parts
+            machine_part = line.split('#', 1)[0]  # get read of comments parts
             machine_part = line.split(None, 1)
             if len(machine_part) == 2:
-                ## machine_part = ['server_name', 'first_property_name']
-                ## property_str = 'first_property_value  second_property=second_value ...'
+                # machine_part = ['server_name', 'first_property_name']
+                # property_str = 'first_property_value  second_property=second_value ...'
                 if properties_str:
                     properties_str = machine_part[1] + '=' + properties_str
                 else:
@@ -149,6 +149,7 @@ class CfgInventory(object):
         else:
             raise AttributeError('No such attribute because '
                                     'no such section \'%s\' in file'%section)
+
     def write_inventory(self):
         '''Generates inventory'''
         if len(self.options['k8s_masters']) < 2:
@@ -178,12 +179,12 @@ class CfgInventory(object):
             inventory_hostname = srv.split('[')[0]
             self.cparser.set(section, inventory_hostname)
             inventory_hostnames.append(inventory_hostname)
-            srv = srv.replace('[','\t\t')
-            srv = srv.replace(']','')
-            srv = srv.replace(',',' ')
+            srv = srv.replace('[', '\t\t')
+            srv = srv.replace(']', '')
+            srv = srv.replace(',', ' ')
             if srv not in inventory_hostnames:
-                 self.cparser.set('HEADsection', srv)
-            
+                self.cparser.set('HEADsection', srv)
+
 
 class Server(str):
 

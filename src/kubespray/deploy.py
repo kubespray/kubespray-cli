@@ -92,9 +92,8 @@ class RunPlaybook(object):
         cmd = [
             os.path.join(self.options['ansible_path'], 'ansible'),
             '--ssh-extra-args', '-o StrictHostKeyChecking=no', '-u',
-            '%s' % self.options['ansible_user'], '-e',
-            'ansible_ssh_user=%s' % self.options['ansible_user'], '-b',
-            '--become-user=root', '-m', 'ping', 'all',
+            '%s' % self.options['ansible_user'],
+            '-b', '--become-user=root', '-m', 'ping', 'all',
             '-i', self.inventorycfg
         ]
         rcode, emsg = run_command('SSH ping hosts', cmd)
@@ -113,7 +112,6 @@ class RunPlaybook(object):
             '--ssh-extra-args', '-o StrictHostKeyChecking=no',
             '-e', 'kube_network_plugin=%s' % self.options['network_plugin'],
             '-u',  '%s' % self.options['ansible_user'],
-            '-e', 'ansible_ssh_user=%s' % self.options['ansible_user'],
             '-b', '--become-user=root', '-i', self.inventorycfg,
             os.path.join(self.options['kubespray_path'], 'cluster.yml')
         ]
