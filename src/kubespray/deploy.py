@@ -28,7 +28,7 @@ import os
 import re
 import signal
 from subprocess import PIPE, STDOUT, Popen, check_output, CalledProcessError
-from kubespray.common import get_logger, query_yes_no
+from kubespray.common import get_logger, query_yes_no, run_command
 from ansible.utils.display import Display
 display = Display()
 
@@ -48,7 +48,7 @@ class RunPlaybook(object):
             options.get('loglevel')
         )
         self.logger.debug(
-            'Running the ansible-playbook command with the following options: %s'
+            'Running ansible-playbook command with the following options: %s'
             % self.options
         )
 
@@ -84,25 +84,6 @@ class RunPlaybook(object):
             os.kill(int(os.environ.get('SSH_AGENT_PID')), signal.SIGTERM)
             sys.exit(1)
 
-    def run_command(self, cmd):
-        '''
-        Execute a system command
-        '''
-        try:
-            proc = Popen(
-                cmd, stdout=PIPE, stderr=STDOUT,
-                universal_newlines=True, shell=False
-            )
-            with proc.stdout:
-                for line in iter(proc.stdout.readline, b''):
-                    print(line),
-            proc.wait()
-        except CalledProcessError as e:
-            display.error('Deployment failed: %s' % e.output)
-            self.logger.critical('Deployment failed: %s' % e.output)
-            os.kill(int(os.environ.get('SSH_AGENT_PID')), signal.SIGTERM)
-            sys.exit(1)
-
     def check_ping(self):
         '''
          Check if hosts are reachable
@@ -116,7 +97,11 @@ class RunPlaybook(object):
             '--become-user=root', '-m', 'ping', 'all',
             '-i', self.inventorycfg
         ]
-        self.run_command(cmd)
+        rcode, emsg = run_command('SSH ping hosts', cmd)
+        if rcode != 0:
+            self.logger.critical('Deployment failed: %s' % emsg)
+            os.kill(int(os.environ.get('SSH_AGENT_PID')), signal.SIGTERM)
+            sys.exit(1)
         display.display('All hosts are reachable', color='green')
 
     def deploy_kubernetes(self):
@@ -143,6 +128,10 @@ class RunPlaybook(object):
         self.logger.info(
             'Running kubernetes deployment with the command: %s' % cmd
         )
-        self.run_command(cmd)
+        rcode, emsg = run_command('Run deployment', cmd)
+        if rcode != 0:
+            self.logger.critical('Deployment failed: %s' % emsg)
+            os.kill(int(os.environ.get('SSH_AGENT_PID')), signal.SIGTERM)
+            sys.exit(1)
         display.display('Kubernetes deployed successfuly', color='green')
         os.kill(int(os.environ.get('SSH_AGENT_PID')), signal.SIGTERM)

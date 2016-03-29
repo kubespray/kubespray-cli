@@ -29,8 +29,8 @@ from kubespray.common import clone_git_repo
 from kubespray.configure import Config
 from kubespray.inventory import CfgInventory
 from kubespray.deploy import RunPlaybook
-from kubespray.cloud import AWS #, GCE
-#import kubespray.info
+from kubespray.cloud import AWS  # GCE
+# import kubespray.info
 display = Display()
 
 def cluster_info(options):
@@ -61,6 +61,7 @@ def deploy(options):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(prog='kubespray', description='%(prog)s Kubernetes cluster deployment tool')
+    parser.add_argument('-p','--path', dest='kubespray_path', help='Where the Ansible playbooks are installed')
     parser.add_argument('--config', dest='configfile', help="Config file")
     parser.add_argument('--version', action='version', version='%(prog)s' + ' %s' %  __version__)
 
@@ -113,7 +114,6 @@ if __name__ == '__main__':
     deploy_parser.add_argument('--upgrade', default=False, action='store_true', help='Upgrade Kubernetes cluster')
     deploy_parser.add_argument('--coreos', default=False, action='store_true', help='bootstrap python on CoreOS')
     deploy_parser.add_argument('--non-interactive', default=True, dest='interactive', action='store_false', help='Don\'t prompt user for input')
-    deploy_parser.add_argument('-p','--path', dest='kubespray_path', help='Where the Ansible playbooks are installed')
     deploy_parser.add_argument('--ansible_opts', help='Ansible options')
     deploy_parser.set_defaults(func=deploy)
 
@@ -128,7 +128,7 @@ if __name__ == '__main__':
     configfile = arguments.get('configfile')
     C = Config(configfile)
     config = C.parse_configfile
-    if 'kubespray_path' not in config.keys() and 'kubespray_path' not in arguments.keys():
+    if 'kubespray_path' not in config.keys() and arguments['kubespray_path'] is None:
         config['kubespray_path'] = os.path.join(os.path.expanduser("~"), 'kubespray')
     for key,value in arguments.items():
         if value is not None:

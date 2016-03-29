@@ -25,6 +25,7 @@ import netaddr.core
 from git import Repo
 from netaddr.strategy import eui48
 from ansible.utils.display import Display
+from subprocess import PIPE, STDOUT, Popen, check_output, CalledProcessError
 display = Display()
 
 def validate_port(port):
@@ -118,3 +119,22 @@ def clone_git_repo(name, directory, git_repo):
     display.banner('CLONING %s GIT REPO' % name.upper())
     Repo.clone_from(git_repo,directory)
     display.display('%s repo cloned' % name, color='green')
+
+def run_command(description, cmd):
+    '''
+    Execute a system command
+    '''
+    try:
+        proc = Popen(
+            cmd, stdout=PIPE, stderr=STDOUT,
+            universal_newlines=True, shell=False
+        )
+        with proc.stdout:
+            for line in iter(proc.stdout.readline, b''):
+                print(line),
+        proc.wait()
+        return(proc.returncode, None)
+    except CalledProcessError as e:
+        display.error('%s: %s' % (description, e.output))
+        emsg = e.message
+        return(proc.returncode, emsg)

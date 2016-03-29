@@ -26,11 +26,15 @@ Run Instances on cloud providers and generates inventory
 import sys
 import os
 import yaml
-from subprocess import PIPE, STDOUT, Popen, check_output, CalledProcessError
-from kubespray.common import get_logger, query_yes_no
+from kubespray.common import get_logger, query_yes_no, run_command
 from ansible.utils.display import Display
 from pprint import pprint
 display = Display()
+
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
 
 
 class Cloud(object):
@@ -40,7 +44,15 @@ class Cloud(object):
     def __init__(self, options, cloud):
         self.options = options
         self.playbook = os.path.join(options['kubespray_path'], 'local.yml')
-        self.inventorycfg = os.path.join(options['kubespray_path'], 'inventory/local.cfg')
+        self.cparser = configparser.ConfigParser(allow_no_value=True)
+        self.localcfg = os.path.join(
+            options['kubespray_path'],
+            'inventory/local.cfg'
+        )
+        self.inventorycfg = os.path.join(
+            options['kubespray_path'],
+            'inventory/inventory.cfg'
+        )
         self.logger = get_logger(
             options.get('logfile'),
             options.get('loglevel')
@@ -59,8 +71,9 @@ class Cloud(object):
         '''Generates inventory for local tasks'''
         self.cparser.add_section('local')
         self.cparser.set('local', 'localhost')
-        with open(self.filename, 'wb') as self.inventorycfg:
-            self.cparser.write(self.inventorycfg)
+        with open(self.localcfg, 'wb') as f:
+            self.cparser.write(f)
+
 
 class AWS(Cloud):
 
@@ -86,11 +99,19 @@ class AWS(Cloud):
                 d = {opt: self.options[opt]}
                 ec2_task['ec2'].update(d)
         self.pbook[0]['tasks'].append(ec2_task)
+        # Debug
+        # self.pbook[0]['tasks'].append(
+            {'debug': {'msg': '{{ec2.instances}}'}}
+        # )
         # Create inventory from template task
+        inventory_template = os.path.join(
+            self.options['kubespray_path'],
+            'inventory/.inventory.template'
+        )
         self.pbook[0]['tasks'].append(
             {'name': 'Template the inventory',
-             'template': {'dest': '{{ inventory_path }}',
-                          'src': 'templates/inventory.ini.j2'}}
+             'template': {'dest': '%s' % self.inventorycfg,
+                          'src': '%s' % inventory_template}}
         )
         # Wait for ssh task
         self.pbook[0]['tasks'].append(
@@ -100,25 +121,33 @@ class AWS(Cloud):
                               'state': 'started',
                               'timeout': 300},
              'name': 'Wait until SSH is available',
-             'with_items': 'ec2.instances'} 
+             'with_items': 'ec2.instances'}
         )
-        pprint(self.pbook)
+        # Write inventory for localhost
+        try:
+            self.write_local_inventory()
+        except IOError as e:
+            display.error(
+                'Cannot write inventory %s: %s'
+                % (self.localcfg, e)
+            )
+            sys.exit(1)
+
+        # Write playbook
         try:
             with open(self.playbook, "w") as pb:
                 pb.write(yaml.dump(self.pbook, default_flow_style=True))
-        except IOError:
-            display.error('Cant write the playbook %s' % self.playbook)
+        except IOError as e:
+            display.error(
+                'Cant write the playbook %s: %s'
+                % (self.playbook, e)
+            )
             sys.exit(1)
-        cmd = [os.path.join(self.options['ansible_path'], 'ansible-playbook'),
-            '-i', self.inventorycfg, self.playbook]
-        try:
-            proc = Popen(cmd, stdout=PIPE, stderr=STDOUT, universal_newlines=True, shell=False)
-            with proc.stdout:
-                for line in iter(proc.stdout.readline, b''):
-                     print(line),
-            proc.wait()
-        except CalledProcessError as e:
-            display.error('Deployment failed: %s' % e.output)
-            self.logger.critical('Cannot create instances: %s' % e.output)
+        cmd = [
+            os.path.join(self.options['ansible_path'], 'ansible-playbook'), '-i',
+            self.localcfg, '-e', 'ansible_connection=local', self.playbook
+        ]
+        rcode, emsg = run_command('Write playbook', cmd)
+        if rcode != 0:
+            self.logger.critical('Cannot create instances: %s' % emsg)
             sys.exit(1)
-
