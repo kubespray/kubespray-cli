@@ -62,8 +62,8 @@ The following options are mandatory
 
 On **baremetal**
 
-
 ::
+
     usage: kubespray prepare [-h] --nodes N [N ...] [-p KUBESPRAY_PATH]
     
     optional arguments:
@@ -76,7 +76,6 @@ On **baremetal**
 The command below will just clone the git repository and creates the inventory
 The hostvars must be separated by a **comma without spaces**
 
-
 ::
 
     kubespray preprare --nodes node1[ansible_ssh_host=10.99.21.1] node2[ansible_ssh_host=10.99.21.2] node3[ansible_ssh_host=10.99.21.3]
@@ -86,8 +85,8 @@ On cloud providers create vms and generate the inventory
 
 **AWS**
 
-
 ::
+
     usage: kubespray aws [-h] [--access-key AWS_ACCESS_KEY]
                          [--secret-key AWS_SECRET_KEY] [--type INSTANCE_TYPE]
                          [--keypair KEY_NAME] [--region REGION]
