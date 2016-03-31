@@ -98,7 +98,7 @@ class RunPlaybook(object):
         ]
         rcode, emsg = run_command('SSH ping hosts', cmd)
         if rcode != 0:
-            self.logger.critical('Deployment failed: %s' % emsg)
+            self.logger.critical('Cannot connect to hosts: %s' % emsg)
             os.kill(int(os.environ.get('SSH_AGENT_PID')), signal.SIGTERM)
             sys.exit(1)
         display.display('All hosts are reachable', color='green')
@@ -117,6 +117,9 @@ class RunPlaybook(object):
         ]
         if 'ansible_opts' in self.options.keys():
             cmd = cmd + self.options['ansible_opts'].split(' ')
+        for cloud in ['aws', 'gce']:
+            if self.options[cloud]:
+                cmd = cmd + ['-e', 'cloud_provider=%s' % cloud]
         display.display(' '.join(cmd), color='bright blue')
         if self.options['interactive']:
             query_yes_no(

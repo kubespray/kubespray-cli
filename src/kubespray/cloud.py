@@ -26,6 +26,8 @@ Run Instances on cloud providers and generates inventory
 import sys
 import os
 import yaml
+import json
+from kubespray.inventory import CfgInventory
 from kubespray.common import get_logger, query_yes_no, run_command
 from ansible.utils.display import Display
 display = Display()
@@ -42,11 +44,16 @@ class Cloud(object):
     '''
     def __init__(self, options, cloud):
         self.options = options
+        self.cloud = cloud
         self.playbook = os.path.join(options['kubespray_path'], 'local.yml')
         self.cparser = configparser.ConfigParser(allow_no_value=True)
         self.localcfg = os.path.join(
             options['kubespray_path'],
             'inventory/local.cfg'
+        )
+        self.instances_file = os.path.join(
+            options['kubespray_path'],
+            'instances.json'
         )
         self.inventorycfg = os.path.join(
             options['kubespray_path'],
@@ -73,6 +80,28 @@ class Cloud(object):
         with open(self.localcfg, 'wb') as f:
             self.cparser.write(f)
 
+    def create_instances(self):
+        cmd = [
+            os.path.join(
+                self.options['ansible_path'], 'ansible-playbook'
+            ), '-i', self.localcfg, '-e', 'ansible_connection=local',
+            self.playbook
+        ]
+        query_yes_no('Create %s instances on %s ?' % (
+            self.options['count'], self.cloud
+            )
+        )
+        rcode, emsg = run_command('Create %s instances' % self.cloud, cmd)
+        if rcode != 0:
+            self.logger.critical('Cannot create instances: %s' % emsg)
+            sys.exit(1)
+
+    def write_inventory(self):
+        with open(self.instances_file) as f:
+            instances = json.load(f)
+        Cfg = CfgInventory(self.options, self.cloud)
+        Cfg.write_inventory(instances)
+
 
 class AWS(Cloud):
 
@@ -80,7 +109,7 @@ class AWS(Cloud):
         Cloud.__init__(self, options, "aws")
         self.options = options
 
-    def gen_playbook(self):
+    def gen_ec2_playbook(self):
         data = self.options
         data.pop('func')
         # Options list of ansible EC2 module
@@ -98,19 +127,12 @@ class AWS(Cloud):
                 d = {opt: self.options[opt]}
                 ec2_task['ec2'].update(d)
         self.pbook[0]['tasks'].append(ec2_task)
-        # Debug
-        # self.pbook[0]['tasks'].append(
-        #    {'debug': {'msg': '{{ec2.instances}}'}}
-        # )
-        # Create inventory from template task
-        inventory_template = os.path.join(
-            self.options['kubespray_path'],
-            'inventory/.inventory.template'
-        )
+        # Write ec2 instances json
         self.pbook[0]['tasks'].append(
-            {'name': 'Template the inventory',
-             'template': {'dest': '%s' % self.inventorycfg,
-                          'src': '%s' % inventory_template}}
+            {'name': 'Generate a file with ec2 instances list',
+             'copy':
+                 {'dest': '%s' % self.instances_file,
+                  'content': '{{ ec2.instances }}'}}
         )
         # Wait for ssh task
         self.pbook[0]['tasks'].append(
@@ -118,7 +140,7 @@ class AWS(Cloud):
                               'module': 'wait_for',
                               'port': 22,
                               'state': 'started',
-                              'timeout': 300},
+                              'timeout': 600},
              'name': 'Wait until SSH is available',
              'with_items': 'ec2.instances'}
         )
@@ -141,13 +163,4 @@ class AWS(Cloud):
                 'Cant write the playbook %s: %s'
                 % (self.playbook, e)
             )
-            sys.exit(1)
-        cmd = [
-            os.path.join(self.options['ansible_path'], 'ansible-playbook'), '-i',
-            self.localcfg, '-e', 'ansible_connection=local', self.playbook
-        ]
-        query_yes_no('Create %s instances on EC2 ?' % self.options['count'])
-        rcode, emsg = run_command('Write playbook', cmd)
-        if rcode != 0:
-            self.logger.critical('Cannot create instances: %s' % emsg)
             sys.exit(1)

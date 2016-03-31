@@ -18,20 +18,20 @@ test_requirements = [
 
 setup(
     name='kubespray',
-    version='0.2.4',
+    version='0.2.5',
     description="Kubespray kubernetes cluster deployment",
     author="Smaine Kahlouch",
     author_email='smainklh@gmail.com',
     url='https://github.com/kubespray/kubespray',
     data_files=[
-        ('/etc/kubespray', ['src/kubespray/examples/kubespray.yml'])
+        ('/etc/kubespray', ['src/kubespray/files/kubespray.yml'])
     ],
     packages=find_packages('src'),
     scripts=[
         'bin/kubespray'
     ],
     package_dir={'': 'src'},
-    package_data={'kubespray': ['examples/*.yml'], },
+    package_data={'kubespray': ['files/*.yml'], },
     install_requires=requirements,
     license="GPLv3",
     zip_safe=False,

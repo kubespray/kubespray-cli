@@ -1,7 +1,13 @@
 Kubespray wrapper
 =================
-This tools helps to deploy a kubernetes cluster with ansible. It must
-support all ansible parameters.
+This tool helps to deploy a kubernetes cluster with ansible.
+
+
+**Note**: The following choices are done automatically for redundancy.
+According to the number of nodes on your cluster:
+* The 2 firsts nodes will have master components installed
+* The 3 firsts nodes will be members of the etcd cluster
+You should have at least 3 nodes but you can spawn only one instance for tests purposes.
 
 
 Requirements
@@ -9,7 +15,7 @@ Requirements
 
 * **Ansible v2.x**
 * The current user must have its ssh **public key** installed on the remote servers.
-* The current user must be in the sudoers
+* The remote user (option --user) must be in the sudoers with no password
 
 
 
@@ -34,11 +40,17 @@ Note these values are overwritten by the command line
 
     inventory_path: "/usr/lib/kubespray/ansible/inventory"
     loglevel: "info"
-
-    aws_access_key: "mykey"
-    aws_secret_key: "mykey"
+    aws_access_key: "<aws_key>"
+    aws_secret_key: "<aws_secret_key>"
+    key_name: "<aws_keypair_name>"
+    image: "<aws_ami>"
+    instance_type: "<aws_instance_type>"
+    group: "<aws_security_group>"
+    vpc_subnet_id: "<aws_vpc_id>"
+    region: "<aws_region>"
 
     gce_sshkey_path: "/home/foo/.ssh/id_rsa"
+    ...
 
 Basic usage
 -----------
@@ -51,37 +63,32 @@ The following options are mandatory
 On **baremetal**
 
 ::
-
-    kubespray prepare -h
-    usage: kubespray prepare [-h] --nodes N [N ...] --masters N [N ...]
-                             [-p KUBESPRAY_PATH]
+    usage: kubespray prepare [-h] --nodes N [N ...] [-p KUBESPRAY_PATH]
     
     optional arguments:
       -h, --help            show this help message and exit
       --nodes N [N ...]     List of nodes
-      --masters N [N ...]   List of masters
       -p KUBESPRAY_PATH, --path KUBESPRAY_PATH
                             Where the Ansible playbooks are installed
 
+The command below will just clone the git repository and creates the inventory
+The hostvars must be separated by a **comma without spaces**
+
 ::
 
-    kubespray preprare --nodes node1[ansible_ssh_host=10.99.21.1] node2[ansible_ssh_host=10.99.21.2] node3[ansible_ssh_host=10.99.21.3] \
-                       --masters node1 node2 \
+    kubespray preprare --nodes node1[ansible_ssh_host=10.99.21.1] node2[ansible_ssh_host=10.99.21.2] node3[ansible_ssh_host=10.99.21.3]
 
 On cloud providers create vms and generate the inventory
 
 **AWS**
-**warn** : not implemented yet
 
 ::
-
     usage: kubespray aws [-h] [--access-key AWS_ACCESS_KEY]
-                         [--secret-key AWS_SECRET_KEY] [--type AWS_INSTANCE_TYPE]
-                         [--keypair AWS_KEYPAIR_NAME] [--region AWS_REGION]
-                         [--security-group AWS_SECURITY_GROUP]
-                         [--vpc-id AWS_VPC_ID] [--vpc-subnet AWS_VPC_SUBNET]
-                         [--ami AWS_AMI] [--instances CLOUD_INSTANCES_COUNT]
-                         [--masters CLOUD_MASTERS_COUNT]
+                         [--secret-key AWS_SECRET_KEY] [--type INSTANCE_TYPE]
+                         [--keypair KEY_NAME] [--region REGION]
+                         [--security-group GROUP] [--vpc-id AWS_VPC_ID]
+                         [--vpc-subnet VPC_SUBNET_ID] [--ami AWS_AMI] --instances
+                         COUNT
     
     optional arguments:
       -h, --help            show this help message and exit
@@ -89,27 +96,22 @@ On cloud providers create vms and generate the inventory
                             AWS access key
       --secret-key AWS_SECRET_KEY
                             AWS secret key
-      --type AWS_INSTANCE_TYPE
-                            AWS instance type
-      --keypair AWS_KEYPAIR_NAME
-                            AWS key pair name
-      --region AWS_REGION   AWS region
-      --security-group AWS_SECURITY_GROUP
+      --type INSTANCE_TYPE  AWS instance type
+      --keypair KEY_NAME    AWS key pair name
+      --region REGION       AWS region
+      --security-group GROUP
                             AWS security group
       --vpc-id AWS_VPC_ID   EC2 VPC id
-      --vpc-subnet AWS_VPC_SUBNET
+      --vpc-subnet VPC_SUBNET_ID
                             EC2 VPC regional subnet
       --ami AWS_AMI         AWS AMI
-      --instances CLOUD_INSTANCES_COUNT
-                            Number of nodes
-      --masters CLOUD_MASTERS_COUNT
-                            Number of masters
-    
+      --instances COUNT     Number of nodes
+
+if the config file is filled with the proper informations you just need to run the following command
 
 ::
 
-    kubespray aws --instances 3 --ami <myami> --type <aws_instance_type> \
-    [ --aws_access_key <access_key> --aws_secret_key <secret_key> ] [--coreos]
+    kubespray aws --instances 3 [--coreos]
 
 **GCE**
 **warn** : not implemented yet
@@ -128,7 +130,7 @@ example: Deploy a kubernetes cluster on CoreOS servers located on GCE
 
 ::
 
-    kubespray deploy -n weave -p /tmp/kubespray --gce --coreos
+    kubespray deploy -u core -p /kubespray-dc1 --aws --coreos
 
 ::
 

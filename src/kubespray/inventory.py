@@ -25,15 +25,9 @@ Ansible inventory management for Kubespray
 
 import os
 import re
-import functools
 from kubespray.common import get_logger
 from ansible.utils.display import Display
 display = Display()
-
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
 
 try:
     import configparser
@@ -46,159 +40,108 @@ class CfgInventory(object):
     Read classic ansible inventory file.
     '''
 
-    def __init__(self, options):
+    def __init__(self, options, platform):
         self.options = options
-        self.filename = os.path.join(
+        self.platform = platform
+        self.inventorycfg = os.path.join(
             options['kubespray_path'], 'inventory/inventory.cfg'
         )
-        file = open(self.filename, 'w+')
+        file = open(self.inventorycfg, 'w+')
         self.logger = get_logger(options.get('logfile'), options.get('loglevel'))
+        self.cparser = configparser.ConfigParser(allow_no_value=True)
 
-        ###
-        # stack overflow code. I  bear you to jump the 4 following lines. Please forgive me
-        config = StringIO()
-        config.write('[HEADsection]\n')
-        config.write(open(self.filename).read())
-        config.seek(0, os.SEEK_SET)
-        #####
-        self.cparser = cparser = configparser.ConfigParser(allow_no_value=True)
-        cparser.readfp(config)
-
-        section = {}
-        server_cache = {}
-        for section_name in self.cparser.sections():
-            current_section = self.read_section(section_name)
-            section.setdefault(section_name, []).extend(current_section)
-            server_cache[section_name] = {}
-        self._section_dict = section
-        self._server_cache = server_cache
-        self._global_section = dict(section['HEADsection'])
-
-    def read_section(self, section_name='HEADsection'):
-        '''
-        Read section (default is the fake section on top on the file), and
-        return a list of tuple [(machine_name, dict_properties)]
-        the dict propeties is {property_name: property_value} (value possibly unquoted)
-        '''
-        machine_list = []
-        for line, properties_str in self.cparser.items(section_name):
-            machine_part = line.split('#', 1)[0]  # get read of comments parts
-            machine_part = line.split(None, 1)
-            if len(machine_part) == 2:
-                # machine_part = ['server_name', 'first_property_name']
-                # property_str = 'first_property_value  second_property=second_value ...'
-                if properties_str:
-                    properties_str = machine_part[1] + '=' + properties_str
-                else:
-                    properties_str = machine_part[1]
-                prop_parse = re.findall(
-                    '([\w]+)(?:\s*=\s*(?P<quote>[\'"])?([^\'"=]+)(?P=quote)?|)\s*',
-                    properties_str
+    def format_inventory(self, instances):
+        inventory = {'all': {'hosts': []},
+                     'kube-master': {'hosts': []},
+                     'etcd': {'hosts': []},
+                     'kube-node': {'hosts': []},
+                     'k8s-cluster:children': {'hosts': [
+                          {'hostname': 'kube-node', 'hostvars': []},
+                          {'hostname': 'kube-master', 'hostvars': []}
+                          ]},
+                    }
+        if len(instances) > 1:
+            k8s_masters = instances[0:2]
+        else:
+            k8s_masters = instances[0]
+        if len(instances) > 2:
+            etcd_members = instances[0:3]
+        else:
+            etcd_members = [instances[0]]
+        if self.platform in ['aws', 'gce']:
+            for idx, host in enumerate(instances):
+                if self.platform == "aws":
+                    inventory['all']['hosts'].append(
+                        {'hostname': 'node%s' % str(idx + 1), 'hostvars': [
+                            {'name': 'ansible_ssh_host', 'value': host['public_ip']}
+                            ]}
+                    )
+                inventory['kube-node']['hosts'].append(
+                    {'hostname': 'node%s' % str(idx + 1),
+                     'hostvars': []}
                 )
-                properties = dict((key, value) for   key, quote, value in prop_parse)
-            else:
-                properties = {}
-            machine_name = machine_part[0]
-            machine_list.append((machine_name, properties))
-        return machine_list
+            for idx, host in enumerate(k8s_masters):
+                inventory['kube-master']['hosts'].append(
+                    {'hostname': 'node%s' % str(idx + 1),
+                     'hostvars': []}
+                )
+            for idx, host in enumerate(etcd_members):
+                inventory['etcd']['hosts'].append(
+                    {'hostname': 'node%s' % str(idx + 1),
+                     'hostvars': []}
+                )
+        elif self.platform == 'metal':
+            for host in instances:
+                r = re.search('(^.*)\[(.*)\]', host)
+                inventory_hostname = r.group(1)
+                var_str = r.group(2)
+                hostvars = list()
+                for var in var_str.split(','):
+                    hostvars.append({'name': var.split('=')[0], 'value': var.split('=')[1]})
+                inventory['all']['hosts'].append(
+                    {'hostname': inventory_hostname, 'hostvars': hostvars}
+                )
+                inventory['kube-node']['hosts'].append(
+                    {'hostname': inventory_hostname, 'hostvars': []}
+                )
+            for host in k8s_masters:
+                inventory['kube-master']['hosts'].append(
+                    {'hostname': host.split('[')[0], 'hostvars': []}
+                )
+            for host in etcd_members:
+                inventory['etcd']['hosts'].append(
+                    {'hostname': host.split('[')[0], 'hostvars': []}
+                )
+        return(inventory)
 
-    def _get_node(self, section, server_name, server_properties=None):
-        '''
-        Return a server object, for a specific section?
-        Properties given will overide global properties (properties
-        At the top of the file without section name).
-        For the same section and the same server name, the function will
-        return the same object, with properties given
-        at the first time the sever as been getted.
-        '''
-        cache_dict = self._server_cache[section]
-        try:
-            return cache_dict[server_name]
-        except KeyError:
-            #Make a copy of global_properties
-            properties = dict(self._global_section.get(server_name, {}))
-            properties.update(server_properties or {})
-            cache_dict[server_name] = server = Server(server_name, properties)
-            return server
-
-    def _section_wrapper(self, section, nb=1, without=None):
-        '''Function called for each attribute (section name)'''
-        blacklist = list(map(str, without or []))
-
-        def iter_server(server_list):
-            for server_name, properties in server_list:
-                if str(server_name) in blacklist:
-                    continue
-                else:
-                    yield self._get_node(section, server_name, properties)
-
-        gen_server = iter_server(self._section_dict[section])
-        if nb >= 0:
-            try:
-                return [next(gen_server) for _ in range(nb)]
-            except StopIteration:
-                raise ValueError('There is no %s item(s) in group %s'%(
-                    nb, section))
-        else:
-            return list(gen_server)
-
-    def __getattr__(self, section):
-        '''Attribute emulation'''
-        if section in self._section_dict:
-            return functools.partial(self._section_wrapper, section)
-        else:
-            raise AttributeError('No such attribute because '
-                                    'no such section \'%s\' in file'%section)
-
-    def write_inventory(self):
+    def write_inventory(self, instances):
         '''Generates inventory'''
-        if len(self.options['k8s_masters']) < 2:
+        if len(instances) < 2:
             display.warning('You should set at least 2 masters')
-        if len(self.options['k8s_nodes']) > 2:
-            self.options['etcd_members'] = self.options['k8s_nodes'][0:3]
-        else:
-            self.options['etcd_members'] = [self.options['k8s_nodes'][0]]
+        if len(instances) < 3:
             display.warning('You should set at least 3 nodes for etcd clustering')
-        self.format_inventory_line('kube-node', self.options['k8s_nodes'])
-        self.format_inventory_line('kube-master', self.options['k8s_masters'])
-        self.format_inventory_line('etcd', self.options['etcd_members'])
-        self.cparser.add_section('k8s-cluster:children')
-        self.cparser.set('k8s-cluster:children', 'kube-master')
-        self.cparser.set('k8s-cluster:children', 'kube-node')
-        with open(self.filename, 'wb') as configfile:
+        inventory = self.format_inventory(instances)
+        for key, value in inventory.items():
+            self.cparser.add_section(key)
+            for host in value['hosts']:
+                hostvars = str()
+                varlist = list()
+                for var in host['hostvars']:
+                    varlist.append("%s=%s" % (var['name'], var['value']))
+                hostvars = " ".join(varlist)
+                self.cparser.set(key, "%s\t\t%s" % (host['hostname'], hostvars))
+        with open(self.inventorycfg, 'wb') as configfile:
             display.banner('WRITTING INVENTORY')
             self.cparser.write(configfile)
-            self.logger.info('the inventory %s was successfuly generated' % self.filename)
-            self.logger.debug('The following options were used to generate the inventory: %s' % self.options)
-            display.display('Inventory generated : %s' % self.filename, color='green')
-
-    def format_inventory_line(self, section, servers):
-        inventory_hostnames = list()
-        self.cparser.add_section(section)
-        for srv in servers:
-            inventory_hostname = srv.split('[')[0]
-            self.cparser.set(section, inventory_hostname)
-            inventory_hostnames.append(inventory_hostname)
-            srv = srv.replace('[', '\t\t')
-            srv = srv.replace(']', '')
-            srv = srv.replace(',', ' ')
-            if srv not in inventory_hostnames:
-                self.cparser.set('HEADsection', srv)
-
-
-class Server(str):
-
-    def __new__(cls, name, properties=None):
-        obj = super(Server, cls).__new__(cls, name)
-        obj.properties = properties or {}
-        return obj
-
-    @property
-    def ip(self):
-        return self.properties.get('ansible_ssh_host', str(self))
-
-    def __getattr__(self, key):
-        try:
-            return self.properties[key]
-        except KeyError:
-            raise AttributeError
+            self.logger.info(
+                'the inventory %s was successfuly generated'
+                % self.inventorycfg
+            )
+            self.logger.debug(
+                'The following options were used to generate the inventory: %s'
+                % self.options
+            )
+            display.display(
+                'Inventory generated : %s'
+                % self.inventorycfg, color='green'
+            )

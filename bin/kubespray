@@ -33,24 +33,36 @@ from kubespray.cloud import AWS  # GCE
 # import kubespray.info
 display = Display()
 
+
 def cluster_info(options):
     display.warning('info not configured yet')
 
+
 def prepare(options):
-    clone_git_repo('kubespray', options['kubespray_path'], options['kubespray_git_repo'])
-    Cfg = CfgInventory(options)
-    Cfg.write_inventory()
+    clone_git_repo(
+        'kubespray', options['kubespray_path'], options['kubespray_git_repo']
+    )
+    Cfg = CfgInventory(options, 'metal')
+    Cfg.write_inventory(options['k8s_nodes'])
+
 
 def aws(options):
-    clone_git_repo('kubespray', options['kubespray_path'], options['kubespray_git_repo'])
+    clone_git_repo(
+        'kubespray', options['kubespray_path'], options['kubespray_git_repo']
+    )
     A = AWS(options)
-    A.gen_playbook()
-    #A.create_instances()
-    #display.warning('aws not implemented yet, coming soon :)')
+    A.gen_ec2_playbook()
+    A.create_instances()
+    A.write_inventory()
+
 
 def gce(options):
-    clone_git_repo('', os.path.join(options['kubespray_path'], "roles"), options['ec2_provision_repo'])
+    clone_git_repo(
+        '', os.path.join(options['kubespray_path'], "roles"),
+        options['ec2_provision_repo']
+    )
     display.warning('gce not implemented yet, coming soon :)')
+
 
 def deploy(options):
     Run = RunPlaybook(options)
@@ -60,60 +72,123 @@ def deploy(options):
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(prog='kubespray', description='%(prog)s Kubernetes cluster deployment tool')
-    parser.add_argument('-p','--path', dest='kubespray_path', help='Where the Ansible playbooks are installed')
+    parser = argparse.ArgumentParser(
+        prog='kubespray',
+        description='%(prog)s Kubernetes cluster deployment tool'
+    )
+    parser.add_argument(
+        '-p', '--path', dest='kubespray_path',
+        help='Where the Ansible playbooks are installed'
+    )
     parser.add_argument('--config', dest='configfile', help="Config file")
-    parser.add_argument('--version', action='version', version='%(prog)s' + ' %s' %  __version__)
+    parser.add_argument(
+        '--version', action='version',
+        version='%(prog)s'+' %s' %  __version__
+    )
 
     subparsers = parser.add_subparsers(help='commands')
 
     # cluster-info
-    info_parser = subparsers.add_parser('cluster-info', help='Display information on a running cluster')
+    info_parser = subparsers.add_parser(
+        'cluster-info', help='Display information on a running cluster'
+    )
     info_parser.set_defaults(func=cluster_info)
 
     # prepare
-    prepare_parser = subparsers.add_parser('prepare', help='generate inventory and create vms on cloud providers')
-    prepare_parser.add_argument('--nodes', dest='k8s_nodes', metavar='N', nargs='+',
-                                required=True, help='List of nodes')
-    prepare_parser.add_argument('--masters', dest='k8s_masters',metavar='N', nargs='+',
-                                required=True, help='List of masters')
-    prepare_parser.add_argument('-p','--path', dest='kubespray_path', help='Where the Ansible playbooks are installed')
+    prepare_parser = subparsers.add_parser(
+        'prepare', help='generate inventory and create vms on cloud providers'
+    )
+    prepare_parser.add_argument(
+        '--nodes', dest='k8s_nodes', metavar='N', nargs='+',
+        required=True, help='List of nodes'
+    )
+    prepare_parser.add_argument(
+        '-p', '--path', dest='kubespray_path',
+        help='Where the Ansible playbooks are installed'
+    )
     prepare_parser.set_defaults(func=prepare)
-    
+
     # aws
-    aws_parser = subparsers.add_parser('aws', help='Create AWS instances and generate inventory')
-    aws_parser.add_argument('--access-key', dest='aws_access_key', help='AWS access key')
-    aws_parser.add_argument('--secret-key', dest='aws_secret_key', help='AWS secret key')
-    aws_parser.add_argument('--type', dest='instance_type', help='AWS instance type')
-    aws_parser.add_argument('--keypair', dest='key_name', help='AWS key pair name')
+    aws_parser = subparsers.add_parser(
+        'aws', help='Create AWS instances and generate inventory'
+    )
+    aws_parser.add_argument(
+        '--access-key', dest='aws_access_key', help='AWS access key'
+    )
+    aws_parser.add_argument(
+        '--secret-key', dest='aws_secret_key', help='AWS secret key'
+    )
+    aws_parser.add_argument(
+        '--type', dest='instance_type', help='AWS instance type'
+    )
+    aws_parser.add_argument(
+        '--keypair', dest='key_name', help='AWS key pair name'
+    )
     aws_parser.add_argument('--region', dest='region', help='AWS region')
-    aws_parser.add_argument('--security-group', dest='group', help='AWS security group')
+    aws_parser.add_argument(
+        '--security-group', dest='group', help='AWS security group'
+    )
     aws_parser.add_argument('--vpc-id', dest='aws_vpc_id', help='EC2 VPC id')
-    aws_parser.add_argument('--vpc-subnet', dest='vpc_subnet_id', help='EC2 VPC regional subnet')
+    aws_parser.add_argument(
+        '--vpc-subnet', dest='vpc_subnet_id', help='EC2 VPC regional subnet'
+    )
     aws_parser.add_argument('--ami', dest='aws_ami', help='AWS AMI')
-    aws_parser.add_argument('--instances', dest='count', type=int, help='Number of nodes', required=True)
-    aws_parser.add_argument('--masters', dest='masters_count', type=int, default=1, help='Number of masters')
+    aws_parser.add_argument(
+        '--instances', dest='count', type=int,
+        help='Number of nodes', required=True
+    )
     aws_parser.set_defaults(func=aws)
 
     # gce
-    gce_parser = subparsers.add_parser('gce', help='Create GCE machines and generate inventory')
-    gce_parser.add_argument('--sshkey', dest='gce_sshkey_path', help='GCE ssh key path')
+    gce_parser = subparsers.add_parser(
+        'gce', help='Create GCE machines and generate inventory'
+    )
+    gce_parser.add_argument(
+        '--sshkey', dest='gce_sshkey_path', help='GCE ssh key path'
+    )
     gce_parser.add_argument('--zone', dest='gce_zone', help='GCE zone')
-    gce_parser.add_argument('--type', dest='gce_machine_type', help='GCE machine type')
+    gce_parser.add_argument(
+        '--type', dest='gce_machine_type', help='GCE machine type'
+    )
     gce_parser.add_argument('--image', dest='gce_image', help='GCE image')
-    gce_parser.add_argument('--instances', dest='cloud_instances_count', type=int, help='Number of nodes')
-    gce_parser.add_argument('--masters', dest='cloud_masters_count', type=int, help='Number of masters')
+    gce_parser.add_argument(
+        '--instances', dest='cloud_instances_count', type=int,
+        help='Number of nodes'
+    )
     gce_parser.set_defaults(func=gce)
 
     # deploy
-    deploy_parser = subparsers.add_parser('deploy', help='Create GCE machines and generate inventory')
-    #deploy_parser.add_argument('-u','--user', dest='ansible_user', default=getpass.getuser(), help='Ansible SSH user')
-    deploy_parser.add_argument('-n','--network-plugin', default='flannel', choices=['flannel', 'weave', 'calico'])
-    deploy_parser.add_argument('--aws', default=False, action='store_true', help='Kubernetes deployment on AWS')
-    deploy_parser.add_argument('--gce', default=False, action='store_true', help='Kubernetes deployment on GCE')
-    deploy_parser.add_argument('--upgrade', default=False, action='store_true', help='Upgrade Kubernetes cluster')
-    deploy_parser.add_argument('--coreos', default=False, action='store_true', help='bootstrap python on CoreOS')
-    deploy_parser.add_argument('--non-interactive', default=True, dest='interactive', action='store_false', help='Don\'t prompt user for input')
+    deploy_parser = subparsers.add_parser(
+        'deploy', help='Create GCE machines and generate inventory'
+    )
+    deploy_parser.add_argument(
+        '-u', '--user', dest='ansible_user', default=getpass.getuser(),
+        help='Ansible SSH user (remote user)'
+    )
+    deploy_parser.add_argument(
+        '-n', '--network-plugin', default='flannel',
+        choices=['flannel', 'weave', 'calico']
+    )
+    deploy_parser.add_argument(
+        '--aws', default=False, action='store_true',
+        help='Kubernetes deployment on AWS'
+    )
+    deploy_parser.add_argument(
+        '--gce', default=False, action='store_true',
+        help='Kubernetes deployment on GCE'
+    )
+    deploy_parser.add_argument(
+        '--upgrade', default=False, action='store_true',
+        help='Upgrade Kubernetes cluster'
+    )
+    deploy_parser.add_argument(
+        '--coreos', default=False, action='store_true',
+        help='bootstrap python on CoreOS'
+    )
+    deploy_parser.add_argument(
+        '--non-interactive', default=True, dest='interactive',
+        action='store_false', help='Don\'t prompt user for input'
+    )
     deploy_parser.add_argument('--ansible_opts', help='Ansible options')
     deploy_parser.set_defaults(func=deploy)
 
@@ -122,15 +197,13 @@ if __name__ == '__main__':
     arguments = dict(args._get_kwargs())
     if arguments['configfile'] is None:
         arguments['configfile'] = '/etc/kubespray/kubespray.yml'
-    # TODO User management
-    arguments['ansible_user'] = getpass.getuser()
     # Read configfile and update options dict
     configfile = arguments.get('configfile')
     C = Config(configfile)
     config = C.parse_configfile
     if 'kubespray_path' not in config.keys() and arguments['kubespray_path'] is None:
         config['kubespray_path'] = os.path.join(os.path.expanduser("~"), 'kubespray')
-    for key,value in arguments.items():
+    for key, value in arguments.items():
         if value is not None:
             config[key] = value
     if 'logfile' not in config.keys():
