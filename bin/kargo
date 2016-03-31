@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 #
-# This file is part of Kubespray.
+# This file is part of Kargo.
 #
 #    Foobar is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '0.2.4'
+__version__ = '0.1.0'
 
 import os
 import argparse
@@ -25,12 +25,12 @@ try:
     from ansible.utils.display import Display
 except ImportError:
     raise ImportError('Cannot find Ansible: Please check your installation')
-from kubespray.common import clone_git_repo
-from kubespray.configure import Config
-from kubespray.inventory import CfgInventory
-from kubespray.deploy import RunPlaybook
-from kubespray.cloud import AWS  # GCE
-# import kubespray.info
+from kargo.common import clone_git_repo
+from kargo.configure import Config
+from kargo.inventory import CfgInventory
+from kargo.deploy import RunPlaybook
+from kargo.cloud import AWS  # GCE
+# import kargo.info
 display = Display()
 
 
@@ -40,7 +40,7 @@ def cluster_info(options):
 
 def prepare(options):
     clone_git_repo(
-        'kubespray', options['kubespray_path'], options['kubespray_git_repo']
+        'kargo', options['kargo_path'], options['kargo_git_repo']
     )
     Cfg = CfgInventory(options, 'metal')
     Cfg.write_inventory(options['k8s_nodes'])
@@ -48,7 +48,7 @@ def prepare(options):
 
 def aws(options):
     clone_git_repo(
-        'kubespray', options['kubespray_path'], options['kubespray_git_repo']
+        'kargo', options['kargo_path'], options['kargo_git_repo']
     )
     A = AWS(options)
     A.gen_ec2_playbook()
@@ -58,7 +58,7 @@ def aws(options):
 
 def gce(options):
     clone_git_repo(
-        '', os.path.join(options['kubespray_path'], "roles"),
+        '', os.path.join(options['kargo_path'], "roles"),
         options['ec2_provision_repo']
     )
     display.warning('gce not implemented yet, coming soon :)')
@@ -73,11 +73,11 @@ def deploy(options):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(
-        prog='kubespray',
+        prog='kargo',
         description='%(prog)s Kubernetes cluster deployment tool'
     )
     parser.add_argument(
-        '-p', '--path', dest='kubespray_path',
+        '-p', '--path', dest='kargo_path',
         help='Where the Ansible playbooks are installed'
     )
     parser.add_argument('--config', dest='configfile', help="Config file")
@@ -103,7 +103,7 @@ if __name__ == '__main__':
         required=True, help='List of nodes'
     )
     prepare_parser.add_argument(
-        '-p', '--path', dest='kubespray_path',
+        '-p', '--path', dest='kargo_path',
         help='Where the Ansible playbooks are installed'
     )
     prepare_parser.set_defaults(func=prepare)
@@ -196,17 +196,17 @@ if __name__ == '__main__':
     args = parser.parse_args()
     arguments = dict(args._get_kwargs())
     if arguments['configfile'] is None:
-        arguments['configfile'] = '/etc/kubespray/kubespray.yml'
+        arguments['configfile'] = '/etc/kargo/kargo.yml'
     # Read configfile and update options dict
     configfile = arguments.get('configfile')
     C = Config(configfile)
     config = C.parse_configfile
-    if 'kubespray_path' not in config.keys() and arguments['kubespray_path'] is None:
-        config['kubespray_path'] = os.path.join(os.path.expanduser("~"), 'kubespray')
+    if 'kargo_path' not in config.keys() and arguments['kargo_path'] is None:
+        config['kargo_path'] = os.path.join(os.path.expanduser("~"), 'kargo')
     for key, value in arguments.items():
         if value is not None:
             config[key] = value
     if 'logfile' not in config.keys():
-        config['logfile'] = os.path.join(config['kubespray_path'], 'kubespray.log')
+        config['logfile'] = os.path.join(config['kargo_path'], 'kargo.log')
     # Run functions with all the options
     args.func(config)

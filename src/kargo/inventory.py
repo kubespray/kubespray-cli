@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# This file is part of Kubespray.
+# This file is part of Kargo.
 #
 #    Foobar is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -17,15 +17,15 @@
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-kubespray.inventory
+kargo.inventory
 ~~~~~~~~~~~~
 
-Ansible inventory management for Kubespray
+Ansible inventory management for Kargo
 """
 
 import os
 import re
-from kubespray.common import get_logger
+from kargo.common import get_logger
 from ansible.utils.display import Display
 display = Display()
 
@@ -44,7 +44,7 @@ class CfgInventory(object):
         self.options = options
         self.platform = platform
         self.inventorycfg = os.path.join(
-            options['kubespray_path'], 'inventory/inventory.cfg'
+            options['kargo_path'], 'inventory/inventory.cfg'
         )
         file = open(self.inventorycfg, 'w+')
         self.logger = get_logger(options.get('logfile'), options.get('loglevel'))

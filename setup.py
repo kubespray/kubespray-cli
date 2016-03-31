@@ -17,25 +17,25 @@ test_requirements = [
 ]
 
 setup(
-    name='kubespray',
-    version='0.2.5',
-    description="Kubespray kubernetes cluster deployment",
+    name='kargo',
+    version='0.1.0',
+    description="Kargo kubernetes cluster deployment",
     author="Smaine Kahlouch",
     author_email='smainklh@gmail.com',
-    url='https://github.com/kubespray/kubespray',
+    url='https://github.com/kargo/kargo',
     data_files=[
-        ('/etc/kubespray', ['src/kubespray/files/kubespray.yml'])
+        ('/etc/kargo', ['src/kargo/files/kargo.yml'])
     ],
     packages=find_packages('src'),
     scripts=[
-        'bin/kubespray'
+        'bin/kargo'
     ],
     package_dir={'': 'src'},
-    package_data={'kubespray': ['files/*.yml'], },
+    package_data={'kargo': ['files/*.yml'], },
     install_requires=requirements,
     license="GPLv3",
     zip_safe=False,
-    keywords='kubespray',
+    keywords='kargo',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',

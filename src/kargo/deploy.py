@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# This file is part of Kubespray.
+# This file is part of Kargo.
 #
 #    Foobar is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-kubespray.deploy
+kargo.deploy
 ~~~~~~~~~~~~
 
 Deploy a kubernetes cluster. Run the ansible-playbbook
@@ -28,7 +28,7 @@ import os
 import re
 import signal
 from subprocess import PIPE, STDOUT, Popen, check_output, CalledProcessError
-from kubespray.common import get_logger, query_yes_no, run_command, which
+from kargo.common import get_logger, query_yes_no, run_command, which
 from ansible.utils.display import Display
 display = Display()
 playbook_exec = which('ansible-playbook')
@@ -42,7 +42,7 @@ class RunPlaybook(object):
     def __init__(self, options):
         self.options = options
         self.inventorycfg = os.path.join(
-            options['kubespray_path'],
+            options['kargo_path'],
             'inventory/inventory.cfg'
         )
         self.logger = get_logger(
@@ -113,7 +113,7 @@ class RunPlaybook(object):
             '-e', 'kube_network_plugin=%s' % self.options['network_plugin'],
             '-u',  '%s' % self.options['ansible_user'],
             '-b', '--become-user=root', '-i', self.inventorycfg,
-            os.path.join(self.options['kubespray_path'], 'cluster.yml')
+            os.path.join(self.options['kargo_path'], 'cluster.yml')
         ]
         if 'ansible_opts' in self.options.keys():
             cmd = cmd + self.options['ansible_opts'].split(' ')

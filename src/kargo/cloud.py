@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# This file is part of Kubespray.
+# This file is part of Kargo.
 #
 #    Foobar is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-kubespray.cloud
+kargo.cloud
 ~~~~~~~~~~~~
 
 Run Instances on cloud providers and generates inventory
@@ -27,8 +27,8 @@ import sys
 import os
 import yaml
 import json
-from kubespray.inventory import CfgInventory
-from kubespray.common import get_logger, query_yes_no, run_command, which
+from kargo.inventory import CfgInventory
+from kargo.common import get_logger, query_yes_no, run_command, which
 from ansible.utils.display import Display
 display = Display()
 playbook_exec = which('ansible-playbook')
@@ -46,18 +46,18 @@ class Cloud(object):
     def __init__(self, options, cloud):
         self.options = options
         self.cloud = cloud
-        self.playbook = os.path.join(options['kubespray_path'], 'local.yml')
+        self.playbook = os.path.join(options['kargo_path'], 'local.yml')
         self.cparser = configparser.ConfigParser(allow_no_value=True)
         self.localcfg = os.path.join(
-            options['kubespray_path'],
+            options['kargo_path'],
             'inventory/local.cfg'
         )
         self.instances_file = os.path.join(
-            options['kubespray_path'],
+            options['kargo_path'],
             'instances.json'
         )
         self.inventorycfg = os.path.join(
-            options['kubespray_path'],
+            options['kargo_path'],
             'inventory/inventory.cfg'
         )
         self.logger = get_logger(
