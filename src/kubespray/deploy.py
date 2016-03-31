@@ -28,9 +28,11 @@ import os
 import re
 import signal
 from subprocess import PIPE, STDOUT, Popen, check_output, CalledProcessError
-from kubespray.common import get_logger, query_yes_no, run_command
+from kubespray.common import get_logger, query_yes_no, run_command, which
 from ansible.utils.display import Display
 display = Display()
+playbook_exec = which('ansible-playbook')
+ansible_exec = which('ansible')
 
 
 class RunPlaybook(object):
@@ -90,9 +92,8 @@ class RunPlaybook(object):
         '''
         display.banner('CHECKING SSH CONNECTIONS')
         cmd = [
-            os.path.join(self.options['ansible_path'], 'ansible'),
-            '--ssh-extra-args', '-o StrictHostKeyChecking=no', '-u',
-            '%s' % self.options['ansible_user'],
+            ansible_exec, '--ssh-extra-args', '-o StrictHostKeyChecking=no',
+            '-u', '%s' % self.options['ansible_user'],
             '-b', '--become-user=root', '-m', 'ping', 'all',
             '-i', self.inventorycfg
         ]
@@ -108,8 +109,7 @@ class RunPlaybook(object):
         Run the ansible playbook command
         '''
         cmd = [
-            os.path.join(self.options['ansible_path'], 'ansible-playbook'),
-            '--ssh-extra-args', '-o StrictHostKeyChecking=no',
+            playbook_exec, '--ssh-extra-args', '-o StrictHostKeyChecking=no',
             '-e', 'kube_network_plugin=%s' % self.options['network_plugin'],
             '-u',  '%s' % self.options['ansible_user'],
             '-b', '--become-user=root', '-i', self.inventorycfg,

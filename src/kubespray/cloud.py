@@ -28,9 +28,10 @@ import os
 import yaml
 import json
 from kubespray.inventory import CfgInventory
-from kubespray.common import get_logger, query_yes_no, run_command
+from kubespray.common import get_logger, query_yes_no, run_command, which
 from ansible.utils.display import Display
 display = Display()
+playbook_exec = which('ansible-playbook')
 
 try:
     import configparser
@@ -82,10 +83,8 @@ class Cloud(object):
 
     def create_instances(self):
         cmd = [
-            os.path.join(
-                self.options['ansible_path'], 'ansible-playbook'
-            ), '-i', self.localcfg, '-e', 'ansible_connection=local',
-            self.playbook
+            playbook_exec, '-i', self.localcfg, '-e',
+            'ansible_connection=local', self.playbook
         ]
         query_yes_no('Create %s instances on %s ?' % (
             self.options['count'], self.cloud

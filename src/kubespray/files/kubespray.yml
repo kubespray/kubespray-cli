@@ -1,7 +1,4 @@
 ---
-# Path where Ansible's binaries are installed
-ansible_path: "/usr/bin"
-
 # Path where the kubespray ansible playbooks will be installed
 # Defaults to current user's home directory if not set
 # kubespray_path: "/tmp"

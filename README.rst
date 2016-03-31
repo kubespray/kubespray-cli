@@ -5,8 +5,10 @@ This tool helps to deploy a kubernetes cluster with ansible.
 
 **Note**: The following choices are done automatically for redundancy.
 According to the number of nodes on your cluster:
+
 * The 2 firsts nodes will have master components installed
 * The 3 firsts nodes will be members of the etcd cluster
+
 You should have at least 3 nodes but you can spawn only one instance for tests purposes.
 
 
