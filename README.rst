@@ -62,6 +62,7 @@ The following options are mandatory
 
 On **baremetal**
 
+
 ::
     usage: kubespray prepare [-h] --nodes N [N ...] [-p KUBESPRAY_PATH]
     
@@ -71,16 +72,20 @@ On **baremetal**
       -p KUBESPRAY_PATH, --path KUBESPRAY_PATH
                             Where the Ansible playbooks are installed
 
+
 The command below will just clone the git repository and creates the inventory
 The hostvars must be separated by a **comma without spaces**
+
 
 ::
 
     kubespray preprare --nodes node1[ansible_ssh_host=10.99.21.1] node2[ansible_ssh_host=10.99.21.2] node3[ansible_ssh_host=10.99.21.3]
 
+
 On cloud providers create vms and generate the inventory
 
 **AWS**
+
 
 ::
     usage: kubespray aws [-h] [--access-key AWS_ACCESS_KEY]
@@ -107,30 +112,37 @@ On cloud providers create vms and generate the inventory
       --ami AWS_AMI         AWS AMI
       --instances COUNT     Number of nodes
 
+
 if the config file is filled with the proper informations you just need to run the following command
+
 
 ::
 
     kubespray aws --instances 3 [--coreos]
+
 
 **GCE**
 **warn** : not implemented yet
 
 example:
 
+
 ::
 
     kubespray gce --instances 3 --image <gce_image> --type=<aws_machine_type> --zone=<gce_zone> \
     [--sshkey <keypath>] [--coreos]
+
 
 Deploy cluster
 ~~~~~~~~~~~~~~
 
 example: Deploy a kubernetes cluster on CoreOS servers located on GCE
 
+
 ::
 
     kubespray deploy -u core -p /kubespray-dc1 --aws --coreos
+
 
 ::
 
