@@ -121,7 +121,7 @@ class RunPlaybook(object):
             if self.options[cloud]:
                 cmd = cmd + ['-e', 'cloud_provider=%s' % cloud]
         display.display(' '.join(cmd), color='bright blue')
-        if self.options['interactive']:
+        if not self.options['assume_yes']:
             query_yes_no(
                 'Run kubernetes cluster deployment with the above command ?'
             )

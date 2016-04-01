@@ -86,10 +86,11 @@ class Cloud(object):
             playbook_exec, '-i', self.localcfg, '-e',
             'ansible_connection=local', self.playbook
         ]
-        query_yes_no('Create %s instances on %s ?' % (
-            self.options['count'], self.cloud
+        if not self.options['assume_yes']:
+            query_yes_no('Create %s instances on %s ?' % (
+                self.options['count'], self.cloud
+                )
             )
-        )
         rcode, emsg = run_command('Create %s instances' % self.cloud, cmd)
         if rcode != 0:
             self.logger.critical('Cannot create instances: %s' % emsg)

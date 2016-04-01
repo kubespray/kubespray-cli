@@ -66,40 +66,45 @@ def deploy(options):
     Run.deploy_kubernetes()
 
 if __name__ == '__main__':
-
+    # Main parser
     parser = argparse.ArgumentParser(
         prog='kargo',
-        description='%(prog)s Kubernetes cluster deployment tool'
+        description='%(prog)s Kubernetes cluster deployment tool',
+        add_help=False
     )
-    parser.add_argument(
+    subparsers = parser.add_subparsers(help='commands')
+
+    # Options shared by all subparsers
+    parent_parser = argparse.ArgumentParser(add_help=False)
+    parent_parser.add_argument(
         '-p', '--path', dest='kargo_path',
         help='Where the Ansible playbooks are installed'
     )
-    parser.add_argument('--config', dest='configfile', help="Config file")
-    parser.add_argument(
+    parent_parser.add_argument('--config', dest='configfile', help="Config file")
+    parent_parser.add_argument(
         '--version', action='version',
         version='%(prog)s'+' %s' %  __version__
     )
+    parent_parser.add_argument(
+        '-y', '--assumeyes', default=False, dest='assume_yes', action='store_true',
+        help='When a yes/no prompt would be presented, assume that the user entered "yes"'
+    )
 
-    subparsers = parser.add_subparsers(help='commands')
 
     # prepare
     prepare_parser = subparsers.add_parser(
-        'prepare', help='generate inventory and create vms on cloud providers'
+        'prepare', parents=[parent_parser],
+        help='generate inventory and create vms on cloud providers'
     )
     prepare_parser.add_argument(
         '--nodes', dest='k8s_nodes', metavar='N', nargs='+',
         required=True, help='List of nodes'
     )
-    prepare_parser.add_argument(
-        '-p', '--path', dest='kargo_path',
-        help='Where the Ansible playbooks are installed'
-    )
     prepare_parser.set_defaults(func=prepare)
 
     # aws
     aws_parser = subparsers.add_parser(
-        'aws', help='Create AWS instances and generate inventory'
+        'aws', parents=[parent_parser], help='Create AWS instances and generate inventory'
     )
     aws_parser.add_argument(
         '--access-key', dest='aws_access_key', help='AWS access key'
@@ -130,7 +135,7 @@ if __name__ == '__main__':
 
     # gce
     gce_parser = subparsers.add_parser(
-        'gce', help='Create GCE machines and generate inventory'
+        'gce', parents=[parent_parser], help='Create GCE machines and generate inventory'
     )
     gce_parser.add_argument(
         '--sshkey', dest='gce_sshkey_path', help='GCE ssh key path'
@@ -148,7 +153,7 @@ if __name__ == '__main__':
 
     # deploy
     deploy_parser = subparsers.add_parser(
-        'deploy', help='Create GCE machines and generate inventory'
+        'deploy', parents=[parent_parser], help='Create GCE machines and generate inventory'
     )
     deploy_parser.add_argument(
         '-u', '--user', dest='ansible_user', default=getpass.getuser(),
@@ -173,10 +178,6 @@ if __name__ == '__main__':
     deploy_parser.add_argument(
         '--coreos', default=False, action='store_true',
         help='bootstrap python on CoreOS'
-    )
-    deploy_parser.add_argument(
-        '--non-interactive', default=True, dest='interactive',
-        action='store_false', help='Don\'t prompt user for input'
     )
     deploy_parser.add_argument('--ansible_opts', help='Ansible options')
     deploy_parser.set_defaults(func=deploy)

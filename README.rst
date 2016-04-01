@@ -66,13 +66,18 @@ On **baremetal**
 
 ::
 
-    usage: kargo prepare [-h] --nodes N [N ...] [-p KARGO_PATH]
+    usage: kargo prepare [-h] [-p KARGO_PATH] [--config CONFIGFILE] [--version]
+                         [-y] --nodes N [N ...]
     
     optional arguments:
       -h, --help            show this help message and exit
-      --nodes N [N ...]     List of nodes
       -p KARGO_PATH, --path KARGO_PATH
                             Where the Ansible playbooks are installed
+      --config CONFIGFILE   Config file
+      --version             show program's version number and exit
+      -y, --assumeyes       When a yes/no prompt would be presented, assume that
+                            the user entered "yes"
+      --nodes N [N ...]     List of nodes
 
 
 The command below will just clone the git repository and creates the inventory
@@ -92,15 +97,21 @@ Run instances and generate the inventory on Clouds
 
 ::
 
-    usage: kargo aws [-h] [--access-key AWS_ACCESS_KEY]
-                         [--secret-key AWS_SECRET_KEY] [--type INSTANCE_TYPE]
-                         [--keypair KEY_NAME] [--region REGION]
-                         [--security-group GROUP] [--vpc-id AWS_VPC_ID]
-                         [--vpc-subnet VPC_SUBNET_ID] [--ami AWS_AMI] --instances
-                         COUNT
+    usage: kargo aws [-h] [-p KARGO_PATH] [--config CONFIGFILE] [--version] [-y]
+                     [--access-key AWS_ACCESS_KEY] [--secret-key AWS_SECRET_KEY]
+                     [--type INSTANCE_TYPE] [--keypair KEY_NAME] [--region REGION]
+                     [--security-group GROUP] [--vpc-id AWS_VPC_ID]
+                     [--vpc-subnet VPC_SUBNET_ID] [--ami AWS_AMI] --instances
+                     COUNT
     
     optional arguments:
       -h, --help            show this help message and exit
+      -p KARGO_PATH, --path KARGO_PATH
+                            Where the Ansible playbooks are installed
+      --config CONFIGFILE   Config file
+      --version             show program's version number and exit
+      -y, --assumeyes       When a yes/no prompt would be presented, assume that
+                            the user entered "yes"
       --access-key AWS_ACCESS_KEY
                             AWS access key
       --secret-key AWS_SECRET_KEY
@@ -115,7 +126,6 @@ Run instances and generate the inventory on Clouds
                             EC2 VPC regional subnet
       --ami AWS_AMI         AWS AMI
       --instances COUNT     Number of nodes
-
 
 if the config file is filled with the proper information you just need to run the following command
 
@@ -150,20 +160,26 @@ example: Deploy a kubernetes cluster on CoreOS servers located on GCE
 
 ::
 
-    usage: kargo deploy [-h] [-n {flannel,weave,calico}] [--aws] [--gce]
-                            [--upgrade] [--coreos] [--non-interactive]
-                            [-p KARGO_PATH] [--ansible_opts ANSIBLE_OPTS]
+    usage: kargo deploy [-h] [-p KARGO_PATH] [--config CONFIGFILE] [--version]
+                        [-y] [-u ANSIBLE_USER] [-n {flannel,weave,calico}] [--aws]
+                        [--gce] [--upgrade] [--coreos]
+                        [--ansible_opts ANSIBLE_OPTS]
     
     optional arguments:
       -h, --help            show this help message and exit
+      -p KARGO_PATH, --path KARGO_PATH
+                            Where the Ansible playbooks are installed
+      --config CONFIGFILE   Config file
+      --version             show program's version number and exit
+      -y, --assumeyes       When a yes/no prompt would be presented, assume that
+                            the user entered "yes"
+      -u ANSIBLE_USER, --user ANSIBLE_USER
+                            Ansible SSH user (remote user)
       -n {flannel,weave,calico}, --network-plugin {flannel,weave,calico}
       --aws                 Kubernetes deployment on AWS
       --gce                 Kubernetes deployment on GCE
       --upgrade             Upgrade Kubernetes cluster
       --coreos              bootstrap python on CoreOS
-      --non-interactive     Don't prompt user for input
-      -p KARGO_PATH, --path KARGO_PATH
-                            Where the Ansible playbooks are installed
       --ansible_opts ANSIBLE_OPTS
                             Ansible options
 
