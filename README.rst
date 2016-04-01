@@ -35,7 +35,7 @@ Config file
 A config file can be updated (yaml). (default:
 */etc/kargo/kargo.yml* )
 This file contains default values for
-some parameters that doesn't change frequently
+some parameters that don't change frequently
 Note these values are overwritten by the command line
 
 ::
@@ -57,8 +57,8 @@ Note these values are overwritten by the command line
 Basic usage
 -----------
 
-Generate inventory
-~~~~~~~~~~~~~~~~~~
+Generate inventory for a baremetal cluster
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The following options are mandatory
 
@@ -83,9 +83,12 @@ The hostvars must be separated by a **comma without spaces**
     kargo preprare --nodes node1[ansible_ssh_host=10.99.21.1] node2[ansible_ssh_host=10.99.21.2] node3[ansible_ssh_host=10.99.21.3]
 
 
-On cloud providers create vms and generate the inventory
+
+Run instances and generate the inventory on Clouds
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **AWS**
+
 
 ::
 
@@ -114,7 +117,7 @@ On cloud providers create vms and generate the inventory
       --instances COUNT     Number of nodes
 
 
-if the config file is filled with the proper informations you just need to run the following command
+if the config file is filled with the proper information you just need to run the following command
 
 
 ::
@@ -142,7 +145,7 @@ example: Deploy a kubernetes cluster on CoreOS servers located on GCE
 
 ::
 
-    kargo deploy -u core -p /kargo-dc1 --aws --coreos
+    kargo deploy -u core -p /kargo-dc1 --gce --coreos
 
 
 ::
@@ -166,22 +169,9 @@ example: Deploy a kubernetes cluster on CoreOS servers located on GCE
 
 
 - default network plugin : flannel (vxlan) default
-- inventory path : "home/<current_user/kargo/inventory.cfg".
+- default kargo_path : "/home/<current_user>/kargo"
+- inventory path : "<kargo_path>/inventory/inventory.cfg".
 - The option ``--inventory`` allows to use an existing inventory (file or dynamic)
 - You can use all Ansible's variables with
 ``--ansible_opts '-e foo=bar -e titi=toto -vvv'``
 **Note** : the value must be enclosed by simple quotes
-
-Infos
-~~~~~
-**warn** : not implemented yet
-
-::
-
-    kargo cluster-info
-
--  binaries version
--  latest deployment date
--  who deployed the cluster
--  network plugin
--  etcd cluster health

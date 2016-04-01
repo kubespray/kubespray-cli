@@ -125,6 +125,7 @@ class AWS(Cloud):
             if opt in self.options.keys():
                 d = {opt: self.options[opt]}
                 ec2_task['ec2'].update(d)
+                ec2_task['ec2'].update({'wait': True})
         self.pbook[0]['tasks'].append(ec2_task)
         # Write ec2 instances json
         self.pbook[0]['tasks'].append(
