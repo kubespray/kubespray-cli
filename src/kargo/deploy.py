@@ -41,10 +41,7 @@ class RunPlaybook(object):
     '''
     def __init__(self, options):
         self.options = options
-        self.inventorycfg = os.path.join(
-            options['kargo_path'],
-            'inventory/inventory.cfg'
-        )
+        self.inventorycfg = options['inventory_path']
         self.logger = get_logger(
             options.get('logfile'),
             options.get('loglevel')
@@ -122,9 +119,11 @@ class RunPlaybook(object):
                 cmd = cmd + ['-e', 'cloud_provider=%s' % cloud]
         display.display(' '.join(cmd), color='bright blue')
         if not self.options['assume_yes']:
-            query_yes_no(
+            if not query_yes_no(
                 'Run kubernetes cluster deployment with the above command ?'
-            )
+            ):
+                display.display('Aborted', color='red')
+                sys.exit(1)
         display.banner('RUN PLAYBOOK')
         self.logger.info(
             'Running kubernetes deployment with the command: %s' % cmd

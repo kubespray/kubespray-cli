@@ -16,7 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '0.1.1'
+__version__ = '0.1.3'
 
 import os
 import argparse
@@ -88,6 +88,9 @@ if __name__ == '__main__':
     parent_parser.add_argument(
         '-y', '--assumeyes', default=False, dest='assume_yes', action='store_true',
         help='When a yes/no prompt would be presented, assume that the user entered "yes"'
+    )
+    parent_parser.add_argument(
+        '-i', '--inventory', dest='inventory_path', help='Ansible SSH user (remote user)'
     )
 
 
@@ -191,11 +194,16 @@ if __name__ == '__main__':
     configfile = arguments.get('configfile')
     C = Config(configfile)
     config = C.parse_configfile
+    # Set kargo_path
     if 'kargo_path' not in config.keys() and arguments['kargo_path'] is None:
         config['kargo_path'] = os.path.join(os.path.expanduser("~"), 'kargo')
+    # Set inventory_path
+    if 'inventory_path' not in config.keys() and arguments['inventory_path'] is None:
+        config['inventory_path'] = os.path.join(config['kargo_path'], 'inventory/inventory.cfg')
     for key, value in arguments.items():
         if value is not None:
             config[key] = value
+    # Set logfile
     if 'logfile' not in config.keys():
         config['logfile'] = os.path.join(config['kargo_path'], 'kargo.log')
     # Run functions with all the options

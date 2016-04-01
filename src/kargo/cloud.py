@@ -46,6 +46,7 @@ class Cloud(object):
     def __init__(self, options, cloud):
         self.options = options
         self.cloud = cloud
+        self.inventorycfg = options['inventory_path']
         self.playbook = os.path.join(options['kargo_path'], 'local.yml')
         self.cparser = configparser.ConfigParser(allow_no_value=True)
         self.localcfg = os.path.join(
@@ -55,10 +56,6 @@ class Cloud(object):
         self.instances_file = os.path.join(
             options['kargo_path'],
             'instances.json'
-        )
-        self.inventorycfg = os.path.join(
-            options['kargo_path'],
-            'inventory/inventory.cfg'
         )
         self.logger = get_logger(
             options.get('logfile'),
@@ -87,10 +84,12 @@ class Cloud(object):
             'ansible_connection=local', self.playbook
         ]
         if not self.options['assume_yes']:
-            query_yes_no('Create %s instances on %s ?' % (
+            if not query_yes_no('Create %s instances on %s ?' % (
                 self.options['count'], self.cloud
                 )
-            )
+            ):
+                display.display('Aborted', color='red')
+                sys.exit(1)
         rcode, emsg = run_command('Create %s instances' % self.cloud, cmd)
         if rcode != 0:
             self.logger.critical('Cannot create instances: %s' % emsg)

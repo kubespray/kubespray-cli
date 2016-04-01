@@ -23,7 +23,6 @@ kargo.inventory
 Ansible inventory management for Kargo
 """
 
-import os
 import re
 from kargo.common import get_logger
 from ansible.utils.display import Display
@@ -43,9 +42,7 @@ class CfgInventory(object):
     def __init__(self, options, platform):
         self.options = options
         self.platform = platform
-        self.inventorycfg = os.path.join(
-            options['kargo_path'], 'inventory/inventory.cfg'
-        )
+        self.inventorycfg = options['inventory_path']
         file = open(self.inventorycfg, 'w+')
         self.logger = get_logger(options.get('logfile'), options.get('loglevel'))
         self.cparser = configparser.ConfigParser(allow_no_value=True)
