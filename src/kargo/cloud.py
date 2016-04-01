@@ -90,6 +90,7 @@ class Cloud(object):
             ):
                 display.display('Aborted', color='red')
                 sys.exit(1)
+        os.environ['ANSIBLE_FORCE_COLOR'] = 'true'
         rcode, emsg = run_command('Create %s instances' % self.cloud, cmd)
         if rcode != 0:
             self.logger.critical('Cannot create instances: %s' % emsg)
@@ -125,7 +126,7 @@ class AWS(Cloud):
             if opt in self.options.keys():
                 d = {opt: self.options[opt]}
                 ec2_task['ec2'].update(d)
-                ec2_task['ec2'].update({'wait': True})
+        ec2_task['ec2'].update({'wait': True})
         self.pbook[0]['tasks'].append(ec2_task)
         # Write ec2 instances json
         self.pbook[0]['tasks'].append(
@@ -143,6 +144,79 @@ class AWS(Cloud):
                               'timeout': 600},
              'name': 'Wait until SSH is available',
              'with_items': 'ec2.instances'}
+        )
+        # Write inventory for localhost
+        try:
+            self.write_local_inventory()
+        except IOError as e:
+            display.error(
+                'Cannot write inventory %s: %s'
+                % (self.localcfg, e)
+            )
+            sys.exit(1)
+
+        # Write playbook
+        try:
+            with open(self.playbook, "w") as pb:
+                pb.write(yaml.dump(self.pbook, default_flow_style=True))
+        except IOError as e:
+            display.error(
+                'Cant write the playbook %s: %s'
+                % (self.playbook, e)
+            )
+            sys.exit(1)
+
+
+class GCE(Cloud):
+
+    def __init__(self, options):
+        Cloud.__init__(self, options, "gce")
+        self.options = options
+
+    def gen_gce_playbook(self):
+        data = self.options
+        data.pop('func')
+        # Options list of ansible GCE module
+        gce_options = [
+            'machine_type', 'image', 'zone', 'service_account_email',
+            'pem_file', 'project_id'
+        ]
+        # Define instance names
+        gce_instance_names = list()
+        for x in range(self.options['count']):
+            gce_instance_names.append('node' + str(x + 1))
+        # Define GCE task
+        gce_task = {'gce': {},
+                    'name': 'Provision GCE instances',
+                    'register': 'gce'}
+        for opt in gce_options:
+            if opt in self.options.keys():
+                d = {opt: self.options[opt]}
+                gce_task['gce'].update(d)
+        gce_task['gce'].update({'instance_names': '%s' % gce_instance_names})
+        self.pbook[0]['tasks'].append(gce_task)
+        # Debug
+        self.pbook[0]['tasks'].append(
+            {'name': 'debug gce',
+             'debug':
+                 {'msg': '{{ gce }}'}}
+        )
+        # Write gce instances json
+        self.pbook[0]['tasks'].append(
+            {'name': 'Generate a file with gce instances list',
+             'copy':
+                 {'dest': '%s' % self.instances_file,
+                  'content': '{{ gce.instances }}'}}
+        )
+        # Wait for ssh task
+        self.pbook[0]['tasks'].append(
+            {'local_action': {'host': '{{ item.public_ip }}',
+                              'module': 'wait_for',
+                              'port': 22,
+                              'state': 'started',
+                              'timeout': 600},
+             'name': 'Wait until SSH is available',
+             'with_items': 'gce.instances'}
         )
         # Write inventory for localhost
         try:

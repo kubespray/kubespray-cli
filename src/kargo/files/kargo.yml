@@ -24,10 +24,12 @@ loglevel: "info"
 #
 # Google Compute Engine options
 # ---
-# gce_image="debian-8-jessie-v20160301"
-# gce_machine_type: "n1-standard-1"
-# gce_sshkey_path: /root/.ssh/gce_id.rsa
-# gce_zone: "us-east1-c"
+# machine_type: "<cloud_machine_type>"
+# image: "<cloud_image>"
+# service_account_email: "<gce_service_account_email>"
+# pem_file: "<gce_pem_file>"
+# project_id: "<gce_project_id>"
+# zone: "<cloud_region>"
 #
 # All the options to be passed to the 'ansible-playbook' command line
 # ansible_opts:
