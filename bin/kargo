@@ -170,6 +170,9 @@ if __name__ == '__main__':
         help='Create GCE machines and generate inventory'
     )
     deploy_parser.add_argument(
+        '-k', '--sshkey', dest='ssh_key', help='ssh key for authentication on remote servers'
+    )
+    deploy_parser.add_argument(
         '-u', '--user', dest='ansible_user', default=getpass.getuser(),
         help='Ansible SSH user (remote user)'
     )
@@ -220,4 +223,5 @@ if __name__ == '__main__':
     if 'logfile' not in config.keys():
         config['logfile'] = os.path.join(config['kargo_path'], 'kargo.log')
     # Run functions with all the options
+    os.environ['ANSIBLE_FORCE_COLOR'] = 'true'
     args.func(config)

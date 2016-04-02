@@ -65,8 +65,12 @@ class RunPlaybook(object):
             os.environ[v.split('=')[0]] = v.split('=')[1]
         # Store ssh identity
         try:
+            if 'ssh_key' in self.options.keys():
+                cmd = ['ssh-add', self.options['ssh_key']]
+            else:
+                cmd = 'ssh-add'
             proc = Popen(
-                'ssh-add', stdout=PIPE, stderr=STDOUT, stdin=PIPE, shell=True
+                cmd, stdout=PIPE, stderr=STDOUT, stdin=PIPE
             )
             proc.stdin.write('password\n')
             proc.stdin.flush()
@@ -94,7 +98,6 @@ class RunPlaybook(object):
             '-b', '--become-user=root', '-m', 'ping', 'all',
             '-i', self.inventorycfg
         ]
-        os.environ['ANSIBLE_FORCE_COLOR'] = 'true'
         rcode, emsg = run_command('SSH ping hosts', cmd)
         if rcode != 0:
             self.logger.critical('Cannot connect to hosts: %s' % emsg)
@@ -129,7 +132,6 @@ class RunPlaybook(object):
         self.logger.info(
             'Running kubernetes deployment with the command: %s' % cmd
         )
-        os.environ['ANSIBLE_FORCE_COLOR'] = 'true'
         rcode, emsg = run_command('Run deployment', cmd)
         if rcode != 0:
             self.logger.critical('Deployment failed: %s' % emsg)

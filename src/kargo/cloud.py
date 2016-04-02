@@ -90,7 +90,6 @@ class Cloud(object):
             ):
                 display.display('Aborted', color='red')
                 sys.exit(1)
-        os.environ['ANSIBLE_FORCE_COLOR'] = 'true'
         rcode, emsg = run_command('Create %s instances' % self.cloud, cmd)
         if rcode != 0:
             self.logger.critical('Cannot create instances: %s' % emsg)
