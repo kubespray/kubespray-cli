@@ -32,9 +32,10 @@ Installation
 Config file
 -----------
 
-A config file can be updated (yaml). (default: */etc/kargo/kargo.yml* )
+A config file can be updated (yaml). (default: */etc/kargo/kargo.yml* ) </br>
 This file contains default values for some parameters that don't change
-frequently Note these values are overwritten by the command line
+frequently </br>
+**Note** these values are overwritten by the command line.
 
     inventory_path: "/usr/lib/kargo/ansible/inventory"
     loglevel: "info"
@@ -55,8 +56,6 @@ Basic usage
 
 ### Generate inventory for a baremetal cluster
 
-The following options are mandatory
-
 On **baremetal**
 
     usage: kargo prepare [-h] [-p KARGO_PATH] [--config CONFIGFILE] [--version]
@@ -73,7 +72,8 @@ On **baremetal**
       --nodes N [N ...]     List of nodes
 
 The command below will just clone the git repository and creates the
-inventory The hostvars must be separated by a **comma without spaces**
+inventory.
+The hostvars must be separated by a **comma without spaces**
 
     kargo preprare --nodes node1[ansible_ssh_host=10.99.21.1] node2[ansible_ssh_host=10.99.21.2] node3[ansible_ssh_host=10.99.21.3]
 
@@ -111,23 +111,48 @@ inventory The hostvars must be separated by a **comma without spaces**
       --ami AWS_AMI         AWS AMI
       --instances COUNT     Number of nodes
 
-if the config file is filled with the proper information you just need
-to run the following command
+if the config file is filled with the proper information you just need to run the following command
 
-    kargo aws --instances 3 [--coreos]
+    kargo aws --instances 3
 
-**GCE** **warn** : not implemented yet
+**GCE** 
+
+    usage: kargo gce [-h] [-p KARGO_PATH] [--config CONFIGFILE] [--version] [-y]                                        
+                      [-i INVENTORY_PATH] [--pem_file PEM_FILE] [--zone ZONE]
+                      [--type MACHINE_TYPE] [--image IMAGE] [--project PROJECT_ID]
+                      [--email SERVICE_ACCOUNT_EMAIL] [--cluster-name CLUSTER_NAME]
+                      --instances COUNT
+     
+     optional arguments:
+       -h, --help            show this help message and exit
+       -p KARGO_PATH, --path KARGO_PATH
+                             Where the Ansible playbooks are installed
+       --config CONFIGFILE   Config file
+       --version             show program's version number and exit
+       -y, --assumeyes       When a yes/no prompt would be presented, assume that
+                             the user entered "yes"
+       -i INVENTORY_PATH, --inventory INVENTORY_PATH
+                             Ansible SSH user (remote user)
+       --pem_file PEM_FILE   GCE ssh pem file path
+       --zone ZONE           GCE zone
+       --type MACHINE_TYPE   GCE machine type
+       --image IMAGE         GCE image
+       --project PROJECT_ID  GCE project ID
+       --email SERVICE_ACCOUNT_EMAIL
+                             GCE project ID
+       --cluster-name CLUSTER_NAME
+                             Name of the cluster
+       --instances COUNT     Number of nodes
+
 
 example:
 
-    kargo gce --instances 3 --image <gce_image> --type=<aws_machine_type> --zone=<gce_zone> \
-    [--sshkey <keypath>] [--coreos]
+if the config file is filled with the proper information you just need to run the following command
+
+    kargo gce --instances 3
+
 
 ### Deploy cluster
-
-example: Deploy a kubernetes cluster on CoreOS servers located on GCE
-
-    kargo deploy -u core -p /kargo-dc1 --gce --coreos
 
     usage: kargo deploy [-h] [-p KARGO_PATH] [--config CONFIGFILE] [--version]
                         [-y] [-u ANSIBLE_USER] [-n {flannel,weave,calico}] [--aws]
@@ -162,3 +187,8 @@ example: Deploy a kubernetes cluster on CoreOS servers located on GCE
 `--ansible_opts '-e foo=bar -e titi=toto -vvv'`
 **Note** : the value
 must be enclosed by simple quotes
+
+example: Deploy a kubernetes cluster on CoreOS servers located on GCE
+
+    kargo deploy -u core -p /kargo-dc1 --gce --coreos
+
