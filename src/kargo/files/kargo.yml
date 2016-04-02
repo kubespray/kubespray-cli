@@ -11,6 +11,7 @@ loglevel: "info"
 
 # The following options would be overwritten by the command line
 # ---------------------------------------------------------
+#
 # Amazon web services options
 # ---
 # aws_access_key: "<aws_key>"

@@ -16,7 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '0.1.4'
+__version__ = '0.1.6'
 
 import os
 import argparse
@@ -55,10 +55,10 @@ def gce(options):
     clone_git_repo(
         'kargo', options['kargo_path'], options['kargo_git_repo']
     )
-    A = GCE(options)
-    A.gen_gce_playbook()
-    A.create_instances()
-    A.write_inventory()
+    G = GCE(options)
+    G.gen_gce_playbook()
+    G.create_instances()
+    G.write_inventory()
 
 
 def deploy(options):

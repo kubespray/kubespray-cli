@@ -60,7 +60,7 @@ class CfgInventory(object):
         if len(instances) > 1:
             k8s_masters = instances[0:2]
         else:
-            k8s_masters = instances[0]
+            k8s_masters = [instances[0]]
         if len(instances) > 2:
             etcd_members = instances[0:3]
         else:

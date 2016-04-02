@@ -66,7 +66,7 @@ class RunPlaybook(object):
         # Store ssh identity
         try:
             if 'ssh_key' in self.options.keys():
-                cmd = ['ssh-add', self.options['ssh_key']]
+                cmd = ['ssh-add', os.path.realpath(self.options['ssh_key'])]
             else:
                 cmd = 'ssh-add'
             proc = Popen(
