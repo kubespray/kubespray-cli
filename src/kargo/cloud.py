@@ -183,7 +183,10 @@ class GCE(Cloud):
         # Define instance names
         gce_instance_names = list()
         for x in range(self.options['count']):
-            gce_instance_names.append('node' + str(x + 1))
+            gce_instance_names.append(
+                self.options['cluster_name'] + '-node' + str(x + 1)
+            )
+        gce_instance_names = ','.join(gce_instance_names)
         # Define GCE task
         gce_task = {'gce': {},
                     'name': 'Provision GCE instances',
@@ -194,18 +197,12 @@ class GCE(Cloud):
                 gce_task['gce'].update(d)
         gce_task['gce'].update({'instance_names': '%s' % gce_instance_names})
         self.pbook[0]['tasks'].append(gce_task)
-        # Debug
-        self.pbook[0]['tasks'].append(
-            {'name': 'debug gce',
-             'debug':
-                 {'msg': '{{ gce }}'}}
-        )
         # Write gce instances json
         self.pbook[0]['tasks'].append(
             {'name': 'Generate a file with gce instances list',
              'copy':
                  {'dest': '%s' % self.instances_file,
-                  'content': '{{ gce.instances }}'}}
+                  'content': '{{ gce.instance_data }}'}}
         )
         # Wait for ssh task
         self.pbook[0]['tasks'].append(
@@ -215,7 +212,7 @@ class GCE(Cloud):
                               'state': 'started',
                               'timeout': 600},
              'name': 'Wait until SSH is available',
-             'with_items': 'gce.instances'}
+             'with_items': 'gce.instance_data'}
         )
         # Write inventory for localhost
         try:

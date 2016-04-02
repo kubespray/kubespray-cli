@@ -20,6 +20,8 @@ import logging
 import shutil
 import os
 import sys
+import string
+import random
 from git import Repo
 from ansible.utils.display import Display
 from subprocess import PIPE, STDOUT, Popen, CalledProcessError
@@ -102,3 +104,7 @@ def run_command(description, cmd):
         display.error('%s: %s' % (description, e.output))
         emsg = e.message
         return(proc.returncode, emsg)
+
+
+def id_generator(size=6, chars=string.ascii_lowercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))

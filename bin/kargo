@@ -25,7 +25,7 @@ try:
     from ansible.utils.display import Display
 except ImportError:
     raise ImportError('Cannot find Ansible: Please check your installation')
-from kargo.common import clone_git_repo
+from kargo.common import clone_git_repo, id_generator
 from kargo.configure import Config
 from kargo.inventory import CfgInventory
 from kargo.deploy import RunPlaybook
@@ -157,6 +157,10 @@ if __name__ == '__main__':
     )
     gce_parser.add_argument(
         '--email', dest='service_account_email', help='GCE project ID'
+    )
+    gce_parser.add_argument(
+        '--cluster-name', dest='cluster_name', default='k8s-%s' % id_generator(),
+        help='Name of the cluster'
     )
     gce_parser.add_argument(
         '--instances', dest='count', type=int,

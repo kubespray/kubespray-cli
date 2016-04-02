@@ -67,12 +67,11 @@ class CfgInventory(object):
             etcd_members = [instances[0]]
         if self.platform in ['aws', 'gce']:
             for idx, host in enumerate(instances):
-                if self.platform == "aws":
-                    inventory['all']['hosts'].append(
-                        {'hostname': 'node%s' % str(idx + 1), 'hostvars': [
-                            {'name': 'ansible_ssh_host', 'value': host['public_ip']}
-                            ]}
-                    )
+                inventory['all']['hosts'].append(
+                    {'hostname': 'node%s' % str(idx + 1), 'hostvars': [
+                        {'name': 'ansible_ssh_host', 'value': host['public_ip']}
+                        ]}
+                )
                 inventory['kube-node']['hosts'].append(
                     {'hostname': 'node%s' % str(idx + 1),
                      'hostvars': []}
