@@ -105,6 +105,27 @@ class RunPlaybook(object):
             sys.exit(1)
         display.display('All hosts are reachable', color='green')
 
+    def coreos_bootstrap(self):
+        '''
+        Install python dependencies on CoreOS
+        '''
+        cmd = [
+            playbook_exec, '--ssh-extra-args', '-o StrictHostKeyChecking=no',
+            '-e', 'ansible_python_interpreter=/opt/bin/python',
+            '-u',  '%s' % self.options['ansible_user'],
+            '-b', '--become-user=root', '-i', self.inventorycfg,
+            os.path.join(self.options['kargo_path'], 'coreos-bootstrap.yml')
+        ]
+        display.banner('BOOTSTRAP COREOS')
+        self.logger.info(
+            'Bootstrapping CoreOS with the command: %s' % cmd
+        )
+        rcode, emsg = run_command('Bootstrapping CoreOS', cmd)
+        if rcode != 0:
+            self.logger.critical('Deployment failed: %s' % emsg)
+            os.kill(int(os.environ.get('SSH_AGENT_PID')), signal.SIGTERM)
+            sys.exit(1)
+
     def deploy_kubernetes(self):
         '''
         Run the ansible playbook command
@@ -116,8 +137,8 @@ class RunPlaybook(object):
             '-b', '--become-user=root', '-i', self.inventorycfg,
             os.path.join(self.options['kargo_path'], 'cluster.yml')
         ]
-        if 'ansible_opts' in self.options.keys():
-            cmd = cmd + self.options['ansible_opts'].split(' ')
+        if 'ansible-opts' in self.options.keys():
+            cmd = cmd + self.options['ansible-opts'].split(' ')
         for cloud in ['aws', 'gce']:
             if self.options[cloud]:
                 cmd = cmd + ['-e', 'cloud_provider=%s' % cloud]
@@ -128,6 +149,9 @@ class RunPlaybook(object):
             ):
                 display.display('Aborted', color='red')
                 sys.exit(1)
+        if self.options['coreos']:
+            self.coreos_bootstrap()
+        self.check_ping()
         display.banner('RUN PLAYBOOK')
         self.logger.info(
             'Running kubernetes deployment with the command: %s' % cmd

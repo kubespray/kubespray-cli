@@ -33,7 +33,7 @@ loglevel: "info"
 # zone: "<cloud_region>"
 #
 # All the options to be passed to the 'ansible-playbook' command line
-# ansible_opts:
+# ansible-opts:
 #   - '-vvv'
 #   - '-e'
 #   - 'myvar1=bar'

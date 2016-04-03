@@ -64,7 +64,6 @@ def gce(options):
 def deploy(options):
     Run = RunPlaybook(options)
     Run.ssh_prepare()
-    Run.check_ping()
     Run.deploy_kubernetes()
 
 if __name__ == '__main__':
@@ -200,7 +199,7 @@ if __name__ == '__main__':
         '--coreos', default=False, action='store_true',
         help='bootstrap python on CoreOS'
     )
-    deploy_parser.add_argument('--ansible_opts', help='Ansible options')
+    deploy_parser.add_argument('--ansible-opts', help='Ansible options')
     deploy_parser.set_defaults(func=deploy)
 
     # Parse arguments

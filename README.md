@@ -35,20 +35,27 @@ Config file
 A config file can be updated (yaml). (default: */etc/kargo/kargo.yml* ) </br>
 This file contains default values for some parameters that don't change
 frequently </br>
-**Note** these values are overwritten by the command line.
+**Note** these values are **overwritten** by the command line.
 
-    inventory_path: "/usr/lib/kargo/ansible/inventory"
+
+    # Common options
+    # ---------------
+    # Path where the kargo ansible playbooks will be installed
+    # Defaults to current user's home directory if not set
+    # kargo_path: "/tmp"
+    # Default inventory path
+    kargo_git_repo: "https://github.com/kubespray/kargo.git"
+    # Logging options
     loglevel: "info"
-    aws_access_key: "<aws_key>"
-    aws_secret_key: "<aws_secret_key>"
-    key_name: "<aws_keypair_name>"
-    image: "<aws_ami>"
-    instance_type: "<aws_instance_type>"
-    group: "<aws_security_group>"
-    vpc_subnet_id: "<aws_vpc_id>"
-    region: "<aws_region>"
-
-    gce_sshkey_path: "/home/foo/.ssh/id_rsa"
+    #
+    # Google Compute Engine options
+    # ---------
+    machine_type: "n1-standard-1"
+    image: "debian-8-kubespray"
+    service_account_email: "kubespray-ci-1@appspot.gserviceaccount.com"
+    pem_file: "/home/smana/kargo.pem"
+    project_id: "kubespray-ci-1"
+    zone: "us-east1-c"
     ...
 
 Basic usage
@@ -155,10 +162,10 @@ if the config file is filled with the proper information you just need to run th
 ### Deploy cluster
 
     usage: kargo deploy [-h] [-p KARGO_PATH] [--config CONFIGFILE] [--version]
-                        [-y] [-u ANSIBLE_USER] [-n {flannel,weave,calico}] [--aws]
-                        [--gce] [--upgrade] [--coreos]
-                        [--ansible_opts ANSIBLE_OPTS]
-
+                        [-y] [-i INVENTORY_PATH] [-k SSH_KEY] [-u ANSIBLE_USER]
+                        [-n {flannel,weave,calico}] [--aws] [--gce] [--upgrade]
+                        [--coreos] [--ansible-opts ANSIBLE_OPTS]
+    
     optional arguments:
       -h, --help            show this help message and exit
       -p KARGO_PATH, --path KARGO_PATH
@@ -167,6 +174,10 @@ if the config file is filled with the proper information you just need to run th
       --version             show program's version number and exit
       -y, --assumeyes       When a yes/no prompt would be presented, assume that
                             the user entered "yes"
+      -i INVENTORY_PATH, --inventory INVENTORY_PATH
+                            Ansible SSH user (remote user)
+      -k SSH_KEY, --sshkey SSH_KEY
+                            ssh key for authentication on remote servers
       -u ANSIBLE_USER, --user ANSIBLE_USER
                             Ansible SSH user (remote user)
       -n {flannel,weave,calico}, --network-plugin {flannel,weave,calico}
@@ -174,21 +185,19 @@ if the config file is filled with the proper information you just need to run th
       --gce                 Kubernetes deployment on GCE
       --upgrade             Upgrade Kubernetes cluster
       --coreos              bootstrap python on CoreOS
-      --ansible_opts ANSIBLE_OPTS
+      --ansible-opts ANSIBLE_OPTS
                             Ansible options
 
 -   default network plugin : flannel (vxlan) default
 -   default kargo\_path : "/home/\<current\_user\>/kargo"
 -   inventory path : "\<kargo\_path\>/inventory/inventory.cfg".
--   The option `--inventory` allows to use an existing inventory (file
-    or dynamic)
+-   The option `--inventory` allows to use an existing inventory (file or dynamic)
+-   On coreos (--coreos) the directory **/opt/bin** must be writable
 
 - You can use all Ansible's variables with
-`--ansible_opts '-e foo=bar -e titi=toto -vvv'`
-**Note** : the value
-must be enclosed by simple quotes
+`--ansible-opts '-e foo=bar -e titi=toto -vvv'`
+**Note** : the value must be enclosed by simple quotes
 
 example: Deploy a kubernetes cluster on CoreOS servers located on GCE
 
     kargo deploy -u core -p /kargo-dc1 --gce --coreos
-
