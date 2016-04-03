@@ -16,7 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '0.1.7'
+__version__ = '0.1.8'
 
 import os
 import argparse
@@ -24,7 +24,7 @@ import getpass
 try:
     from ansible.utils.display import Display
 except ImportError:
-    raise ImportError('Cannot find Ansible: Please check your installation')
+    raise ImportError('Cannot find Ansible: Please check your installation (required version 2)')
 from kargo.common import clone_git_repo, id_generator
 from kargo.configure import Config
 from kargo.inventory import CfgInventory

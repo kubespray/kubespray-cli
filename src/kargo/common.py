@@ -79,6 +79,8 @@ def get_logger(logfile, loglevel):
 
 
 def clone_git_repo(name, directory, git_repo):
+    if which('git') is None:
+        display.error('Cannot find git binary! check your installation')
     if os.path.isdir(directory):
         shutil.rmtree(directory)
     display.banner('CLONING %s GIT REPO' % name.upper())

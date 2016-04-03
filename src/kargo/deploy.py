@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 #
 # This file is part of Kargo.
@@ -78,6 +78,12 @@ class RunPlaybook(object):
             display.display(response_stdout)
         except CalledProcessError as e:
             display.error('Failed to store ssh identity : %s' % e.output)
+            sys.exit(1)
+        try:
+            check_output(['ssh-add', '-l'])
+        except CalledProcessError as e:
+            display.error('Failed to store list identities : %s' % e.output)
+            sys.exit(1)
         if response_stderr:
             display.error(response_stderr)
             self.logger.critical(
@@ -142,6 +148,8 @@ class RunPlaybook(object):
         for cloud in ['aws', 'gce']:
             if self.options[cloud]:
                 cmd = cmd + ['-e', 'cloud_provider=%s' % cloud]
+        if not self.options['coreos']:
+            self.check_ping()
         display.display(' '.join(cmd), color='bright blue')
         if not self.options['assume_yes']:
             if not query_yes_no(
@@ -151,7 +159,7 @@ class RunPlaybook(object):
                 sys.exit(1)
         if self.options['coreos']:
             self.coreos_bootstrap()
-        self.check_ping()
+            self.check_ping()
         display.banner('RUN PLAYBOOK')
         self.logger.info(
             'Running kubernetes deployment with the command: %s' % cmd
