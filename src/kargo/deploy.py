@@ -82,7 +82,7 @@ class RunPlaybook(object):
         try:
             check_output(['ssh-add', '-l'])
         except CalledProcessError as e:
-            display.error('Failed to store list identities : %s' % e.output)
+            display.error('Failed to list identities : %s' % e.output)
             sys.exit(1)
         if response_stderr:
             display.error(response_stderr)
