@@ -13,7 +13,7 @@ You should have at least 3 nodes but you can spawn only one instance for
 tests purposes.
 
 Example on GCE:
-[![asciicast](https://asciinema.org/a/9ve0ern99yms5e70ij3dowf6w.png)](https://asciinema.org/a/9ve0ern99yms5e70ij3dowf6w?speed=3)
+[![asciicast](https://asciinema.org/a/4lzkp6fdxdu7lotw8fjg9xfp6.png)](https://asciinema.org/a/4lzkp6fdxdu7lotw8fjg9xfp6?speed=3)
 
 Requirements
 ============
