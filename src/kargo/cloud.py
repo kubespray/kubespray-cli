@@ -64,7 +64,7 @@ class Cloud(object):
         self.pbook_content = [{
             'gather_facts': False,
             'hosts': 'localhost',
-            'sudo': False,
+            'become': False,
             'tasks': []
         }]
         self.logger.debug('''
@@ -153,7 +153,7 @@ class AWS(Cloud):
             {'name': 'Generate a file with ec2 instances list',
              'copy':
                  {'dest': '%s' % self.instances_file,
-                  'content': '{{ ec2.instances }}'}}
+                  'content': "{{ec2.instances}}"}}
         )
         # Wait for ssh task
         self.pbook_content[0]['tasks'].append(
@@ -205,7 +205,7 @@ class GCE(Cloud):
             {'name': 'Generate a file with gce instances list',
              'copy':
                  {'dest': '%s' % self.instances_file,
-                  'content': '{{ gce.instance_data }}'}}
+                  'content': "{{gce.instance_data}}"}}
         )
         # Wait for ssh task
         self.pbook_content[0]['tasks'].append(
