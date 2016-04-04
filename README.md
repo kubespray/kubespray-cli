@@ -35,7 +35,7 @@ Installation
 ### Docker image
 Alternatively you can use the docker image `k8s-kargocli` as follows:
 
-    docker run -it -v /home/smana/kargoconf:/etc/kargo k8s-kargocli /bin/bash
+    docker run -it -v /home/smana/kargoconf:/etc/kargo quay.io/smana/k8s-kargocli:latest /bin/bash
 
 The mounted directory contains kargo's configuration as well as keys
 
