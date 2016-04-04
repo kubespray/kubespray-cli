@@ -27,7 +27,17 @@ Requirements
 Installation
 ============
 
+### Python pip
+
     pip2 install kargo
+
+
+### Docker image
+Alternatively you can use the docker image `k8s-kargocli` as follows:
+
+    docker run -it -v /home/smana/kargoconf:/etc/kargo k8s-kargocli /bin/bash
+
+The mounted directory contains kargo's configuration as well as keys
 
 Config file
 -----------
