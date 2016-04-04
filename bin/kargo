@@ -82,7 +82,7 @@ if __name__ == '__main__':
         help='Where the Ansible playbooks are installed'
     )
     parent_parser.add_argument('--config', dest='configfile', help="Config file")
-    parent_parser.add_argument(
+    parser.add_argument(
         '--version', action='version',
         version='%(prog)s'+' %s' %  __version__
     )
