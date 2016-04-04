@@ -74,7 +74,7 @@ class Cloud(object):
     def write_local_inventory(self):
         '''Generates inventory for local tasks'''
         self.cparser.add_section('local')
-        self.cparser.set('local', 'localhost')
+        self.cparser.set('local', 'localhost ansible_python_interpreter=python2 ansible_connection=local')
         try:
             with open(self.localcfg, 'wb') as f:
                 self.cparser.write(f)
