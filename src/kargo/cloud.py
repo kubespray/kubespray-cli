@@ -28,7 +28,7 @@ import os
 import yaml
 import json
 from kargo.inventory import CfgInventory
-from kargo.common import get_logger, query_yes_no, run_command, which
+from kargo.common import get_logger, query_yes_no, run_command, which, id_generator
 from ansible.utils.display import Display
 display = Display()
 playbook_exec = which('ansible-playbook')
@@ -49,6 +49,7 @@ class Cloud(object):
         self.inventorycfg = options['inventory_path']
         self.playbook = os.path.join(options['kargo_path'], 'local.yml')
         self.cparser = configparser.ConfigParser(allow_no_value=True)
+        self.Cfg = CfgInventory(options, cloud)
         self.localcfg = os.path.join(
             options['kargo_path'],
             'inventory/local.cfg'
@@ -74,7 +75,10 @@ class Cloud(object):
     def write_local_inventory(self):
         '''Generates inventory for local tasks'''
         self.cparser.add_section('local')
-        self.cparser.set('local', 'localhost ansible_python_interpreter=python2 ansible_connection=local')
+        self.cparser.set(
+            'local',
+            'localhost ansible_python_interpreter=python2 ansible_connection=local'
+        )
         try:
             with open(self.localcfg, 'wb') as f:
                 self.cparser.write(f)
@@ -101,8 +105,7 @@ class Cloud(object):
         '''Generate the inventory according the instances created'''
         with open(self.instances_file) as f:
             instances = json.load(f)
-        Cfg = CfgInventory(self.options, self.cloud)
-        Cfg.write_inventory(instances)
+        self.Cfg.write_inventory(instances)
 
     def create_instances(self):
         '''Run ansible-playbook for instances creation'''
@@ -111,6 +114,11 @@ class Cloud(object):
             'ansible_connection=local', self.playbook
         ]
         if not self.options['assume_yes']:
+            if self.options['add_node']:
+                display.warning(
+                    '%s node(s) will be added to the current inventory %s' %
+                    (str(self.options['count']), self.inventorycfg)
+                )
             if not query_yes_no('Create %s instances on %s ?' % (
                 self.options['count'], self.cloud
                 )
@@ -163,7 +171,7 @@ class AWS(Cloud):
                               'state': 'started',
                               'timeout': 600},
              'name': 'Wait until SSH is available',
-             'with_items': 'ec2.instances'}
+             'with_items': '{{ec2.instances}}'}
         )
         self.write_local_inventory()
         self.write_playbook()
@@ -186,9 +194,18 @@ class GCE(Cloud):
         # Define instance names
         gce_instance_names = list()
         for x in range(self.options['count']):
-            gce_instance_names.append(
-                self.options['cluster_name'] + '-node' + str(x + 1)
-            )
+            if self.options['add_node']:
+                current_inventory = self.Cfg.read_inventory()
+                cluster_name = '-'.join(
+                    current_inventory['all']['hosts'][0]['hostname'].split('-')[:-1]
+                )
+                gce_instance_names.append(
+                    cluster_name + '-%s' % id_generator()
+                )
+            else:
+                gce_instance_names.append(
+                    self.options['cluster_name'] + '-%s' % id_generator()
+                )
         gce_instance_names = ','.join(gce_instance_names)
         # Define GCE task
         gce_task = {'gce': {},
@@ -215,7 +232,7 @@ class GCE(Cloud):
                               'state': 'started',
                               'timeout': 600},
              'name': 'Wait until SSH is available',
-             'with_items': 'gce.instance_data'}
+             'with_items': '{{gce.instance_data}}'}
         )
         self.write_local_inventory()
         self.write_playbook()

@@ -16,7 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '0.2.2'
+__version__ = '0.2.3'
 
 import os
 import argparse
@@ -25,7 +25,7 @@ try:
     from ansible.utils.display import Display
 except ImportError:
     raise ImportError('Cannot find Ansible: Please check your installation (required version 2)')
-from kargo.common import clone_git_repo, id_generator
+from kargo.common import clone_kargo_git_repo, id_generator
 from kargo.configure import Config
 from kargo.inventory import CfgInventory
 from kargo.deploy import RunPlaybook
@@ -34,17 +34,13 @@ display = Display()
 
 
 def prepare(options):
-    clone_git_repo(
-        'kargo', options['kargo_path'], options['kargo_git_repo']
-    )
+    clone_kargo_git_repo(options)
     Cfg = CfgInventory(options, 'metal')
     Cfg.write_inventory(options['k8s_nodes'])
 
 
 def aws(options):
-    clone_git_repo(
-        'kargo', options['kargo_path'], options['kargo_git_repo']
-    )
+    clone_kargo_git_repo(options)
     A = AWS(options)
     A.gen_ec2_playbook()
     A.create_instances()
@@ -52,9 +48,7 @@ def aws(options):
 
 
 def gce(options):
-    clone_git_repo(
-        'kargo', options['kargo_path'], options['kargo_git_repo']
-    )
+    clone_kargo_git_repo(options)
     G = GCE(options)
     G.gen_gce_playbook()
     G.create_instances()
@@ -99,6 +93,8 @@ if __name__ == '__main__':
         'prepare', parents=[parent_parser],
         help='generate inventory and create vms on cloud providers'
     )
+    prepare_parser.add_argument('--add', dest='add_node', action='store_true',
+        help="Add node to an existing cluster")
     prepare_parser.add_argument(
         '--nodes', dest='k8s_nodes', metavar='N', nargs='+',
         required=True, help='List of nodes'
@@ -131,6 +127,12 @@ if __name__ == '__main__':
     )
     aws_parser.add_argument('--ami', dest='aws_ami', help='AWS AMI')
     aws_parser.add_argument(
+        '--cluster-name', dest='cluster_name', default='k8s-%s' % id_generator(),
+        help='Name of the cluster'
+    )
+    aws_parser.add_argument('--add', dest='add_node', action='store_true',
+        help="Add node to an existing cluster")
+    aws_parser.add_argument(
         '--instances', dest='count', type=int,
         help='Number of nodes', required=True
     )
@@ -161,6 +163,8 @@ if __name__ == '__main__':
         '--cluster-name', dest='cluster_name', default='k8s-%s' % id_generator(),
         help='Name of the cluster'
     )
+    gce_parser.add_argument('--add', dest='add_node', action='store_true',
+        help="Add node to an existing cluster")
     gce_parser.add_argument(
         '--instances', dest='count', type=int,
         help='Number of nodes', required=True
@@ -192,10 +196,6 @@ if __name__ == '__main__':
         help='Kubernetes deployment on GCE'
     )
     deploy_parser.add_argument(
-        '--upgrade', default=False, action='store_true',
-        help='Upgrade Kubernetes cluster'
-    )
-    deploy_parser.add_argument(
         '--coreos', default=False, action='store_true',
         help='bootstrap python on CoreOS'
     )
@@ -204,24 +204,23 @@ if __name__ == '__main__':
 
     # Parse arguments
     args = parser.parse_args()
-    arguments = dict(args._get_kwargs())
-    if arguments['configfile'] is None:
-        arguments['configfile'] = '/etc/kargo/kargo.yml'
+    if args.configfile is None:
+        args.configfile = '/etc/kargo/kargo.yml'
     # Read configfile and update options dict
-    configfile = arguments.get('configfile')
-    C = Config(configfile)
+    C = Config(args.configfile)
     config = C.parse_configfile
     # Set kargo_path
-    if 'kargo_path' not in config.keys() and arguments['kargo_path'] is None:
+    if 'kargo_path' not in config.keys() and args.kargo_path is None:
         config['kargo_path'] = os.path.join(os.path.expanduser("~"), 'kargo')
-    # Set inventory_path
-    if 'inventory_path' not in config.keys() and arguments['inventory_path'] is None:
-        config['inventory_path'] = os.path.join(
-            config['kargo_path'], 'inventory/inventory.cfg'
-        )
+    arguments = dict(args._get_kwargs())
     for key, value in arguments.items():
         if value is not None:
             config[key] = value
+    # Set inventory_path
+    if 'inventory_path' not in config.keys() and args.inventory_path is None:
+        config['inventory_path'] = os.path.join(
+            config['kargo_path'], 'inventory/inventory.cfg'
+        )
     # Set logfile
     if 'logfile' not in config.keys():
         config['logfile'] = os.path.join(config['kargo_path'], 'kargo.log')

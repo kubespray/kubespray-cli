@@ -23,9 +23,9 @@ kargo.deploy
 Deploy a kubernetes cluster. Run the ansible-playbbook
 """
 
+import re
 import sys
 import os
-import re
 import signal
 from subprocess import PIPE, STDOUT, Popen, check_output, CalledProcessError
 from kargo.common import get_logger, query_yes_no, run_command, which
@@ -104,6 +104,8 @@ class RunPlaybook(object):
             '-b', '--become-user=root', '-m', 'ping', 'all',
             '-i', self.inventorycfg
         ]
+        if self.options['coreos']:
+            cmd = cmd + ['-e', 'ansible_python_interpreter=/opt/bin/python']
         rcode, emsg = run_command('SSH ping hosts', cmd)
         if rcode != 0:
             self.logger.critical('Cannot connect to hosts: %s' % emsg)
@@ -160,6 +162,7 @@ class RunPlaybook(object):
         if self.options['coreos']:
             self.coreos_bootstrap()
             self.check_ping()
+            cmd = cmd + ['-e', 'ansible_python_interpreter=/opt/bin/python']
         display.banner('RUN PLAYBOOK')
         self.logger.info(
             'Running kubernetes deployment with the command: %s' % cmd
