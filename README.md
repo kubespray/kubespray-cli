@@ -96,17 +96,6 @@ The hostvars must be separated by a **comma without spaces**
 
 ### Run instances and generate the inventory on Clouds
 
-**Add a node to an existing cluster**
-It's possible to add nodes to a running cluster, </br>
-these newly added nodes will act as node only (no etcd, no master components)
-
-Add a node
-
-    kargo [aws|gce] --add --instances 1
-
-Then deploy the cluster with the same options as the running cluster.
-
-
 **AWS**
 
     usage: kargo aws [-h] [-p KARGO_PATH] [--config CONFIGFILE] [-y]
@@ -182,6 +171,16 @@ example:
 if the config file is filled with the proper information you just need to run the following command
 
     kargo gce --instances 3
+
+**Add a node to an existing cluster**
+It's possible to add nodes to a running cluster, </br>
+these newly added nodes will act as node only (no etcd, no master components)
+
+Add a node
+
+    kargo [aws|gce] --add --instances 1
+
+Then deploy the cluster with the same options as the running cluster.
 
 
 ### Deploy cluster
