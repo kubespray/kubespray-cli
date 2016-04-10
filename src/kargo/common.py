@@ -78,6 +78,22 @@ def get_logger(logfile, loglevel):
     return logger
 
 
+def clone_kargo_git_repo(options):
+    if not options['add_node']:
+        if os.path.isdir(options['kargo_path']) and not options['assume_yes']:
+            display.warning(
+                'A directory %s already exists' % options['kargo_path']
+            )
+            if not query_yes_no(
+                    'Are you sure to overwrite it ?'
+            ):
+                    display.display('Aborted', color='red')
+                    sys.exit(1)
+        clone_git_repo(
+            'kargo', options['kargo_path'], options['kargo_git_repo']
+        )
+
+
 def clone_git_repo(name, directory, git_repo):
     if which('git') is None:
         display.error('Cannot find git binary! check your installation')

@@ -96,23 +96,36 @@ The hostvars must be separated by a **comma without spaces**
 
 ### Run instances and generate the inventory on Clouds
 
+**Add a node to an existing cluster**
+It's possible to add nodes to a running cluster, </br>
+these newly added nodes will act as node only (no etcd, no master components)
+
+Add a node
+
+    kargo [aws|gce] --add --instances 1
+
+Then deploy the cluster with the same options as the running cluster.
+
+
 **AWS**
 
-    usage: kargo aws [-h] [-p KARGO_PATH] [--config CONFIGFILE] [--version] [-y]
-                     [--access-key AWS_ACCESS_KEY] [--secret-key AWS_SECRET_KEY]
-                     [--type INSTANCE_TYPE] [--keypair KEY_NAME] [--region REGION]
+    usage: kargo aws [-h] [-p KARGO_PATH] [--config CONFIGFILE] [-y]
+                     [-i INVENTORY_PATH] [--access-key AWS_ACCESS_KEY]
+                     [--secret-key AWS_SECRET_KEY] [--type INSTANCE_TYPE]
+                     [--keypair KEY_NAME] [--region REGION]
                      [--security-group GROUP] [--vpc-id AWS_VPC_ID]
-                     [--vpc-subnet VPC_SUBNET_ID] [--ami AWS_AMI] --instances
-                     COUNT
-
+                     [--vpc-subnet VPC_SUBNET_ID] [--ami AWS_AMI]
+                     [--cluster-name CLUSTER_NAME] [--add] --instances COUNT
+    
     optional arguments:
       -h, --help            show this help message and exit
       -p KARGO_PATH, --path KARGO_PATH
                             Where the Ansible playbooks are installed
       --config CONFIGFILE   Config file
-      --version             show program's version number and exit
       -y, --assumeyes       When a yes/no prompt would be presented, assume that
                             the user entered "yes"
+      -i INVENTORY_PATH, --inventory INVENTORY_PATH
+                            Ansible SSH user (remote user)
       --access-key AWS_ACCESS_KEY
                             AWS access key
       --secret-key AWS_SECRET_KEY
@@ -126,6 +139,9 @@ The hostvars must be separated by a **comma without spaces**
       --vpc-subnet VPC_SUBNET_ID
                             EC2 VPC regional subnet
       --ami AWS_AMI         AWS AMI
+      --cluster-name CLUSTER_NAME
+                            Name of the cluster
+      --add                 Add node to an existing cluster
       --instances COUNT     Number of nodes
 
 if the config file is filled with the proper information you just need to run the following command
@@ -134,33 +150,32 @@ if the config file is filled with the proper information you just need to run th
 
 **GCE** 
 
-    usage: kargo gce [-h] [-p KARGO_PATH] [--config CONFIGFILE] [--version] [-y]                                        
-                      [-i INVENTORY_PATH] [--pem_file PEM_FILE] [--zone ZONE]
-                      [--type MACHINE_TYPE] [--image IMAGE] [--project PROJECT_ID]
-                      [--email SERVICE_ACCOUNT_EMAIL] [--cluster-name CLUSTER_NAME]
-                      --instances COUNT
-     
-     optional arguments:
-       -h, --help            show this help message and exit
-       -p KARGO_PATH, --path KARGO_PATH
-                             Where the Ansible playbooks are installed
-       --config CONFIGFILE   Config file
-       --version             show program's version number and exit
-       -y, --assumeyes       When a yes/no prompt would be presented, assume that
-                             the user entered "yes"
-       -i INVENTORY_PATH, --inventory INVENTORY_PATH
-                             Ansible SSH user (remote user)
-       --pem_file PEM_FILE   GCE ssh pem file path
-       --zone ZONE           GCE zone
-       --type MACHINE_TYPE   GCE machine type
-       --image IMAGE         GCE image
-       --project PROJECT_ID  GCE project ID
-       --email SERVICE_ACCOUNT_EMAIL
-                             GCE project ID
-       --cluster-name CLUSTER_NAME
-                             Name of the cluster
-       --instances COUNT     Number of nodes
-
+    usage: kargo gce [-h] [-p KARGO_PATH] [--config CONFIGFILE] [-y]
+                     [-i INVENTORY_PATH] [--pem_file PEM_FILE] [--zone ZONE]
+                     [--type MACHINE_TYPE] [--image IMAGE] [--project PROJECT_ID]
+                     [--email SERVICE_ACCOUNT_EMAIL] [--cluster-name CLUSTER_NAME]
+                     [--add] --instances COUNT
+    
+    optional arguments:
+      -h, --help            show this help message and exit
+      -p KARGO_PATH, --path KARGO_PATH
+                            Where the Ansible playbooks are installed
+      --config CONFIGFILE   Config file
+      -y, --assumeyes       When a yes/no prompt would be presented, assume that
+                            the user entered "yes"
+      -i INVENTORY_PATH, --inventory INVENTORY_PATH
+                            Ansible SSH user (remote user)
+      --pem_file PEM_FILE   GCE ssh pem file path
+      --zone ZONE           GCE zone
+      --type MACHINE_TYPE   GCE machine type
+      --image IMAGE         GCE image
+      --project PROJECT_ID  GCE project ID
+      --email SERVICE_ACCOUNT_EMAIL
+                            GCE project ID
+      --cluster-name CLUSTER_NAME
+                            Name of the cluster
+      --add                 Add node to an existing cluster
+      --instances COUNT     Number of nodes
 
 example:
 
@@ -171,17 +186,17 @@ if the config file is filled with the proper information you just need to run th
 
 ### Deploy cluster
 
-    usage: kargo deploy [-h] [-p KARGO_PATH] [--config CONFIGFILE] [--version]
-                        [-y] [-i INVENTORY_PATH] [-k SSH_KEY] [-u ANSIBLE_USER]
-                        [-n {flannel,weave,calico}] [--aws] [--gce] [--upgrade]
-                        [--coreos] [--ansible-opts ANSIBLE_OPTS]
+
+    usage: kargo deploy [-h] [-p KARGO_PATH] [--config CONFIGFILE] [-y]
+                        [-i INVENTORY_PATH] [-k SSH_KEY] [-u ANSIBLE_USER]
+                        [-n {flannel,weave,calico}] [--aws] [--gce] [--coreos]
+                        [--ansible-opts ANSIBLE_OPTS]
     
     optional arguments:
       -h, --help            show this help message and exit
       -p KARGO_PATH, --path KARGO_PATH
                             Where the Ansible playbooks are installed
       --config CONFIGFILE   Config file
-      --version             show program's version number and exit
       -y, --assumeyes       When a yes/no prompt would be presented, assume that
                             the user entered "yes"
       -i INVENTORY_PATH, --inventory INVENTORY_PATH
@@ -193,7 +208,6 @@ if the config file is filled with the proper information you just need to run th
       -n {flannel,weave,calico}, --network-plugin {flannel,weave,calico}
       --aws                 Kubernetes deployment on AWS
       --gce                 Kubernetes deployment on GCE
-      --upgrade             Upgrade Kubernetes cluster
       --coreos              bootstrap python on CoreOS
       --ansible-opts ANSIBLE_OPTS
                             Ansible options
