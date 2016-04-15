@@ -16,7 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '0.2.3'
+__version__ = '0.2.4'
 
 import os
 import argparse
@@ -69,6 +69,11 @@ if __name__ == '__main__':
     )
     subparsers = parser.add_subparsers(help='commands')
 
+    parser.add_argument(
+        '-v', '--version', action='version',
+        version='%(prog)s'+' %s' %  __version__
+    )
+
     # Options shared by all subparsers
     parent_parser = argparse.ArgumentParser(add_help=False)
     parent_parser.add_argument(
@@ -76,10 +81,6 @@ if __name__ == '__main__':
         help='Where the Ansible playbooks are installed'
     )
     parent_parser.add_argument('--config', dest='configfile', help="Config file")
-    parser.add_argument(
-        '--version', action='version',
-        version='%(prog)s'+' %s' %  __version__
-    )
     parent_parser.add_argument(
         '-y', '--assumeyes', default=False, dest='assume_yes', action='store_true',
         help='When a yes/no prompt would be presented, assume that the user entered "yes"'
@@ -177,11 +178,18 @@ if __name__ == '__main__':
         help='Create GCE machines and generate inventory'
     )
     deploy_parser.add_argument(
-        '-k', '--sshkey', dest='ssh_key', help='ssh key for authentication on remote servers'
+        '-k', '--sshkey', dest='ssh_key',
+        help='ssh key for authentication on remote servers'
     )
     deploy_parser.add_argument(
         '-u', '--user', dest='ansible_user', default=getpass.getuser(),
         help='Ansible SSH user (remote user)'
+    )
+    deploy_parser.add_argument(
+        '-N', '--kube-network', dest='kube_network', default='10.233.0.0/16',
+        help="""Network to be used inside the cluster (/16),
+             (must not overlap with any of your infrastructure networks).
+             default: 10.233.0.0/16"""
     )
     deploy_parser.add_argument(
         '-n', '--network-plugin', default='flannel',

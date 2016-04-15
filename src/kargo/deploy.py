@@ -27,8 +27,9 @@ import re
 import sys
 import os
 import signal
+import netaddr
 from subprocess import PIPE, STDOUT, Popen, check_output, CalledProcessError
-from kargo.common import get_logger, query_yes_no, run_command, which
+from kargo.common import get_logger, query_yes_no, run_command, which, validate_cidr
 from ansible.utils.display import Display
 display = Display()
 playbook_exec = which('ansible-playbook')
@@ -134,6 +135,25 @@ class RunPlaybook(object):
             os.kill(int(os.environ.get('SSH_AGENT_PID')), signal.SIGTERM)
             sys.exit(1)
 
+    def get_subnets(self):
+        '''Check the subnet value and split into 2 distincts subnets'''
+        svc_pfx = 24
+        pods_pfx = 17
+        net = netaddr.IPNetwork(self.options['kube_network'])
+        pfx_error_msg = (
+            "You have to choose a network with a prefix length = 16, "
+            "Please use Ansible options if you need to configure a different netmask."
+        )
+        if net.prefixlen is not 16:
+            display.error(pfx_error_msg)
+            os.kill(int(os.environ.get('SSH_AGENT_PID')), signal.SIGTERM)
+            sys.exit(1)
+        subnets = list(net.subnet(pods_pfx))
+        pods_network, remaining = subnets[0:2]
+        net = netaddr.IPNetwork(remaining)
+        svc_network = list(net.subnet(svc_pfx))[0]
+        return(svc_network, pods_network)
+
     def deploy_kubernetes(self):
         '''
         Run the ansible playbook command
@@ -145,6 +165,13 @@ class RunPlaybook(object):
             '-b', '--become-user=root', '-i', self.inventorycfg,
             os.path.join(self.options['kargo_path'], 'cluster.yml')
         ]
+        # Configure the network subnets pods and k8s services
+        if not validate_cidr(self.options['kube_network'], version=4):
+            display.error('Invalid Kubernetes network address')
+            os.kill(int(os.environ.get('SSH_AGENT_PID')), signal.SIGTERM)
+            sys.exit(1)
+        svc_network, pods_network = self.get_subnets()
+        # Add any additionnal Ansible option
         if 'ansible-opts' in self.options.keys():
             cmd = cmd + self.options['ansible-opts'].split(' ')
         for cloud in ['aws', 'gce']:
@@ -152,6 +179,16 @@ class RunPlaybook(object):
                 cmd = cmd + ['-e', 'cloud_provider=%s' % cloud]
         if not self.options['coreos']:
             self.check_ping()
+        display.display(
+            'Kubernetes services network : %s (%s IPs)'
+            % (svc_network.cidr, str(svc_network.size.real - 2)),
+            color='bright gray'
+        )
+        display.display(
+            'Pods network : %s (%s IPs)'
+            % (pods_network.cidr, str(pods_network.size.real - 2)),
+            color='bright gray'
+        )
         display.display(' '.join(cmd), color='bright blue')
         if not self.options['assume_yes']:
             if not query_yes_no(

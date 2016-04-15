@@ -19,6 +19,7 @@
 import logging
 import shutil
 import os
+import netaddr
 import sys
 import string
 import random
@@ -127,3 +128,16 @@ def run_command(description, cmd):
 
 def id_generator(size=6, chars=string.ascii_lowercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
+
+
+def validate_cidr(cidr, version):
+    """
+    Validates that a CIDR is valid. Returns true if valid, false if
+    not. Version can be "4", "6", None for "IPv4", "IPv6", or "either"
+    respectively.
+    """
+    try:
+        ip = netaddr.IPNetwork(cidr, version=version)
+        return True
+    except (netaddr.core.AddrFormatError, ValueError, TypeError):
+        return False
