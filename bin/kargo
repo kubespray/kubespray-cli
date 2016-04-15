@@ -16,7 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '0.2.5'
+__version__ = '0.2.6'
 
 import os
 import argparse
@@ -25,7 +25,7 @@ try:
     from ansible.utils.display import Display
 except ImportError:
     raise ImportError('Cannot find Ansible: Please check your installation (required version 2)')
-from kargo.common import clone_kargo_git_repo, id_generator
+from kargo.common import clone_kargo_git_repo
 from kargo.configure import Config
 from kargo.inventory import CfgInventory
 from kargo.deploy import RunPlaybook
@@ -205,7 +205,10 @@ if __name__ == '__main__':
         '--coreos', default=False, action='store_true',
         help='bootstrap python on CoreOS'
     )
-    deploy_parser.add_argument('--ansible-opts', help='Ansible options')
+    deploy_parser.add_argument(
+        '--ansible-opts', dest='ansible_opts',
+        help='Ansible options'
+    )
     deploy_parser.set_defaults(func=deploy)
 
     # Parse arguments

@@ -137,7 +137,7 @@ class RunPlaybook(object):
 
     def get_subnets(self):
         '''Check the subnet value and split into 2 distincts subnets'''
-        svc_pfx = 24
+        svc_pfx = 23
         pods_pfx = 17
         net = netaddr.IPNetwork(self.options['kube_network'])
         pfx_error_msg = (
