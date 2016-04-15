@@ -18,11 +18,12 @@
 
 import logging
 import shutil
+import requests
+import random
 import os
 import netaddr
 import sys
 import string
-import random
 from git import Repo
 from ansible.utils.display import Display
 from subprocess import PIPE, STDOUT, Popen, CalledProcessError
@@ -77,6 +78,17 @@ def get_logger(logfile, loglevel):
     logger.addHandler(handler)
     logger.setLevel(getattr(logging, loglevel.upper()))
     return logger
+
+
+def get_cluster_name():
+    try:
+        word_site = "http://svnweb.freebsd.org/csrg/share/dict/words?view=co&content-type=text/plain"
+        response = requests.get(word_site)
+        words = response.content.splitlines()
+        cluster_name = random.choice(words).decode("utf-8")
+    except:
+        cluster_name = id_generator()
+    return(cluster_name)
 
 
 def clone_kargo_git_repo(options):

@@ -25,7 +25,7 @@ Ansible inventory management for Kargo
 
 import sys
 import re
-from kargo.common import get_logger, id_generator
+from kargo.common import get_logger, id_generator, get_cluster_name
 from ansible.utils.display import Display
 display = Display()
 
@@ -124,10 +124,16 @@ class CfgInventory(object):
                 etcd_members = [instances[0]]
         if self.platform in ['aws', 'gce']:
             if self.options['add_node']:
-                new_inventory = self.read_inventory()
+                current_inventory = self.read_inventory()
+                cluster_name = '-'.join(
+                    current_inventory['all']['hosts'][0]['hostname'].split('-')[:-1]
+                )
+                new_inventory = current_inventory
+            else:
+                cluster_name = 'k8s-' + get_cluster_name()
             for host in instances:
                 if self.platform == 'aws':
-                    host['name'] = "%s-%s" % (self.options['cluster_name'], id_generator(5))
+                    host['name'] = "%s-%s" % (cluster_name, id_generator(5))
                 new_inventory['all']['hosts'].append(
                     {'hostname': '%s' % host['name'], 'hostvars': [
                         {'name': 'ansible_ssh_host', 'value': host['public_ip']}

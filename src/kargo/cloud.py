@@ -25,12 +25,10 @@ Run Instances on cloud providers and generate inventory
 
 import sys
 import os
-import requests
-import random
 import yaml
 import json
 from kargo.inventory import CfgInventory
-from kargo.common import get_logger, query_yes_no, run_command, which, id_generator
+from kargo.common import get_logger, query_yes_no, run_command, which, id_generator, get_cluster_name
 from ansible.utils.display import Display
 display = Display()
 playbook_exec = which('ansible-playbook')
@@ -132,16 +130,6 @@ class Cloud(object):
             self.logger.critical('Cannot create instances: %s' % emsg)
             sys.exit(1)
 
-    def get_cluster_name(self):
-        try:
-            word_site = "http://svnweb.freebsd.org/csrg/share/dict/words?view=co&content-type=text/plain"
-            response = requests.get(word_site)
-            words = response.content.splitlines()
-            cluster_name = random.choice(words).decode("utf-8")
-        except:
-            cluster_name = id_generator()
-        return(cluster_name)
-
 
 class AWS(Cloud):
 
@@ -205,7 +193,7 @@ class GCE(Cloud):
         ]
         # Define instance names
         gce_instance_names = list()
-        cluster_name = self.get_cluster_name()
+        cluster_name = 'k8s-' + get_cluster_name()
         for x in range(self.options['count']):
             if self.options['add_node']:
                 current_inventory = self.Cfg.read_inventory()
@@ -221,7 +209,7 @@ class GCE(Cloud):
                 )
             else:
                 gce_instance_names.append(
-                    'k8s-' + cluster_name.lower() + '-%s' % id_generator()
+                    cluster_name + '-%s' % id_generator()
                 )
         gce_instance_names = ','.join(gce_instance_names)
         # Define GCE task
