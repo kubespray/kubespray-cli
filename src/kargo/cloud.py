@@ -221,7 +221,7 @@ class GCE(Cloud):
                 )
             else:
                 gce_instance_names.append(
-                    'k8s-' + cluster_name + '-%s' % id_generator()
+                    'k8s-' + cluster_name.lower() + '-%s' % id_generator()
                 )
         gce_instance_names = ','.join(gce_instance_names)
         # Define GCE task

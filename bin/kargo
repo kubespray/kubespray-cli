@@ -16,7 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '0.2.4'
+__version__ = '0.2.5'
 
 import os
 import argparse
@@ -128,8 +128,7 @@ if __name__ == '__main__':
     )
     aws_parser.add_argument('--ami', dest='aws_ami', help='AWS AMI')
     aws_parser.add_argument(
-        '--cluster-name', dest='cluster_name', default='k8s-%s' % id_generator(),
-        help='Name of the cluster'
+        '--cluster-name', dest='cluster_name', help='Name of the cluster'
     )
     aws_parser.add_argument('--add', dest='add_node', action='store_true',
         help="Add node to an existing cluster")
@@ -161,8 +160,7 @@ if __name__ == '__main__':
         '--email', dest='service_account_email', help='GCE project ID'
     )
     gce_parser.add_argument(
-        '--cluster-name', dest='cluster_name', default='k8s-%s' % id_generator(),
-        help='Name of the cluster'
+        '--cluster-name', dest='cluster_name', help='Name of the cluster'
     )
     gce_parser.add_argument('--add', dest='add_node', action='store_true',
         help="Add node to an existing cluster")
