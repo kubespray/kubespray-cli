@@ -171,9 +171,13 @@ class RunPlaybook(object):
             os.kill(int(os.environ.get('SSH_AGENT_PID')), signal.SIGTERM)
             sys.exit(1)
         svc_network, pods_network = self.get_subnets()
+        cmd = cmd + [
+            '-e', 'kube_service_addresses=%s' % svc_network.cidr,
+            '-e', 'kube_pods_subnet=%s' % pods_network
+        ]
         # Add any additionnal Ansible option
-        if 'ansible-opts' in self.options.keys():
-            cmd = cmd + self.options['ansible-opts'].split(' ')
+        if 'ansible_opts' in self.options.keys():
+            cmd = cmd + self.options['ansible_opts'].split(' ')
         for cloud in ['aws', 'gce']:
             if self.options[cloud]:
                 cmd = cmd + ['-e', 'cloud_provider=%s' % cloud]

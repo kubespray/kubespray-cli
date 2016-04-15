@@ -13,7 +13,7 @@ You should have at least 3 nodes but you can spawn only one instance for
 tests purposes.
 
 Example on GCE:
-[![asciicast](https://asciinema.org/a/38yu9fh7r2lq2hd4xlvtngadp.png)](https://asciinema.org/a/38yu9fh7r2lq2hd4xlvtngadp?speed=4)
+[![asciicast](https://asciinema.org/a/5in6riip9w93r4zzunlv2vib8.png)](https://asciinema.org/a/5in6riip9w93r4zzunlv2vib8?speed=4)
 
 Requirements
 ============
@@ -188,8 +188,8 @@ Then deploy the cluster with the same options as the running cluster.
 
     usage: kargo deploy [-h] [-p KARGO_PATH] [--config CONFIGFILE] [-y]
                         [-i INVENTORY_PATH] [-k SSH_KEY] [-u ANSIBLE_USER]
-                        [-n {flannel,weave,calico}] [--aws] [--gce] [--coreos]
-                        [--ansible-opts ANSIBLE_OPTS]
+                        [-N KUBE_NETWORK] [-n {flannel,weave,calico}] [--aws]
+                        [--gce] [--coreos] [--ansible-opts ANSIBLE_OPTS]
     
     optional arguments:
       -h, --help            show this help message and exit
@@ -204,6 +204,10 @@ Then deploy the cluster with the same options as the running cluster.
                             ssh key for authentication on remote servers
       -u ANSIBLE_USER, --user ANSIBLE_USER
                             Ansible SSH user (remote user)
+      -N KUBE_NETWORK, --kube-network KUBE_NETWORK
+                            Network to be used inside the cluster (/16), (must not
+                            overlap with any of your infrastructure networks).
+                            default: 10.233.0.0/16
       -n {flannel,weave,calico}, --network-plugin {flannel,weave,calico}
       --aws                 Kubernetes deployment on AWS
       --gce                 Kubernetes deployment on GCE
@@ -223,4 +227,4 @@ Then deploy the cluster with the same options as the running cluster.
 
 example: Deploy a kubernetes cluster on CoreOS servers located on GCE
 
-    kargo deploy -u core -p /kargo-dc1 --gce --coreos
+    kargo deploy -u core -p /kargo-dc1 --gce --coreos --cluster-name mykube --kube-network 10.42.0.0/16
