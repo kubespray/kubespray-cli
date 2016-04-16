@@ -141,6 +141,7 @@ class AWS(Cloud):
         data = self.options
         data.pop('func')
         # Options list of ansible EC2 module
+        self.options['image'] = self.options['ami']
         ec2_options = [
             'aws_access_key', 'aws_secret_key', 'count', 'group',
             'instance_type', 'key_name', 'region', 'vpc_subnet_id',

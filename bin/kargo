@@ -16,7 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '0.2.7'
+__version__ = '0.2.8'
 
 import os
 import argparse
@@ -126,7 +126,7 @@ if __name__ == '__main__':
     aws_parser.add_argument(
         '--vpc-subnet', dest='vpc_subnet_id', help='EC2 VPC regional subnet'
     )
-    aws_parser.add_argument('--ami', dest='aws_ami', help='AWS AMI')
+    aws_parser.add_argument('--ami', dest='ami', help='AWS AMI')
     aws_parser.add_argument(
         '--cluster-name', dest='cluster_name', help='Name of the cluster'
     )
