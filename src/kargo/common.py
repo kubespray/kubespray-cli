@@ -88,7 +88,7 @@ def get_cluster_name():
         cluster_name = random.choice(words).decode("utf-8")
     except:
         cluster_name = id_generator()
-    return(cluster_name)
+    return(cluster_name.lower())
 
 
 def clone_kargo_git_repo(options):
