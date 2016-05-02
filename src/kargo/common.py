@@ -24,6 +24,7 @@ import os
 import netaddr
 import sys
 import string
+import getpass
 from git import Repo
 from ansible.utils.display import Display
 from subprocess import PIPE, STDOUT, Popen, CalledProcessError
@@ -44,6 +45,17 @@ def which(program):
             if is_exe(exe_file):
                 return exe_file
     return None
+
+
+def read_password():
+    pw = getpass.getpass(prompt="API 'root' password: ")
+    if len(pw) < 6:
+        display.warning('Password is too short')
+    pw2 = getpass.getpass(prompt="Confirm password: ")
+    if pw != pw2:
+        display.error("Passwords don't match")
+        sys.exit(1)
+    return(pw)
 
 
 def query_yes_no(question, default="yes"):
@@ -103,7 +115,7 @@ def clone_kargo_git_repo(options):
             ):
                     display.display('Aborted', color='red')
                     sys.exit(1)
-        elif not options['noclone']:
+        if not options['noclone']:
             clone_git_repo(
                 'kargo', options['kargo_path'], options['kargo_git_repo']
             )
