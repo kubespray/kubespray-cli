@@ -93,7 +93,8 @@ def get_cluster_name():
 
 def clone_kargo_git_repo(options):
     if not options['add_node']:
-        if os.path.isdir(options['kargo_path']) and not options['assume_yes']:
+        if (os.path.isdir(options['kargo_path']) and not options['assume_yes']
+                and not options['noclone']):
             display.warning(
                 'A directory %s already exists' % options['kargo_path']
             )
@@ -102,9 +103,10 @@ def clone_kargo_git_repo(options):
             ):
                     display.display('Aborted', color='red')
                     sys.exit(1)
-        clone_git_repo(
-            'kargo', options['kargo_path'], options['kargo_git_repo']
-        )
+        elif not options['noclone']:
+            clone_git_repo(
+                'kargo', options['kargo_path'], options['kargo_git_repo']
+            )
 
 
 def clone_git_repo(name, directory, git_repo):

@@ -71,7 +71,13 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '-v', '--version', action='version',
-        version='%(prog)s'+' %s' %  __version__
+        version='%(prog)s'+' %s' % __version__
+    )
+    # Options shared by the first step subparsers (prepare, gce, aws)
+    firststep_parser = argparse.ArgumentParser(add_help=False)
+    firststep_parser.add_argument(
+        '--noclone', default=False, action='store_true', dest='noclone',
+        help='Do not clone the git repo. Useful when the repo is already downloaded'
     )
 
     # Options shared by all subparsers
@@ -86,12 +92,12 @@ if __name__ == '__main__':
         help='When a yes/no prompt would be presented, assume that the user entered "yes"'
     )
     parent_parser.add_argument(
-        '-i', '--inventory', dest='inventory_path', help='Ansible SSH user (remote user)'
+        '-i', '--inventory', dest='inventory_path', help='Inventory file path'
     )
 
     # prepare
     prepare_parser = subparsers.add_parser(
-        'prepare', parents=[parent_parser],
+        'prepare', parents=[parent_parser, firststep_parser],
         help='generate inventory and create vms on cloud providers'
     )
     prepare_parser.add_argument('--add', dest='add_node', action='store_true',
@@ -104,7 +110,7 @@ if __name__ == '__main__':
 
     # aws
     aws_parser = subparsers.add_parser(
-        'aws', parents=[parent_parser], help='Create AWS instances and generate inventory'
+        'aws', parents=[parent_parser, firststep_parser], help='Create AWS instances and generate inventory'
     )
     aws_parser.add_argument(
         '--access-key', dest='aws_access_key', help='AWS access key'
@@ -140,7 +146,7 @@ if __name__ == '__main__':
 
     # gce
     gce_parser = subparsers.add_parser(
-        'gce', parents=[parent_parser],
+        'gce', parents=[parent_parser, firststep_parser],
          help='Create GCE machines and generate inventory'
     )
     gce_parser.add_argument(
