@@ -206,7 +206,7 @@ class RunPlaybook(object):
             cmd = cmd + ['-e', 'ansible_python_interpreter=/opt/bin/python']
         display.banner('RUN PLAYBOOK')
         self.logger.info(
-            'Running kubernetes deployment with the command: %s' % cmd
+            'Running kubernetes deployment with the command: %s' % ' '.join(cmd)
         )
         rcode, emsg = run_command('Run deployment', cmd)
         if rcode != 0:
