@@ -175,6 +175,9 @@ class RunPlaybook(object):
             '-e', 'kube_service_addresses=%s' % svc_network.cidr,
             '-e', 'kube_pods_subnet=%s' % pods_network
         ]
+        # Add root password for the apiserver
+        if 'k8s_passwd' in self.options.keys():
+            cmd = cmd + ['-e', 'root_api_pwd=%s' % self.options['k8s_passwd']]
         # Add any additionnal Ansible option
         if 'ansible_opts' in self.options.keys():
             cmd = cmd + self.options['ansible_opts'].split(' ')

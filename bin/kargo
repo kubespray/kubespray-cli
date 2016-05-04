@@ -25,7 +25,7 @@ try:
     from ansible.utils.display import Display
 except ImportError:
     raise ImportError('Cannot find Ansible: Please check your installation (required version 2)')
-from kargo.common import clone_kargo_git_repo
+from kargo.common import clone_kargo_git_repo, read_password
 from kargo.configure import Config
 from kargo.inventory import CfgInventory
 from kargo.deploy import RunPlaybook
@@ -190,6 +190,14 @@ if __name__ == '__main__':
         help='Ansible SSH user (remote user)'
     )
     deploy_parser.add_argument(
+        '--passwd', dest='k8s_passwd',
+        help="Set the 'root' passwd to authenticate to the API (default changeme')"
+    )
+    deploy_parser.add_argument(
+        '-P', '--prompt-passwd', default=False, action='store_true', dest='prompt_pwd',
+        help="Set the 'root' passwd to authenticate to the API (Interactive mode)"
+    )
+    deploy_parser.add_argument(
         '-N', '--kube-network', dest='kube_network', default='10.233.0.0/16',
         help="""Network to be used inside the cluster (/16),
              (must not overlap with any of your infrastructure networks).
@@ -239,6 +247,10 @@ if __name__ == '__main__':
     # Set logfile
     if 'logfile' not in config.keys():
         config['logfile'] = os.path.join(config['kargo_path'], 'kargo.log')
+    # Set kubernetes 'root' password
+    if 'prompt_pwd' in config.keys() and config['prompt_pwd'] is True:
+        pwd = read_password()
+        config['k8s_passwd'] = pwd
     # Run functions with all the options
     os.environ['ANSIBLE_FORCE_COLOR'] = 'true'
     args.func(config)
