@@ -25,7 +25,6 @@ import netaddr
 import sys
 import string
 import getpass
-from git import Repo
 from ansible.utils.display import Display
 from subprocess import PIPE, STDOUT, Popen, CalledProcessError
 display = Display()
@@ -128,7 +127,11 @@ def clone_git_repo(name, directory, git_repo):
     if os.path.isdir(directory):
         shutil.rmtree(directory)
     display.banner('CLONING %s GIT REPO' % name.upper())
-    Repo.clone_from(git_repo, directory)
+    cmd = ["git", "clone", git_repo, directory]
+    rcode, emsg = run_command('Clone kargo repository from github', cmd)
+    if rcode != 0:
+        display.error('Cannot clone kargo repository from github')
+        sys.exit(1)
     display.display('%s repo cloned' % name, color='green')
 
 
