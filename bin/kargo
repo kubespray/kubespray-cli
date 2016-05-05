@@ -16,7 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '0.3.1'
+__version__ = '0.3.2'
 
 import os
 import argparse
@@ -191,11 +191,11 @@ if __name__ == '__main__':
     )
     deploy_parser.add_argument(
         '--passwd', dest='k8s_passwd',
-        help="Set the 'root' passwd to authenticate to the API (default changeme')"
+        help="Set the 'kube' passwd to authenticate to the API (default changeme')"
     )
     deploy_parser.add_argument(
         '-P', '--prompt-passwd', default=False, action='store_true', dest='prompt_pwd',
-        help="Set the 'root' passwd to authenticate to the API (Interactive mode)"
+        help="Set the 'kube' passwd to authenticate to the API (Interactive mode)"
     )
     deploy_parser.add_argument(
         '-N', '--kube-network', dest='kube_network', default='10.233.0.0/16',
@@ -247,7 +247,7 @@ if __name__ == '__main__':
     # Set logfile
     if 'logfile' not in config.keys():
         config['logfile'] = os.path.join(config['kargo_path'], 'kargo.log')
-    # Set kubernetes 'root' password
+    # Set kubernetes 'kube' password
     if 'prompt_pwd' in config.keys() and config['prompt_pwd'] is True:
         pwd = read_password()
         config['k8s_passwd'] = pwd
