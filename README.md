@@ -29,7 +29,7 @@ Installation
 
 ### Python pip
 
-    pip2 install kargo
+    sudo pip2 install kargo
 
 
 ### Docker image
@@ -73,21 +73,7 @@ Basic usage
 
 ### Generate inventory for a baremetal cluster
 
-On **baremetal**
-
-    usage: kargo prepare [-h] [-p KARGO_PATH] [--config CONFIGFILE] [--version]
-                         [-y] --nodes N [N ...]
-
-    optional arguments:
-      -h, --help            show this help message and exit
-      -p KARGO_PATH, --path KARGO_PATH
-                            Where the Ansible playbooks are installed
-      --config CONFIGFILE   Config file
-      --version             show program's version number and exit
-      -y, --assumeyes       When a yes/no prompt would be presented, assume that
-                            the user entered "yes"
-      --nodes N [N ...]     List of nodes
-
+If the servers are already available you can use the argument **prepare**
 The command below will just clone the git repository and creates the
 inventory.
 The hostvars must be separated by a **comma without spaces**
@@ -98,79 +84,26 @@ The hostvars must be separated by a **comma without spaces**
 
 **AWS**
 
-    usage: kargo aws [-h] [-p KARGO_PATH] [--config CONFIGFILE] [-y]
-                     [-i INVENTORY_PATH] [--access-key AWS_ACCESS_KEY]
-                     [--secret-key AWS_SECRET_KEY] [--type INSTANCE_TYPE]
-                     [--keypair KEY_NAME] [--region REGION]
-                     [--security-group GROUP] [--vpc-id AWS_VPC_ID]
-                     [--vpc-subnet VPC_SUBNET_ID] [--ami AWS_AMI]
-                     [--cluster-name CLUSTER_NAME] [--add] --instances COUNT
-    
-    optional arguments:
-      -h, --help            show this help message and exit
-      -p KARGO_PATH, --path KARGO_PATH
-                            Where the Ansible playbooks are installed
-      --config CONFIGFILE   Config file
-      -y, --assumeyes       When a yes/no prompt would be presented, assume that
-                            the user entered "yes"
-      -i INVENTORY_PATH, --inventory INVENTORY_PATH
-                            Ansible SSH user (remote user)
-      --access-key AWS_ACCESS_KEY
-                            AWS access key
-      --secret-key AWS_SECRET_KEY
-                            AWS secret key
-      --type INSTANCE_TYPE  AWS instance type
-      --keypair KEY_NAME    AWS key pair name
-      --region REGION       AWS region
-      --security-group GROUP
-                            AWS security group
-      --vpc-id AWS_VPC_ID   EC2 VPC id
-      --vpc-subnet VPC_SUBNET_ID
-                            EC2 VPC regional subnet
-      --ami AWS_AMI         AWS AMI
-      --cluster-name CLUSTER_NAME
-                            Name of the cluster
-      --add                 Add node to an existing cluster
-      --instances COUNT     Number of nodes
-
+In order to create vms on AWS you can either edit the config file */etc/kargo/kargo.yml* or set the options with the argument **aws**
 if the config file is filled with the proper information you just need to run the following command
 
     kargo aws --instances 3
 
-**GCE** 
+Another example which download kargo's repo in a defined directory and set the cluster name
 
-    usage: kargo gce [-h] [-p KARGO_PATH] [--config CONFIGFILE] [-y]
-                     [-i INVENTORY_PATH] [--pem_file PEM_FILE] [--zone ZONE]
-                     [--type MACHINE_TYPE] [--image IMAGE] [--project PROJECT_ID]
-                     [--email SERVICE_ACCOUNT_EMAIL] [--cluster-name CLUSTER_NAME]
-                     [--add] --instances COUNT
-    
-    optional arguments:
-      -h, --help            show this help message and exit
-      -p KARGO_PATH, --path KARGO_PATH
-                            Where the Ansible playbooks are installed
-      --config CONFIGFILE   Config file
-      -y, --assumeyes       When a yes/no prompt would be presented, assume that
-                            the user entered "yes"
-      -i INVENTORY_PATH, --inventory INVENTORY_PATH
-                            Ansible SSH user (remote user)
-      --pem_file PEM_FILE   GCE ssh pem file path
-      --zone ZONE           GCE zone
-      --type MACHINE_TYPE   GCE machine type
-      --image IMAGE         GCE image
-      --project PROJECT_ID  GCE project ID
-      --email SERVICE_ACCOUNT_EMAIL
-                            GCE project ID
-      --cluster-name CLUSTER_NAME
-                            Name of the cluster
-      --add                 Add node to an existing cluster
-      --instances COUNT     Number of nodes
+    kargo aws --instances 3 -p /tmp/mykargo --cluster-name foobar
 
-example:
 
+**GCE**
+
+In order to create vms on GCE you can either edit the config file */etc/kargo/kargo.yml* or set the options with the argument **gce**
 if the config file is filled with the proper information you just need to run the following command
 
     kargo gce --instances 3
+
+Another example if you already have a kargo repository in your home dir
+
+    kargo gce --instances 3 --noclone --cluster-name foobar
 
 **Add a node to an existing cluster**
 It's possible to add nodes to a running cluster, </br>
@@ -185,46 +118,27 @@ Then deploy the cluster with the same options as the running cluster.
 
 ### Deploy cluster
 
+The last step is to run the cluster deployment.
 
-    usage: kargo deploy [-h] [-p KARGO_PATH] [--config CONFIGFILE] [-y]
-                        [-i INVENTORY_PATH] [-k SSH_KEY] [-u ANSIBLE_USER]
-                        [-N KUBE_NETWORK] [-n {flannel,weave,calico}] [--aws]
-                        [--gce] [--coreos] [--ansible-opts ANSIBLE_OPTS]
-    
-    optional arguments:
-      -h, --help            show this help message and exit
-      -p KARGO_PATH, --path KARGO_PATH
-                            Where the Ansible playbooks are installed
-      --config CONFIGFILE   Config file
-      -y, --assumeyes       When a yes/no prompt would be presented, assume that
-                            the user entered "yes"
-      -i INVENTORY_PATH, --inventory INVENTORY_PATH
-                            Ansible SSH user (remote user)
-      -k SSH_KEY, --sshkey SSH_KEY
-                            ssh key for authentication on remote servers
-      -u ANSIBLE_USER, --user ANSIBLE_USER
-                            Ansible SSH user (remote user)
-      -N KUBE_NETWORK, --kube-network KUBE_NETWORK
-                            Network to be used inside the cluster (/16), (must not
-                            overlap with any of your infrastructure networks).
-                            default: 10.233.0.0/16
-      -n {flannel,weave,calico}, --network-plugin {flannel,weave,calico}
-      --aws                 Kubernetes deployment on AWS
-      --gce                 Kubernetes deployment on GCE
-      --coreos              bootstrap python on CoreOS
-      --ansible-opts ANSIBLE_OPTS
-                            Ansible options
-
+**Note**:
 -   default network plugin : flannel (vxlan) default
 -   default kargo\_path : "/home/\<current\_user\>/kargo"
 -   inventory path : "\<kargo\_path\>/inventory/inventory.cfg".
 -   The option `--inventory` allows to use an existing inventory (file or dynamic)
 -   On coreos (--coreos) the directory **/opt/bin** must be writable
-
 - You can use all Ansible's variables with
-`--ansible-opts '-e foo=bar -e titi=toto -vvv'`
-**Note** : the value must be enclosed by simple quotes
+`--ansible-opts '-e foo=bar -e titi=toto -vvv'` (the value must be enclosed by simple quotes)
 
-example: Deploy a kubernetes cluster on CoreOS servers located on GCE
+some examples:
+
+Deploy with the default options on baremetal
+
+    kargo deploy
+
+Deploy on AWS using a specific kargo directory and set the api password
+
+    kargo deploy --aws --passwd secret -p /tmp/mykargo -n weave
+
+Deploy a kubernetes cluster on CoreOS servers located on GCE
 
     kargo deploy -u core -p /kargo-dc1 --gce --coreos --cluster-name mykube --kube-network 10.42.0.0/16

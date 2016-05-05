@@ -47,7 +47,7 @@ def which(program):
 
 
 def read_password():
-    pw = getpass.getpass(prompt="API 'root' password: ")
+    pw = getpass.getpass(prompt="API 'kube' password: ")
     if len(pw) < 6:
         display.warning('Password is too short')
     pw2 = getpass.getpass(prompt="Confirm password: ")
