@@ -125,6 +125,13 @@ class RunPlaybook(object):
             '-b', '--become-user=root', '-i', self.inventorycfg,
             os.path.join(self.options['kargo_path'], 'coreos-bootstrap.yml')
         ]
+        display.display(' '.join(cmd), color='bright blue')
+        if not self.options['assume_yes']:
+            if not query_yes_no(
+                'Bootstrap CoreOS servers with python ?'
+            ):
+                display.display('Aborted', color='red')
+                sys.exit(1)
         display.banner('BOOTSTRAP COREOS')
         self.logger.info(
             'Bootstrapping CoreOS with the command: %s' % cmd
@@ -137,7 +144,7 @@ class RunPlaybook(object):
 
     def get_subnets(self):
         '''Check the subnet value and split into 2 distincts subnets'''
-        svc_pfx = 23
+        svc_pfx = 17
         pods_pfx = 17
         net = netaddr.IPNetwork(self.options['kube_network'])
         pfx_error_msg = (
@@ -166,15 +173,16 @@ class RunPlaybook(object):
             os.path.join(self.options['kargo_path'], 'cluster.yml')
         ]
         # Configure the network subnets pods and k8s services
-        if not validate_cidr(self.options['kube_network'], version=4):
-            display.error('Invalid Kubernetes network address')
-            os.kill(int(os.environ.get('SSH_AGENT_PID')), signal.SIGTERM)
-            sys.exit(1)
-        svc_network, pods_network = self.get_subnets()
-        cmd = cmd + [
-            '-e', 'kube_service_addresses=%s' % svc_network.cidr,
-            '-e', 'kube_pods_subnet=%s' % pods_network
-        ]
+        if 'kube_network' in self.options.keys():
+            if not validate_cidr(self.options['kube_network'], version=4):
+                display.error('Invalid Kubernetes network address')
+                os.kill(int(os.environ.get('SSH_AGENT_PID')), signal.SIGTERM)
+                sys.exit(1)
+            svc_network, pods_network = self.get_subnets()
+            cmd = cmd + [
+                '-e', 'kube_service_addresses=%s' % svc_network.cidr,
+                '-e', 'kube_pods_subnet=%s' % pods_network
+            ]
         # Add root password for the apiserver
         if 'k8s_passwd' in self.options.keys():
             cmd = cmd + ['-e', 'kube_api_pwd=%s' % self.options['k8s_passwd']]
@@ -186,16 +194,21 @@ class RunPlaybook(object):
                 cmd = cmd + ['-e', 'cloud_provider=%s' % cloud]
         if not self.options['coreos']:
             self.check_ping()
-        display.display(
-            'Kubernetes services network : %s (%s IPs)'
-            % (svc_network.cidr, str(svc_network.size.real - 2)),
-            color='bright gray'
-        )
-        display.display(
-            'Pods network : %s (%s IPs)'
-            % (pods_network.cidr, str(pods_network.size.real - 2)),
-            color='bright gray'
-        )
+        if self.options['coreos']:
+            self.coreos_bootstrap()
+            self.check_ping()
+            cmd = cmd + ['-e', 'ansible_python_interpreter=/opt/bin/python']
+        if 'kube_network' in self.options.keys():
+            display.display(
+                'Kubernetes services network : %s (%s IPs)'
+                % (svc_network.cidr, str(svc_network.size.real - 2)),
+                color='bright gray'
+            )
+            display.display(
+                'Pods network : %s (%s IPs)'
+                % (pods_network.cidr, str(pods_network.size.real - 2)),
+                color='bright gray'
+            )
         display.display(' '.join(cmd), color='bright blue')
         if not self.options['assume_yes']:
             if not query_yes_no(
@@ -203,10 +216,6 @@ class RunPlaybook(object):
             ):
                 display.display('Aborted', color='red')
                 sys.exit(1)
-        if self.options['coreos']:
-            self.coreos_bootstrap()
-            self.check_ping()
-            cmd = cmd + ['-e', 'ansible_python_interpreter=/opt/bin/python']
         display.banner('RUN PLAYBOOK')
         self.logger.info(
             'Running kubernetes deployment with the command: %s' % ' '.join(cmd)

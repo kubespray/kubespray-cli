@@ -16,7 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '0.3.2'
+__version__ = '0.3.3'
 
 import os
 import argparse
@@ -198,7 +198,7 @@ if __name__ == '__main__':
         help="Set the 'kube' passwd to authenticate to the API (Interactive mode)"
     )
     deploy_parser.add_argument(
-        '-N', '--kube-network', dest='kube_network', default='10.233.0.0/16',
+        '-N', '--kube-network', dest='kube_network',
         help="""Network to be used inside the cluster (/16),
              (must not overlap with any of your infrastructure networks).
              default: 10.233.0.0/16"""

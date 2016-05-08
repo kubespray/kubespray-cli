@@ -19,7 +19,7 @@ test_requirements = [
 
 setup(
     name='kargo',
-    version='0.3.2',
+    version='0.3.3',
     description="Kargo kubernetes cluster deployment",
     author="Smaine Kahlouch",
     author_email='smainklh@gmail.com',

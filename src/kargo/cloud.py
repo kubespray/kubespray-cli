@@ -212,6 +212,11 @@ class GCE(Cloud):
                 gce_instance_names.append(
                     cluster_name + '-%s' % id_generator()
                 )
+        for idx, name in enumerate(gce_instance_names):
+            if idx < 2:
+                gce_instance_names[idx] = name + '-m'
+            else:
+                gce_instance_names[idx] = name + '-n'
         gce_instance_names = ','.join(gce_instance_names)
         # Define GCE task
         gce_task = {'gce': {},
