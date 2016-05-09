@@ -113,6 +113,18 @@ class CfgInventory(object):
                               {'hostname': 'kube-master', 'hostvars': []}
                               ]},
                         }
+
+        if self.platform == 'openstack':
+            if self.options['floating_ip']:
+                ip_type = 'public_v4'
+            else:
+                ip_type = 'private_v4'
+            new_instances = []
+            for node in instances['results']:
+                new_instances.append({'public_ip': node['openstack'][ip_type],
+                                      'name': node['item']})
+            instances = new_instances
+
         if not self.options['add_node']:
             if len(instances) > 1:
                 k8s_masters = instances[0:2]
@@ -122,7 +134,7 @@ class CfgInventory(object):
                 etcd_members = instances[0:3]
             else:
                 etcd_members = [instances[0]]
-        if self.platform in ['aws', 'gce']:
+        if self.platform in ['aws', 'gce', 'openstack']:
             if self.options['add_node']:
                 current_inventory = self.read_inventory()
                 cluster_name = '-'.join(
