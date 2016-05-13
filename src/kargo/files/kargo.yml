@@ -22,6 +22,8 @@ loglevel: "info"
 # group: "<aws_security_group>"
 # vpc_subnet_id: "<aws_vpc_id>"
 # region: "<aws_region>"
+# tags:
+#   - type: k8s
 #
 # Google Compute Engine options
 # ---
@@ -31,6 +33,8 @@ loglevel: "info"
 # pem_file: "<gce_pem_file>"
 # project_id: "<gce_project_id>"
 # zone: "<cloud_region>"
+# tags:
+#   - k8s
 #
 # All the options to be passed to the 'ansible-playbook' command line
 # ansible-opts:
