@@ -186,7 +186,7 @@ if __name__ == '__main__':
 
     # openstack
     openstack_parser = subparsers.add_parser(
-        'openstack', parents=[parent_parser],
+        'openstack', parents=[parent_parser, firststep_parser],
         help='Create OpenStack instances and generate inventory'
     )
     openstack_parser.add_argument(
