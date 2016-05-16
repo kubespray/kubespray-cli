@@ -78,7 +78,7 @@ The command below will just clone the git repository and creates the
 inventory.
 The hostvars must be separated by a **comma without spaces**
 
-    kargo preprare --nodes node1[ansible_ssh_host=10.99.21.1] node2[ansible_ssh_host=10.99.21.2] node3[ansible_ssh_host=10.99.21.3]
+    kargo prepare --nodes node1[ansible_ssh_host=10.99.21.1] node2[ansible_ssh_host=10.99.21.2] node3[ansible_ssh_host=10.99.21.3]
 
 ### Run instances and generate the inventory on Clouds
 
