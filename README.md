@@ -66,6 +66,17 @@ frequently </br>
     pem_file: "/home/smana/kargo.pem"
     project_id: "kubespray-ci-1"
     zone: "us-east1-c"
+    #
+    # OpenStack options
+    # ---
+    os_auth_url: "https://"
+    os_username: "k8s"
+    os_password: "secret"
+    os_project_name: "k8s"
+    flavor: "m1.small"
+    image: "wily-server-cloudimg-amd64"
+    network: "my-network"
+    sshkey: "my-pub-key"
     ...
 
 Basic usage
@@ -104,6 +115,108 @@ if the config file is filled with the proper information you just need to run th
 Another example if you already have a kargo repository in your home dir
 
     kargo gce --instances 3 --noclone --cluster-name foobar
+
+
+**OpenStack**
+
+In order to create vms on a OpenStack cluster you can either edit the config file */etc/kargo/kargo.yml* or set the options with the argument **openstack**.
+The options **network** and **sshkey** are required and need to be created before running kargo, you can either create them using the OpenStack Dashboard or the OpenStack CLI clients.
+
+
+Create a network using the OpenStack Neutron client
+
+    # create network
+    $ neutron net-create k8s-network
+
+    Created a new network:
+    +-----------------+--------------------------------------+
+    | Field           | Value                                |
+    +-----------------+--------------------------------------+
+    | admin_state_up  | True                                 |
+    | id              | 18989cb2-d9fc-4abd-85e8-fe5b33df3541 |
+    | mtu             | 0                                    |
+    | name            | k8s-network                          |
+    | router:external | False                                |
+    | shared          | False                                |
+    | status          | ACTIVE                               |
+    | subnets         |                                      |
+    | tenant_id       | 5de2cf232a674b05983b61fdc1ea67aa     |
+    +-----------------+--------------------------------------+
+
+    # create subnet
+    $ neutron subnet-create --name k8s-subnet --enable-dhcp --allocation_pool "start=192.168.0.100,end=192.168.0.200" k8s-network 192.168.0.0/24
+
+    Created a new subnet:
+    +-------------------+----------------------------------------------------+
+    | Field             | Value                                              |
+    +-------------------+----------------------------------------------------+
+    | allocation_pools  | {"start": "192.168.0.100", "end": "192.168.0.200"} |
+    | cidr              | 192.168.0.0/24                                     |
+    | dns_nameservers   |                                                    |
+    | enable_dhcp       | True                                               |
+    | gateway_ip        | 192.168.0.1                                        |
+    | host_routes       |                                                    |
+    | id                | fc5a5436-de3a-4d68-9846-d977d047d6d7               |
+    | ip_version        | 4                                                  |
+    | ipv6_address_mode |                                                    |
+    | ipv6_ra_mode      |                                                    |
+    | name              | k8s-subnet                                         |
+    | network_id        | 18989cb2-d9fc-4abd-85e8-fe5b33df3541               |
+    | subnetpool_id     |                                                    |
+    | tenant_id         | 5de2cf232a674b05983b61fdc1ea67aa                   |
+    +-------------------+----------------------------------------------------+
+
+    # create a router
+    $ neutron router-create k8s-router
+
+    Created a new router:
+    +-----------------------+--------------------------------------+
+    | Field                 | Value                                |
+    +-----------------------+--------------------------------------+
+    | admin_state_up        | True                                 |
+    | external_gateway_info |                                      |
+    | id                    | 69027fa4-239b-4bae-89bc-3040c365ee4d |
+    | name                  | k8s-router                           |
+    | routes                |                                      |
+    | status                | ACTIVE                               |
+    | tenant_id             | 5de2cf232a674b05983b61fdc1ea67aa     |
+    +-----------------------+--------------------------------------+
+
+    # set gateway network, external_network is the name of the external network defined by your OpenStack provider
+    $ neutron router-gateway-set k8s-router external_network
+
+    Set gateway for router k8s-router
+
+    # add k8s-subnet to k8s-router, plug the virtual cable
+    $ neutron router-interface-add k8s-router subnet=k8s-subnet
+
+    Added interface a62ca3b4-3302-45b6-803e-f87a4f43b4b6 to router k8s-router.
+
+Upload a ssh key in order to connect to the vms using the OpenStack Nova client
+
+
+    # import SSH Public Key with name k8s-pub-key
+    $ nova keypair-add --pub-key id_rsa.pub k8s-pub-key
+
+
+Once the preparation have been completed you can enter the required options to the config file */etc/kargo/kargo.yml*:
+
+    ...
+
+    network: "k8s-network"
+    sshkey: "k8s-pub-key"
+
+    ...
+
+
+If the config file is filled with the proper information you just need to run the following command
+
+    kargo openstack --instances 3
+
+Another example if you already have a kargo repository in your home dir
+
+    kargo openstack --instances 3 --noclone --cluster-name foobar
+
 
 **Add a node to an existing cluster**
 It's possible to add nodes to a running cluster, </br>
