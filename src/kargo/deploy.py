@@ -41,6 +41,7 @@ class RunPlaybook(object):
     Run the Ansible playbook to deploy the kubernetes cluster
     '''
     def __init__(self, options):
+        self.existing_ssh_agent = False
         self.options = options
         self.inventorycfg = options['inventory_path']
         self.logger = get_logger(
@@ -52,10 +53,26 @@ class RunPlaybook(object):
             % self.options
         )
 
+    def kill_ssh_agent(self):
+        if self.existing_ssh_agent:
+            return
+
+        if 'SSH_AGENT_PID' in os.environ:
+            agent_pid = os.environ.get('SSH_AGENT_PID')
+
+            if agent_pid.isdigit():
+                os.kill(int(agent_pid), signal.SIGTERM)
+
     def ssh_prepare(self):
         '''
         Run ssh-agent and store identities
         '''
+
+        if 'SSH_AUTH_SOCK' in os.environ:
+            self.existing_ssh_agent = True
+            self.logger.info('Using existing ssh agent')
+            return
+
         try:
             sshagent = check_output('ssh-agent')
         except CalledProcessError as e:
@@ -91,7 +108,7 @@ class RunPlaybook(object):
                 'Deployment stopped because of ssh credentials'
                 % self.filename
             )
-            os.kill(int(os.environ.get('SSH_AGENT_PID')), signal.SIGTERM)
+            self.kill_ssh_agent()
             sys.exit(1)
 
     def check_ping(self):
@@ -110,7 +127,7 @@ class RunPlaybook(object):
         rcode, emsg = run_command('SSH ping hosts', cmd)
         if rcode != 0:
             self.logger.critical('Cannot connect to hosts: %s' % emsg)
-            os.kill(int(os.environ.get('SSH_AGENT_PID')), signal.SIGTERM)
+            self.kill_ssh_agent()
             sys.exit(1)
         display.display('All hosts are reachable', color='green')
 
@@ -139,7 +156,7 @@ class RunPlaybook(object):
         rcode, emsg = run_command('Bootstrapping CoreOS', cmd)
         if rcode != 0:
             self.logger.critical('Deployment failed: %s' % emsg)
-            os.kill(int(os.environ.get('SSH_AGENT_PID')), signal.SIGTERM)
+            self.kill_ssh_agent()
             sys.exit(1)
 
     def get_subnets(self):
@@ -153,7 +170,7 @@ class RunPlaybook(object):
         )
         if net.prefixlen is not 16:
             display.error(pfx_error_msg)
-            os.kill(int(os.environ.get('SSH_AGENT_PID')), signal.SIGTERM)
+            self.kill_ssh_agent()
             sys.exit(1)
         subnets = list(net.subnet(pods_pfx))
         pods_network, remaining = subnets[0:2]
@@ -176,7 +193,7 @@ class RunPlaybook(object):
         if 'kube_network' in self.options.keys():
             if not validate_cidr(self.options['kube_network'], version=4):
                 display.error('Invalid Kubernetes network address')
-                os.kill(int(os.environ.get('SSH_AGENT_PID')), signal.SIGTERM)
+                self.kill_ssh_agent()
                 sys.exit(1)
             svc_network, pods_network = self.get_subnets()
             cmd = cmd + [
@@ -223,7 +240,7 @@ class RunPlaybook(object):
         rcode, emsg = run_command('Run deployment', cmd)
         if rcode != 0:
             self.logger.critical('Deployment failed: %s' % emsg)
-            os.kill(int(os.environ.get('SSH_AGENT_PID')), signal.SIGTERM)
+            self.kill_ssh_agent()
             sys.exit(1)
         display.display('Kubernetes deployed successfuly', color='green')
-        os.kill(int(os.environ.get('SSH_AGENT_PID')), signal.SIGTERM)
+        self.kill_ssh_agent()
