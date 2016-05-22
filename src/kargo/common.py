@@ -21,6 +21,7 @@ import shutil
 import requests
 import random
 import os
+import re
 import netaddr
 import sys
 import string
@@ -99,6 +100,8 @@ def get_cluster_name():
         cluster_name = random.choice(words).decode("utf-8")
     except:
         cluster_name = id_generator()
+    if not re.match('^(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)$', cluster_name):
+        get_cluster_name()
     return(cluster_name.lower())
 
 
