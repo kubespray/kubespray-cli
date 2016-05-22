@@ -32,6 +32,17 @@ loglevel: "info"
 # project_id: "<gce_project_id>"
 # zone: "<cloud_region>"
 #
+# OpenStack options
+# ---
+# os_auth_url: "<os_auth_url>"
+# os_username: "<os_username>"
+# os_password: "<os_password>"
+# os_project_name: "<os_project_name>"
+# flavor: "<os_flavor_name_or_id>"
+# image: "<os_image_name_or_id>"
+# network: "<os_network_name_or_id>"
+# sshkey: "<os_ssh_key_name>"
+#
 # All the options to be passed to the 'ansible-playbook' command line
 # ansible-opts:
 #   - '-vvv'

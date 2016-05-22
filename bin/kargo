@@ -29,7 +29,7 @@ from kargo.common import clone_kargo_git_repo, read_password
 from kargo.configure import Config
 from kargo.inventory import CfgInventory
 from kargo.deploy import RunPlaybook
-from kargo.cloud import AWS, GCE
+from kargo.cloud import AWS, GCE, OpenStack
 display = Display()
 
 
@@ -53,6 +53,14 @@ def gce(options):
     G.gen_gce_playbook()
     G.create_instances()
     G.write_inventory()
+
+
+def openstack(options):
+    clone_kargo_git_repo(options)
+    O = OpenStack(options)
+    O.gen_openstack_playbook()
+    O.create_instances()
+    O.write_inventory()
 
 
 def deploy(options):
@@ -175,6 +183,55 @@ if __name__ == '__main__':
         help='Number of nodes', required=True
     )
     gce_parser.set_defaults(func=gce)
+
+    # openstack
+    openstack_parser = subparsers.add_parser(
+        'openstack', parents=[parent_parser, firststep_parser],
+        help='Create OpenStack instances and generate inventory'
+    )
+    openstack_parser.add_argument(
+        '--os_auth_url', dest='os_auth_url', help='OpenStack authentication URL'
+    )
+    openstack_parser.add_argument(
+        '--os_username', dest='os_username', help='OpenStack Username'
+    )
+    openstack_parser.add_argument(
+        '--os_project_name', dest='os_project_name', help='OpenStack Project Name'
+    )
+    openstack_parser.add_argument(
+        '--os_password', dest='os_password', help='OpenStack Password'
+    )
+    openstack_parser.add_argument(
+        '--instances', dest='count', type=int,
+        help='Number of nodes', required=True
+    )
+    openstack_parser.add_argument(
+        '--sshkey', dest='sshkey', help='Name of saved SSH Keypair'
+    )
+    openstack_parser.add_argument(
+        '-N', '--kube-network', dest='kube_network', default='10.233.0.0/16',
+        help="""Network to be used inside the cluster (/16),
+             (must not overlap with any of your infrastructure networks and should be the same as in deploy).
+             default: 10.233.0.0/16"""
+    )
+    openstack_parser.add_argument(
+        '--add', dest='add_node', action='store_true', default=False,
+        help='Add node to an existing cluster')
+    openstack_parser.add_argument(
+        '--network', dest='network', help='Neutron network name'
+    )
+    openstack_parser.add_argument(
+        '--flavor', dest='flavor', help='OpenStack instance flavor'
+    )
+    openstack_parser.add_argument('--image', dest='image', help='Instance boot image')
+    openstack_parser.add_argument(
+        '--floating_ip', dest='floating_ip', action='store_true',
+        required=False, help='Associate public IP to instances'
+    )
+    openstack_parser.add_argument(
+        '--cluster-name', dest='cluster_name', help='Name of the cluster'
+    )
+    openstack_parser.set_defaults(func=openstack)
 
     # deploy
     deploy_parser = subparsers.add_parser(
