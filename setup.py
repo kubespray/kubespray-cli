@@ -5,12 +5,15 @@
 from setuptools import setup, find_packages
 
 requirements = [
-    'requests',
-    'netaddr',
-    'markupsafe',
-    'pyyaml',
-    'boto',
-    'apache-libcloud'
+    'cffi>=1.6.0',
+    'setuptools>=5.5.1',
+    'cryptography>=1.3.2',
+    'requests>=2.4.3',
+    'netaddr>=0.7.18',
+    'markupsafe>=0.23',
+    'pyyaml>=3.11',
+    'boto>=2.40.0',
+    'apache-libcloud>=0.20.1'
 ]
 
 test_requirements = [
@@ -19,7 +22,7 @@ test_requirements = [
 
 setup(
     name='kargo',
-    version='0.3.3',
+    version='0.3.4',
     description="Kargo kubernetes cluster deployment",
     author="Smaine Kahlouch",
     author_email='smainklh@gmail.com',
