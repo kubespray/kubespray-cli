@@ -142,10 +142,15 @@ class AWS(Cloud):
         data.pop('func')
         # Options list of ansible EC2 module
         self.options['image'] = self.options['ami']
+        if 'tags' in self.options:
+            self.options['instance_tags'] = {}
+            for kv in self.options['tags']:
+                k, v = kv.split("=")
+                self.options['instance_tags'][k] = v
         ec2_options = [
             'aws_access_key', 'aws_secret_key', 'count', 'group',
             'instance_type', 'key_name', 'region', 'vpc_subnet_id',
-            'image'
+            'image', 'instance_tags'
         ]
         # Define EC2 task
         ec2_task = {'ec2': {},
@@ -187,10 +192,12 @@ class GCE(Cloud):
     def gen_gce_playbook(self):
         data = self.options
         data.pop('func')
+        if 'tags' in self.options:
+            self.options['tags'] = ','.join(self.options['tags'])
         # Options list of ansible GCE module
         gce_options = [
             'machine_type', 'image', 'zone', 'service_account_email',
-            'pem_file', 'project_id'
+            'pem_file', 'project_id', 'tags'
         ]
         # Define instance names
         gce_instance_names = list()

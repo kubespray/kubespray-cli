@@ -144,6 +144,9 @@ if __name__ == '__main__':
     aws_parser.add_argument(
         '--cluster-name', dest='cluster_name', help='Name of the cluster'
     )
+    aws_parser.add_argument(
+        '--tags', dest='tags', help='List of VM tags of the form \'name=value\'', nargs="+", metavar="NAME=VALUE"
+    )
     aws_parser.add_argument('--add', dest='add_node', action='store_true',
         help="Add node to an existing cluster")
     aws_parser.add_argument(
@@ -175,6 +178,9 @@ if __name__ == '__main__':
     )
     gce_parser.add_argument(
         '--cluster-name', dest='cluster_name', help='Name of the cluster'
+    )
+    gce_parser.add_argument(
+        '--tags', dest='tags', help='List of VM tags', nargs="+", metavar="TAG"
     )
     gce_parser.add_argument('--add', dest='add_node', action='store_true',
         help="Add node to an existing cluster")
