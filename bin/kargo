@@ -16,7 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '0.3.4'
+__version__ = '0.3.5'
 
 import os
 import argparse
@@ -135,6 +135,10 @@ if __name__ == '__main__':
     aws_parser.add_argument('--region', dest='region', help='AWS region')
     aws_parser.add_argument(
         '--security-group', dest='group', help='AWS security group'
+    )
+    aws_parser.add_argument(
+        '--assign-public-ip', dest='assign_public_ip', default=False, action='store_true',
+         help='when provisioning within vpc, assign a public IP address'
     )
     aws_parser.add_argument('--vpc-id', dest='aws_vpc_id', help='EC2 VPC id')
     aws_parser.add_argument(

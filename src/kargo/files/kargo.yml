@@ -20,6 +20,7 @@ loglevel: "info"
 # ami: "<aws_ami>"
 # instance_type: "<aws_instance_type>"
 # group: "<aws_security_group>"
+# assign_public_ip: True
 # vpc_subnet_id: "<aws_vpc_id>"
 # region: "<aws_region>"
 # tags:

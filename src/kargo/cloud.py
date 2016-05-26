@@ -150,7 +150,7 @@ class AWS(Cloud):
         ec2_options = [
             'aws_access_key', 'aws_secret_key', 'count', 'group',
             'instance_type', 'key_name', 'region', 'vpc_subnet_id',
-            'image', 'instance_tags'
+            'image', 'instance_tags', 'assign_public_ip'
         ]
         # Define EC2 task
         ec2_task = {'ec2': {},
