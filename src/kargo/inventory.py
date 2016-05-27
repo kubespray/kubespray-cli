@@ -143,12 +143,16 @@ class CfgInventory(object):
                 new_inventory = current_inventory
             else:
                 cluster_name = 'k8s-' + get_cluster_name()
+            if self.options['use_private_ip']:
+                instance_ip = 'private_ip'
+            else:
+                instance_ip = 'public_ip'
             for host in instances:
                 if self.platform == 'aws':
                     host['name'] = "%s-%s" % (cluster_name, id_generator(5))
                 new_inventory['all']['hosts'].append(
                     {'hostname': '%s' % host['name'], 'hostvars': [
-                        {'name': 'ansible_ssh_host', 'value': host['public_ip']}
+                        {'name': 'ansible_ssh_host', 'value': host[instance_ip]}
                         ]}
                 )
                 new_inventory['kube-node']['hosts'].append(

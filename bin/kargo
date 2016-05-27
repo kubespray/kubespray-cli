@@ -16,7 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '0.3.5'
+__version__ = '0.3.10'
 
 import os
 import argparse
@@ -137,8 +137,12 @@ if __name__ == '__main__':
         '--security-group', dest='group', help='AWS security group'
     )
     aws_parser.add_argument(
-        '--assign-public-ip', dest='assign_public_ip', default=False, action='store_true',
+        '--assign-public-ip', default=None, dest='assign_public_ip', action='store_true',
          help='when provisioning within vpc, assign a public IP address'
+    )
+    aws_parser.add_argument(
+        '--use-private-ip', default=None, dest='use_private_ip', action='store_true',
+         help='If set to true, using the private ip for SSH connection'
     )
     aws_parser.add_argument('--vpc-id', dest='aws_vpc_id', help='EC2 VPC id')
     aws_parser.add_argument(
@@ -314,6 +318,10 @@ if __name__ == '__main__':
     # Set logfile
     if 'logfile' not in config.keys():
         config['logfile'] = os.path.join(config['kargo_path'], 'kargo.log')
+    # Set default bool
+    for v in ['use_private_ip', 'assign_public_ip']:
+        if v not in config.keys():
+            config[v] = False
     # Set kubernetes 'kube' password
     if 'prompt_pwd' in config.keys() and config['prompt_pwd'] is True:
         pwd = read_password()

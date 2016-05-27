@@ -170,8 +170,12 @@ class AWS(Cloud):
                   'content': '{{ec2.instances}}'}}
         )
         # Wait for ssh task
+        if self.options['use_private_ip']:
+            instance_ip = '{{ item.private_ip }}'
+        else:
+            instance_ip = '{{ item.public_ip }}'
         self.pbook_content[0]['tasks'].append(
-            {'local_action': {'host': '{{ item.public_ip }}',
+            {'local_action': {'host': '%s' % instance_ip,
                               'module': 'wait_for',
                               'port': 22,
                               'state': 'started',
