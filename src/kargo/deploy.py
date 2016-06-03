@@ -184,11 +184,15 @@ class RunPlaybook(object):
         '''
         cmd = [
             playbook_exec, '--ssh-extra-args', '-o StrictHostKeyChecking=no',
-            '-e', 'kube_network_plugin=%s' % self.options['network_plugin'],
             '-u',  '%s' % self.options['ansible_user'],
             '-b', '--become-user=root', '-i', self.inventorycfg,
             os.path.join(self.options['kargo_path'], 'cluster.yml')
         ]
+        # Configure network plugin if defined
+        if self.options['network_plugin']:
+            cmd = cmd + [ '-e',
+                'kube_network_plugin=%s' % self.options['network_plugin']
+            ]
         # Configure the network subnets pods and k8s services
         if 'kube_network' in self.options.keys():
             if not validate_cidr(self.options['kube_network'], version=4):
