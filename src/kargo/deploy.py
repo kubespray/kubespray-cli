@@ -189,7 +189,7 @@ class RunPlaybook(object):
             os.path.join(self.options['kargo_path'], 'cluster.yml')
         ]
         # Configure network plugin if defined
-        if self.options['network_plugin']:
+        if 'network_plugin' in self.options.keys():
             cmd = cmd + [ '-e',
                 'kube_network_plugin=%s' % self.options['network_plugin']
             ]
