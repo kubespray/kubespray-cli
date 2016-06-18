@@ -111,7 +111,15 @@ if __name__ == '__main__':
     prepare_parser.add_argument('--add', dest='add_node', action='store_true',
         help="Add node to an existing cluster")
     prepare_parser.add_argument(
-        '--nodes', dest='k8s_nodes', metavar='N', nargs='+',
+        '--etcd', dest='etcds_list', metavar='N', nargs='+',
+        help='Number of etcd, these instances will just act as etcd members'
+    )
+    prepare_parser.add_argument(
+        '--masters', dest='masters_list', metavar='N', nargs='+',
+        help='Number of masters, these instances will not run workloads, master components only'
+    )
+    prepare_parser.add_argument(
+        '--nodes', dest='nodes_list', metavar='N', nargs='+',
         required=True, help='List of nodes'
     )
     prepare_parser.set_defaults(func=prepare)
@@ -158,7 +166,15 @@ if __name__ == '__main__':
     aws_parser.add_argument('--add', dest='add_node', action='store_true',
         help="Add node to an existing cluster")
     aws_parser.add_argument(
-        '--instances', dest='count', type=int,
+        '--etcd', dest='etcds_count', type=int,
+        help='Number of etcd, these instances will just act as etcd members'
+    )
+    aws_parser.add_argument(
+        '--masters', dest='masters_count', type=int,
+        help='Number of masters, these instances will not run workloads, master components only'
+    )
+    aws_parser.add_argument(
+        '--nodes', dest='nodes_count', type=int,
         help='Number of nodes', required=True
     )
     aws_parser.set_defaults(func=aws)
@@ -193,7 +209,15 @@ if __name__ == '__main__':
     gce_parser.add_argument('--add', dest='add_node', action='store_true',
         help="Add node to an existing cluster")
     gce_parser.add_argument(
-        '--instances', dest='count', type=int,
+        '--etcd', dest='etcds_count', type=int,
+        help='Number of etcd, these instances will just act as etcd members'
+    )
+    gce_parser.add_argument(
+        '--masters', dest='masters_count', type=int,
+        help='Number of masters, these instances will not run workloads, master components only'
+    )
+    gce_parser.add_argument(
+        '--nodes', dest='nodes_count', type=int,
         help='Number of nodes', required=True
     )
     gce_parser.set_defaults(func=gce)
@@ -216,7 +240,15 @@ if __name__ == '__main__':
         '--os_password', dest='os_password', help='OpenStack Password'
     )
     openstack_parser.add_argument(
-        '--instances', dest='count', type=int,
+        '--etcd', dest='etcds_count', type=int,
+        help='Number of etcd, these instances will just act as etcd members'
+    )
+    openstack_parser.add_argument(
+        '--masters', dest='masters_count', type=int,
+        help='Number of masters, these instances will not run workloads, master components only'
+    )
+    openstack_parser.add_argument(
+        '--nodes', dest='nodes_count', type=int,
         help='Number of nodes', required=True
     )
     openstack_parser.add_argument(
