@@ -109,7 +109,8 @@ if __name__ == '__main__':
         help='generate inventory and create vms on cloud providers'
     )
     prepare_parser.add_argument('--add', dest='add_node', action='store_true',
-        help="Add node to an existing cluster")
+        help="Add node to an existing cluster"
+    )
     prepare_parser.add_argument(
         '--etcd', dest='etcds_list', metavar='N', nargs='+',
         help='Number of etcd, these instances will just act as etcd members'
@@ -135,14 +136,24 @@ if __name__ == '__main__':
         '--secret-key', dest='aws_secret_key', help='AWS secret key'
     )
     aws_parser.add_argument(
-        '--type', dest='instance_type', help='AWS instance type'
+        '--masters-instance-type', dest='masters_instance_type', help='AWS instance type for Masters'
+    )
+    aws_parser.add_argument(
+        '--nodes-instance-type', dest='nodes_instance_type', help='AWS instance type for Nodes'
+    )
+    aws_parser.add_argument(
+        '--etcds-instance-type', dest='etcds_instance_type', help='AWS instance type for Etcd members'
     )
     aws_parser.add_argument(
         '--keypair', dest='key_name', help='AWS key pair name'
     )
     aws_parser.add_argument('--region', dest='region', help='AWS region')
-    aws_parser.add_argument(
-        '--security-group', dest='group', help='AWS security group'
+    sg_group = aws_parser.add_mutually_exclusive_group()
+    sg_group.add_argument(
+        '--security-group-name', dest='security_group_name', help='AWS security group Name'
+    )
+    sg_group.add_argument(
+        '--security-group-id', dest='security_group_id', help='AWS security group ID'
     )
     aws_parser.add_argument(
         '--assign-public-ip', default=None, dest='assign_public_ip', action='store_true',
@@ -191,7 +202,13 @@ if __name__ == '__main__':
         '--zone', dest='zone', help='GCE zone'
     )
     gce_parser.add_argument(
-        '--type', dest='machine_type', help='GCE machine type'
+        '--masters-machine-type', dest='masters_machine_type', help='GCE machine type for Masters'
+    )
+    gce_parser.add_argument(
+        '--nodes-machine-type', dest='nodes_machine_type', help='GCE machine type for Nodes'
+    )
+    gce_parser.add_argument(
+        '--etcds-machine-type', dest='etcds_machine_type', help='GCE machine type for Etcd members'
     )
     gce_parser.add_argument('--image', dest='image', help='GCE image')
     gce_parser.add_argument(
@@ -267,7 +284,13 @@ if __name__ == '__main__':
         '--network', dest='network', help='Neutron network name'
     )
     openstack_parser.add_argument(
-        '--flavor', dest='flavor', help='OpenStack instance flavor'
+        '--masters-flavor', dest='masters_flavor', help='OpenStack instance flavor for Masters'
+    )
+    openstack_parser.add_argument(
+        '--nodes-flavor', dest='nodes_flavor', help='OpenStack instance flavor for Nodes'
+    )
+    openstack_parser.add_argument(
+        '--etcds-flavor', dest='etcds_flavor', help='OpenStack instance flavor for Etcd members'
     )
     openstack_parser.add_argument('--image', dest='image', help='Instance boot image')
     openstack_parser.add_argument(
@@ -355,6 +378,27 @@ if __name__ == '__main__':
     for v in ['use_private_ip', 'assign_public_ip']:
         if v not in config.keys():
             config[v] = False
+    # Set default instances type
+    if args.func.__name__ == "aws":
+        if 'masters_instance_type' not in config.keys() and args.masters_instance_type is None:
+            config['masters_instance_type'] = 't2.medium'
+        if 'nodes_instance_type' not in config.keys() and args.nodes_instance_type is None:
+            config['nodes_instance_type'] = 't2.large'
+        if 'etcds_instance_type' not in config.keys() and args.etcds_instance_type is None:
+            config['etcds_instance_type'] = 't2.small'
+    # ----GCE
+    if args.func.__name__ == "gce":
+        if 'masters_machine_type' not in config.keys() and args.masters_machine_type is None:
+            config['masters_machine_type'] = 'n1-standard-2'
+        if 'nodes_machine_type' not in config.keys() and args.nodes_machine_type is None:
+            config['nodes_machine_type'] = 'n1-standard-4'
+        if 'etcds_machine_type' not in config.keys() and args.etcds_machine_type is None:
+            config['etcds_machine_type'] = 'n1-standard-1'
+    # Conflicting options
+    if args.security_group_name and 'security_group_id' in config.keys():
+        config.pop('security_group_id')
+    elif args.security_group_id and 'security_group_name' in config.keys():
+        config.pop('security_group_name')
     # Set kubernetes 'kube' password
     if 'prompt_pwd' in config.keys() and config['prompt_pwd'] is True:
         pwd = read_password()

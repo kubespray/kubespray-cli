@@ -103,7 +103,7 @@ class CfgInventory(object):
                 current_inventory[section]['hosts'].append(host_dict)
         return(current_inventory)
 
-    def format_inventory(self, k8s_nodes, k8s_masters, etcd_members):
+    def format_inventory(self, masters, nodes, etcds):
         new_inventory = {'all': {'hosts': []},
                          'kube-master': {'hosts': []},
                          'etcd': {'hosts': []},
@@ -120,20 +120,20 @@ class CfgInventory(object):
             else:
                 ip_type = 'private_v4'
             new_instances = []
-            for node in k8s_nodes['results']:
+            for node in nodes['results']:
                 new_instances.append({'public_ip': node['openstack'][ip_type],
                                       'name': node['item']})
-            k8s_nodes = new_instances
+            nodes = new_instances
 
         if not self.options['add_node']:
-            if not k8s_masters and len(k8s_nodes) == 1:
-                k8s_masters = [k8s_nodes[0]]
-            elif not k8s_masters:
-                k8s_masters = k8s_nodes[0:2]
-            if not etcd_members and len(k8s_nodes) > 3:
-                etcd_members = k8s_nodes[0:3]
-            else:
-                etcd_members = [k8s_nodes[0]]
+            if not masters and len(nodes) == 1:
+                masters = [nodes[0]]
+            elif not masters:
+                masters = nodes[0:2]
+            if not etcds and len(nodes) > 3:
+                etcds = nodes[0:3]
+            elif len(etcds) < 3:
+                etcds = [nodes[0]]
 
         if self.platform in ['aws', 'gce', 'openstack']:
             if self.options['add_node']:
@@ -148,7 +148,7 @@ class CfgInventory(object):
                 instance_ip = 'private_ip'
             else:
                 instance_ip = 'public_ip'
-            for host in k8s_nodes + k8s_masters + etcd_members:
+            for host in nodes + masters + etcds:
                 if self.platform == 'aws':
                     host['name'] = "%s-%s" % (cluster_name, id_generator(5))
                 new_inventory['all']['hosts'].append(
@@ -157,23 +157,23 @@ class CfgInventory(object):
                         ]}
                 )
             if not self.options['add_node']:
-                for host in k8s_nodes:
+                for host in nodes:
                     new_inventory['kube-node']['hosts'].append(
                         {'hostname': '%s' % host['name'],
                          'hostvars': []}
                     )
-                for host in k8s_masters:
+                for host in masters:
                     new_inventory['kube-master']['hosts'].append(
                         {'hostname': '%s' % host['name'],
                          'hostvars': []}
                     )
-                for host in etcd_members:
+                for host in etcds:
                     new_inventory['etcd']['hosts'].append(
                         {'hostname': '%s' % host['name'],
                          'hostvars': []}
                     )
         elif self.platform == 'metal':
-            for host in k8s_nodes + k8s_masters + etcd_members:
+            for host in nodes + masters + etcds:
                 r = re.search('(^.*)\[(.*)\]', host)
                 inventory_hostname = r.group(1)
                 var_str = r.group(2)
@@ -183,27 +183,29 @@ class CfgInventory(object):
                 new_inventory['all']['hosts'].append(
                     {'hostname': inventory_hostname, 'hostvars': hostvars}
                 )
-            for host in k8s_nodes:
+            for host in nodes:
                 new_inventory['kube-node']['hosts'].append(
                     {'hostname': inventory_hostname, 'hostvars': []}
                 )
-            for host in k8s_masters:
+            for host in masters:
                 new_inventory['kube-master']['hosts'].append(
                     {'hostname': host.split('[')[0], 'hostvars': []}
                 )
-            for host in etcd_members:
+            for host in etcds:
                 new_inventory['etcd']['hosts'].append(
                     {'hostname': host.split('[')[0], 'hostvars': []}
                 )
         return(new_inventory)
 
-    def write_inventory(self, instances):
+    def write_inventory(self, masters, nodes, etcds):
         '''Generates inventory'''
-        inventory = self.format_inventory(instances)
+        inventory = self.format_inventory(masters, nodes, etcds)
         if not self.options['add_node']:
-            if len(instances) < 2:
+            if (('masters_count' in self.options.keys() and len(masters) < 2) or
+               ('masters_count' not in self.options.keys() and len(nodes) < 2)):
                 display.warning('You should set at least 2 masters')
-            if len(instances) < 3:
+            if (('etcds_count' in self.options.keys() and len(etcds) < 3) or
+               ('etcds_count' not in self.options.keys() and len(nodes) < 3)):
                 display.warning('You should set at least 3 nodes for etcd clustering')
         open(self.inventorycfg, 'w').close()
         for key, value in inventory.items():
