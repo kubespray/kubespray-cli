@@ -25,7 +25,7 @@ Ansible inventory management for Kargo
 
 import sys
 import re
-from kargo.common import get_logger, id_generator, get_cluster_name
+from kargo.common import get_logger, id_generator, get_cluster_name, remove_duplicates
 from ansible.utils.display import Display
 display = Display()
 
@@ -110,7 +110,8 @@ class CfgInventory(object):
                          'kube-node': {'hosts': []},
                          'k8s-cluster:children': {'hosts': [
                              {'hostname': 'kube-node', 'hostvars': []},
-                             {'hostname': 'kube-master', 'hostvars': []}
+                             {'hostname': 'kube-master', 'hostvars': []},
+                             {'hostname': 'etcd', 'hostvars': []}
                              ]},
                          }
 
@@ -150,7 +151,8 @@ class CfgInventory(object):
                 instance_ip = 'private_ip'
             else:
                 instance_ip = 'public_ip'
-            for host in nodes or [] + masters or [] + etcds or []:
+            instances = remove_duplicates((nodes or []) + (masters or []) + (etcds or []))
+            for host in instances:
                 if self.platform == 'aws':
                     host['name'] = "%s-%s" % (cluster_name, id_generator(5))
                 new_inventory['all']['hosts'].append(

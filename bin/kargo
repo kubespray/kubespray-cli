@@ -112,7 +112,7 @@ if __name__ == '__main__':
         help="Add node to an existing cluster"
     )
     prepare_parser.add_argument(
-        '--etcd', dest='etcds_list', metavar='N', nargs='+',
+        '--etcds', dest='etcds_list', metavar='N', nargs='+',
         help='Number of etcd, these instances will just act as etcd members'
     )
     prepare_parser.add_argument(
@@ -226,7 +226,7 @@ if __name__ == '__main__':
     gce_parser.add_argument('--add', dest='add_node', action='store_true',
         help="Add node to an existing cluster")
     gce_parser.add_argument(
-        '--etcd', dest='etcds_count', type=int,
+        '--etcds', dest='etcds_count', type=int,
         help='Number of etcd, these instances will just act as etcd members'
     )
     gce_parser.add_argument(
@@ -257,7 +257,7 @@ if __name__ == '__main__':
         '--os_password', dest='os_password', help='OpenStack Password'
     )
     openstack_parser.add_argument(
-        '--etcd', dest='etcds_count', type=int,
+        '--etcds', dest='etcds_count', type=int,
         help='Number of etcd, these instances will just act as etcd members'
     )
     openstack_parser.add_argument(
