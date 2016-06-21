@@ -3,7 +3,7 @@
 #
 # This file is part of Kargo.
 #
-#    Foobar is free software: you can redistribute it and/or modify
+#    Kargo is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
@@ -130,10 +130,12 @@ class CfgInventory(object):
                 masters = [nodes[0]]
             elif not masters:
                 masters = nodes[0:2]
-            if not etcds and len(nodes) > 3:
+            if not etcds and len(nodes) >= 3:
                 etcds = nodes[0:3]
-            elif len(etcds) < 3:
+            elif not etcds and len(nodes) < 3:
                 etcds = [nodes[0]]
+            elif etcds and len(etcds) < 3:
+                etcds = [etcds[0]]
 
         if self.platform in ['aws', 'gce', 'openstack']:
             if self.options['add_node']:
@@ -148,7 +150,7 @@ class CfgInventory(object):
                 instance_ip = 'private_ip'
             else:
                 instance_ip = 'public_ip'
-            for host in nodes + masters + etcds:
+            for host in nodes or [] + masters or [] + etcds or []:
                 if self.platform == 'aws':
                     host['name'] = "%s-%s" % (cluster_name, id_generator(5))
                 new_inventory['all']['hosts'].append(

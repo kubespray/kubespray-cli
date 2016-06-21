@@ -3,7 +3,7 @@
 #
 # This file is part of Kargo.
 #
-#    Foobar is free software: you can redistribute it and/or modify
+#    Kargo is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
@@ -136,13 +136,13 @@ if __name__ == '__main__':
         '--secret-key', dest='aws_secret_key', help='AWS secret key'
     )
     aws_parser.add_argument(
-        '--masters-instance-type', dest='masters_instance_type', help='AWS instance type for Masters'
+        '--masters-instance-type', dest='masters_instance_type', help='AWS instance type for Masters (default: t2.medium)'
     )
     aws_parser.add_argument(
-        '--nodes-instance-type', dest='nodes_instance_type', help='AWS instance type for Nodes'
+        '--nodes-instance-type', dest='nodes_instance_type', help='AWS instance type for Nodes (default: t2.large)'
     )
     aws_parser.add_argument(
-        '--etcds-instance-type', dest='etcds_instance_type', help='AWS instance type for Etcd members'
+        '--etcds-instance-type', dest='etcds_instance_type', help='AWS instance type for Etcd members (default: t2.small)'
     )
     aws_parser.add_argument(
         '--keypair', dest='key_name', help='AWS key pair name'
@@ -202,13 +202,13 @@ if __name__ == '__main__':
         '--zone', dest='zone', help='GCE zone'
     )
     gce_parser.add_argument(
-        '--masters-machine-type', dest='masters_machine_type', help='GCE machine type for Masters'
+        '--masters-machine-type', dest='masters_machine_type', help='GCE machine type for Masters (default: n1-standard-2)'
     )
     gce_parser.add_argument(
-        '--nodes-machine-type', dest='nodes_machine_type', help='GCE machine type for Nodes'
+        '--nodes-machine-type', dest='nodes_machine_type', help='GCE machine type for Nodes (default: n1-standard-4)'
     )
     gce_parser.add_argument(
-        '--etcds-machine-type', dest='etcds_machine_type', help='GCE machine type for Etcd members'
+        '--etcds-machine-type', dest='etcds_machine_type', help='GCE machine type for Etcd members (default: n1-standard-1)'
     )
     gce_parser.add_argument('--image', dest='image', help='GCE image')
     gce_parser.add_argument(
@@ -358,51 +358,8 @@ if __name__ == '__main__':
         args.configfile = '/etc/kargo/kargo.yml'
     # Read configfile and update options dict
     C = Config(args.configfile)
-    config = C.parse_configfile
-    # Set kargo_path
-    if 'kargo_path' not in config.keys() and args.kargo_path is None:
-        config['kargo_path'] = os.path.join(os.path.expanduser("~"), 'kargo')
-    arguments = dict(args._get_kwargs())
-    for key, value in arguments.items():
-        if value is not None:
-            config[key] = value
-    # Set inventory_path
-    if 'inventory_path' not in config.keys() and args.inventory_path is None:
-        config['inventory_path'] = os.path.join(
-            config['kargo_path'], 'inventory/inventory.cfg'
-        )
-    # Set logfile
-    if 'logfile' not in config.keys():
-        config['logfile'] = os.path.join(config['kargo_path'], 'kargo.log')
-    # Set default bool
-    for v in ['use_private_ip', 'assign_public_ip']:
-        if v not in config.keys():
-            config[v] = False
-    # Set default instances type
-    if args.func.__name__ == "aws":
-        if 'masters_instance_type' not in config.keys() and args.masters_instance_type is None:
-            config['masters_instance_type'] = 't2.medium'
-        if 'nodes_instance_type' not in config.keys() and args.nodes_instance_type is None:
-            config['nodes_instance_type'] = 't2.large'
-        if 'etcds_instance_type' not in config.keys() and args.etcds_instance_type is None:
-            config['etcds_instance_type'] = 't2.small'
-    # ----GCE
-    if args.func.__name__ == "gce":
-        if 'masters_machine_type' not in config.keys() and args.masters_machine_type is None:
-            config['masters_machine_type'] = 'n1-standard-2'
-        if 'nodes_machine_type' not in config.keys() and args.nodes_machine_type is None:
-            config['nodes_machine_type'] = 'n1-standard-4'
-        if 'etcds_machine_type' not in config.keys() and args.etcds_machine_type is None:
-            config['etcds_machine_type'] = 'n1-standard-1'
-    # Conflicting options
-    if args.security_group_name and 'security_group_id' in config.keys():
-        config.pop('security_group_id')
-    elif args.security_group_id and 'security_group_name' in config.keys():
-        config.pop('security_group_name')
-    # Set kubernetes 'kube' password
-    if 'prompt_pwd' in config.keys() and config['prompt_pwd'] is True:
-        pwd = read_password()
-        config['k8s_passwd'] = pwd
+    configfile_content = C.parse_configfile
+    config = C.default_values(args, configfile_content)
     # Run functions with all the options
     os.environ['ANSIBLE_FORCE_COLOR'] = 'true'
     args.func(config)

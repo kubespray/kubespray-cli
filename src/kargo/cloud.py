@@ -3,7 +3,7 @@
 #
 # This file is part of Kargo.
 #
-#    Foobar is free software: you can redistribute it and/or modify
+#    Kargo is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
@@ -128,15 +128,15 @@ class Cloud(object):
             'ansible_connection=local', self.playbook
         ]
         if not self.options['assume_yes']:
-            if self.options['add_node']:
-                display.warning(
-                    '%s node(s) will be added to the current inventory %s' %
-                    (str(self.options['count']), self.inventorycfg)
-                )
             count = 0
             for role in ['masters', 'nodes', 'etcds']:
                 if '%s_count' % role in self.options.keys():
                     count = count + self.options['%s_count' % role]
+            if self.options['add_node']:
+                display.warning(
+                    '%s node(s) will be added to the current inventory %s' %
+                    (count, self.inventorycfg)
+                )
             if not query_yes_no('Create %s instances on %s ?' % (count, self.cloud)):
                 display.display('Aborted', color='red')
                 sys.exit(1)
@@ -235,15 +235,18 @@ class GCE(Cloud):
                     if self.options['add_node']:
                         current_inventory = self.Cfg.read_inventory()
                         cluster_name = '-'.join(
-                            current_inventory['all']['hosts'][0]['hostname'].split('-')[:-1]
-                        ) + '-' + role[:1]
+                            current_inventory['all']['hosts'][0]['hostname'].split('-')[:-2]
+                        )
+                        gce_instance_names.append(
+                            cluster_name + '-%s' % id_generator()
+                        )
                     elif 'cluster_name' in self.options.keys():
                         gce_instance_names.append(
-                            self.options['cluster_name'] + '-%s' % id_generator() + '-' + role[:1]
+                            self.options['cluster_name'] + '-%s' % id_generator()
                         )
                     else:
                         gce_instance_names.append(
-                            cluster_name + '-%s' % id_generator() + '-' + role[:1]
+                            cluster_name + '-%s' % id_generator()
                         )
                 gce_instance_names = ','.join(gce_instance_names)
                 # Define GCE task
