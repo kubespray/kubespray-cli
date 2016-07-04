@@ -73,7 +73,9 @@ frequently </br>
     os_username: "k8s"
     os_password: "secret"
     os_project_name: "k8s"
-    flavor: "m1.small"
+    masters_flavor: "m1.small"
+    nodes_flavor: "m1.small"
+    etcds_flavor: "m1.small"
     image: "wily-server-cloudimg-amd64"
     network: "my-network"
     sshkey: "my-pub-key"
@@ -235,11 +237,11 @@ Once the preparation have been completed you can enter the required options to t
 
 If the config file is filled with the proper information you just need to run the following command
 
-    kargo openstack --nodes 3
+    kargo openstack --masters 2 --nodes 2 --etcds 3
 
 Another example if you already have a kargo repository in your home dir
 
-    kargo openstack --nodes 3 --noclone --cluster-name foobar
+    kargo openstack --masters 2 --nodes 2 --etcds 3 --noclone --cluster-name foobar
 
 
 **Add a node to an existing cluster**
