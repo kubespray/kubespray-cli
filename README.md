@@ -5,7 +5,7 @@ This tool helps to deploy a kubernetes cluster with ansible.
 
 
 Example on GCE:
-[![asciicast](https://asciinema.org/a/5in6riip9w93r4zzunlv2vib8.png)](https://asciinema.org/a/5in6riip9w93r4zzunlv2vib8?speed=4)
+[![asciicast](https://asciinema.org/a/065mhh5pzmxcwxgp6evebarvd.png)](https://asciinema.org/a/065mhh5pzmxcwxgp6evebarvd?speed=4)
 
 Requirements
 ============
