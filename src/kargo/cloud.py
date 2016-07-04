@@ -290,7 +290,7 @@ class OpenStack(Cloud):
         data = self.options
         data.pop('func')
 
-        openstack_credential_args = ['auth_url', 'username', 'password', 'project_name']
+        openstack_credential_args = ('auth_url', 'username', 'password', 'project_name')
         openstack_auth = {}
 
         for cred_arg in openstack_credential_args:
@@ -304,82 +304,89 @@ class OpenStack(Cloud):
         # Define instance names
         cluster_name = 'k8s-' + get_cluster_name()
         os_security_group_name = cluster_name + '-%s' % id_generator()
-        os_instance_names = list()
 
-        for x in range(self.options['count']):
-            if self.options['add_node']:
-                current_inventory = self.Cfg.read_inventory()
-                cluster_name = '-'.join(
-                    current_inventory['all']['hosts'][0]['hostname'].split('-')[:-1]
+        self.pbook_content[0]['tasks'].append(
+            {'name': 'Create security group',
+               'os_security_group': {
+                   'auth': openstack_auth,
+                   'name': os_security_group_name,
+                   'description': 'Contains security rules for the Kubernetes cluster',
+                   'state': 'present'}}
+        )
+        self.pbook_content[0]['tasks'].append(
+            {'name': 'Add security rules',
+               'os_security_group_rule': {
+                   'auth': openstack_auth,
+                   'security_group': os_security_group_name,
+                   'protocol': '{{item}}',
+                   'state': 'present'},
+               'with_items': ['tcp', 'udp', 'icmp']}
+        )
+
+        for role in ('masters', 'nodes', 'etcds'):
+            os_instance_names = list()
+            if '%s_count' % role in self.options.keys():
+                for x in range(self.options['%s_count' % role]):
+                    if self.options['add_node']:
+                        current_inventory = self.Cfg.read_inventory()
+                        cluster_name = '-'.join(
+                            current_inventory['all']['hosts'][0]['hostname'].split('-')[:-1]
+                        )
+                        os_instance_names.append(
+                            cluster_name + '-%s' % id_generator()
+                        )
+                    elif 'cluster_name' in self.options.keys():
+                        os_instance_names.append(
+                            self.options['cluster_name'] + '-%s' % id_generator()
+                        )
+                        os_security_group_name = self.options['cluster_name'] + '-%s' % id_generator()
+                    else:
+                        os_instance_names.append(
+                            cluster_name + '-%s' % id_generator()
+                        )
+                self.pbook_content[0]['tasks'].append(
+                    {'name': 'Create %s network ports' % role,
+                       'os_port': {
+                           'auth': openstack_auth,
+                           'name': '{{item}}',
+                           'network': self.options['network'],
+                           'allowed_address_pairs': [{'ip_address': self.options['kube_network']}],
+                           'security_groups': (os_security_group_name,),
+                           'state': 'present'},
+                       'with_items': os_instance_names}
                 )
-                os_instance_names.append(
-                    cluster_name + '-%s' % id_generator()
+                self.pbook_content[0]['tasks'].append(
+                    {'name': 'Provision OS %s instances' % role,
+                       'os_server': {
+                           'auth': openstack_auth,
+                           'name': '{{item}}',
+                           'state': 'present',
+                           'flavor': self.options['%s_flavor' % role],
+                           'key_name': self.options['sshkey'],
+                           'auto_ip': self.options['floating_ip'],
+                           'security_groups': (os_security_group_name,),
+                           'nics': 'port-name={{ item }}',
+                           'image': self.options['image']},
+                       'register': 'os_%s' % role,
+                       'with_items': os_instance_names}
                 )
-            elif 'cluster_name' in self.options.keys():
-                os_instance_names.append(
-                    self.options['cluster_name'] + '-%s' % id_generator()
+                # Write os instances json
+                self.pbook_content[0]['tasks'].append(
+                    {'name': 'Generate a file with OS %s instances list' % role,
+                     'copy':
+                         {'dest': '%s' % self.instances[role]['file'],
+                          'content': '{{os_%s.results}}' % role}}
                 )
-                os_security_group_name = self.options['cluster_name'] + '-%s' % id_generator()
-            else:
-                os_instance_names.append(
-                    cluster_name + '-%s' % id_generator()
+                # Wait for ssh task
+                self.pbook_content[0]['tasks'].append(
+                    {'name': 'Wait until SSH is available',
+                       'wait_for': {
+                           'host': '{{item.openstack.%s_v4}}' % ip_type,
+                           'port': 22,
+                           'search_regex': 'SSH',
+                           'state': 'started',
+                           'delay': 10},
+                       'with_items': '{{os_%s.results}}' % role}
                 )
-        for idx, name in enumerate(os_instance_names):
-            if idx < 2:
-                os_instance_names[idx] = name + '-m'
-            else:
-                os_instance_names[idx] = name + '-n'
-
-        self.pbook_content[0]['tasks'].append({'name': 'Create security group',
-                                               'os_security_group': {
-                                                   'auth': openstack_auth,
-                                                   'name': os_security_group_name,
-                                                   'description': 'Contains security rules for the Kubernetes cluster',
-                                                   'state': 'present'}})
-
-        self.pbook_content[0]['tasks'].append({'name': 'Add security rules',
-                                               'os_security_group_rule': {
-                                                   'auth': openstack_auth,
-                                                   'security_group': os_security_group_name,
-                                                   'protocol': '{{item}}',
-                                                   'state': 'present'},
-                                               'with_items': ['tcp', 'udp', 'icmp']})
-
-        self.pbook_content[0]['tasks'].append({'name': 'Create network ports',
-                                               'os_port': {
-                                                   'auth': openstack_auth,
-                                                   'name': '{{item}}',
-                                                   'network': self.options['network'],
-                                                   'allowed_address_pairs': [{'ip_address': self.options['kube_network']}],
-                                                   'security_groups': [os_security_group_name],
-                                                   'state': 'present'},
-                                               'with_items': os_instance_names})
-
-        self.pbook_content[0]['tasks'].append({'name': 'Start Instances',
-                                               'os_server': {
-                                                   'auth': openstack_auth,
-                                                   'name': '{{item}}',
-                                                   'state': 'present',
-                                                   'flavor': self.options['flavor'],
-                                                   'key_name': self.options['sshkey'],
-                                                   'auto_ip': self.options['floating_ip'],
-                                                   'security_groups': [os_security_group_name],
-                                                   'nics': 'port-name={{ item }}',
-                                                   'image': self.options['image']},
-                                               'register': 'nodes',
-                                               'with_items': os_instance_names})
-
-        self.pbook_content[0]['tasks'].append({'name': 'Wait until instances are ready',
-                                               'wait_for': {
-                                                   'host': '{{item.openstack.%s_v4}}' % ip_type,
-                                                   'port': 22,
-                                                   'search_regex': 'SSH',
-                                                   'state': 'started',
-                                                   'delay': 10},
-                                               'with_items': '{{nodes.results}}'})
-
-        self.pbook_content[0]['tasks'].append({'name': 'Generate OpenStack instances file',
-                                               'copy': {'dest': '%s' % self.instances_file,
-                                                        'content': '{{nodes}}'}})
         self.write_local_inventory()
         self.write_playbook()

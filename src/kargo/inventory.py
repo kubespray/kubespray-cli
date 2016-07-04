@@ -119,11 +119,24 @@ class CfgInventory(object):
                 ip_type = 'public_v4'
             else:
                 ip_type = 'private_v4'
+            # handle masters
             new_instances = []
-            for node in nodes['results']:
+            for master in masters:
+                new_instances.append({'public_ip': master['openstack'][ip_type],
+                                      'name': master['item']})
+            masters = new_instances
+            # handle nodes
+            new_instances = []
+            for node in nodes:
                 new_instances.append({'public_ip': node['openstack'][ip_type],
                                       'name': node['item']})
             nodes = new_instances
+            # handle etcds
+            new_instances = []
+            for etcd in etcds:
+                new_instances.append({'public_ip': etcd['openstack'][ip_type],
+                                      'name': etcd['item']})
+            etcds = new_instances
 
         if not self.options['add_node']:
             if not masters and len(nodes) == 1:
