@@ -16,7 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 
 import os
 import argparse
@@ -36,7 +36,7 @@ display = Display()
 def prepare(options):
     clone_kargo_git_repo(options)
     Cfg = CfgInventory(options, 'metal')
-    Cfg.write_inventory(options['k8s_nodes'])
+    Cfg.write_inventory([], options['nodes_list'], [])
 
 
 def aws(options):
