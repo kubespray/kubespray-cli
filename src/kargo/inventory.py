@@ -200,7 +200,7 @@ class CfgInventory(object):
                 )
             for host in nodes:
                 new_inventory['kube-node']['hosts'].append(
-                    {'hostname': inventory_hostname, 'hostvars': []}
+                    {'hostname': host.split('[')[0], 'hostvars': []}
                 )
             for host in masters:
                 new_inventory['kube-master']['hosts'].append(

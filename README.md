@@ -69,16 +69,16 @@ frequently </br>
 
     # OpenStack options
     # ---
-    os_auth_url: "https://"
-    os_username: "k8s"
-    os_password: "secret"
-    os_project_name: "k8s"
-    masters_flavor: "m1.small"
-    nodes_flavor: "m1.small"
-    etcds_flavor: "m1.small"
-    image: "wily-server-cloudimg-amd64"
-    network: "my-network"
-    sshkey: "my-pub-key"
+    # os_auth_url: "https://"
+    # os_username: "k8s"
+    # os_password: "secret"
+    # os_project_name: "k8s"
+    # masters_flavor: "m1.small"
+    # nodes_flavor: "m1.small"
+    # etcds_flavor: "m1.small"
+    # image: "wily-server-cloudimg-amd64"
+    # network: "my-network"
+    # sshkey: "my-pub-key"
     ...
 
 Basic usage
