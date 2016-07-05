@@ -16,7 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '0.4.1'
+__version__ = '0.4.2'
 
 import os
 import argparse
@@ -36,7 +36,11 @@ display = Display()
 def prepare(options):
     clone_kargo_git_repo(options)
     Cfg = CfgInventory(options, 'metal')
-    Cfg.write_inventory([], options['nodes_list'], [])
+    Cfg.write_inventory(
+        options['masters_list'],
+        options['nodes_list'],
+        options['etcds_list']
+    )
 
 
 def aws(options):
@@ -112,11 +116,11 @@ if __name__ == '__main__':
         help="Add node to an existing cluster"
     )
     prepare_parser.add_argument(
-        '--etcd', dest='etcds_list', metavar='N', nargs='+',
+        '--etcds', dest='etcds_list', metavar='N', nargs='+', default=[],
         help='Number of etcd, these instances will just act as etcd members'
     )
     prepare_parser.add_argument(
-        '--masters', dest='masters_list', metavar='N', nargs='+',
+        '--masters', dest='masters_list', metavar='N', nargs='+', default=[],
         help='Number of masters, these instances will not run workloads, master components only'
     )
     prepare_parser.add_argument(
