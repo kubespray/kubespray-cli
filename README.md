@@ -87,13 +87,13 @@ Basic usage
 Here are 3 examples:
 * 3 vms, all 3 have etcd installed, all 3 are nodes (running pods), 2 of them run master components
 ```
-kargo [prepare|aws|gce] --nodes 3 --nodes-instance-type t2.small
+kargo [prepare|aws|gce] --nodes 3
 ```
 
 ![3nodes](https://s32.postimg.org/8q7gns8ut/3nodes.png)
 * 6 vms, 2 are nodes and masters, 1 is node only and a distinct etcd cluster
 ```
-kargo [prepare|aws|gce] --nodes 3 --etcds 3 --etcds-instance-type t2.micro
+kargo [prepare|aws|gce] --nodes 3 --etcds 3
 ```
 
 ![3nodes3etcds](https://s32.postimg.org/hphgxcjmt/3nodes_3etcds.png)
@@ -140,7 +140,7 @@ if the config file is filled with the proper information you just need to run th
 
 Another example if you already have a kargo repository in your home dir
 
-    kargo gce --nodes 3 --noclone --cluster-name foobar
+    kargo gce --nodes 3 --noclone --cluster-name foobar [--nodes-machine-type n1-standard-4]
 
 
 **OpenStack**
