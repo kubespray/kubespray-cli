@@ -189,12 +189,16 @@ class CfgInventory(object):
                     )
         elif self.platform == 'metal':
             for host in nodes + masters + etcds:
-                r = re.search('(^.*)\[(.*)\]', host)
-                inventory_hostname = r.group(1)
-                var_str = r.group(2)
-                hostvars = list()
-                for var in var_str.split(','):
-                    hostvars.append({'name': var.split('=')[0], 'value': var.split('=')[1]})
+                if '[' in host:
+                    r = re.search('(^.*)\[(.*)\]', host)
+                    inventory_hostname = r.group(1)
+                    var_str = r.group(2)
+                    hostvars = list()
+                    for var in var_str.split(','):
+                        hostvars.append({'name': var.split('=')[0], 'value': var.split('=')[1]})
+                else:
+                    inventory_hostname = host
+                    hostvars = []
                 new_inventory['all']['hosts'].append(
                     {'hostname': inventory_hostname, 'hostvars': hostvars}
                 )

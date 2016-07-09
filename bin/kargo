@@ -16,7 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '0.4.2'
+__version__ = '0.4.4'
 
 import os
 import argparse
@@ -25,7 +25,7 @@ try:
     from ansible.utils.display import Display
 except ImportError:
     raise ImportError('Cannot find Ansible: Please check your installation (required version 2)')
-from kargo.common import clone_kargo_git_repo, read_password
+from kargo.common import clone_kargo_git_repo
 from kargo.configure import Config
 from kargo.inventory import CfgInventory
 from kargo.deploy import RunPlaybook
@@ -96,15 +96,18 @@ if __name__ == '__main__':
     parent_parser = argparse.ArgumentParser(add_help=False)
     parent_parser.add_argument(
         '-p', '--path', dest='kargo_path',
-        help='Where the Ansible playbooks are installed'
+        help='Where the Ansible playbooks are installed. Default: ~/.kargo'
     )
-    parent_parser.add_argument('--config', dest='configfile', help="Config file")
+    parent_parser.add_argument(
+        '--config', dest='configfile', help="Config file path. Defaults to /etc/kargo/kargo.yml"
+    )
     parent_parser.add_argument(
         '-y', '--assumeyes', default=False, dest='assume_yes', action='store_true',
         help='When a yes/no prompt would be presented, assume that the user entered "yes"'
     )
     parent_parser.add_argument(
-        '-i', '--inventory', dest='inventory_path', help='Inventory file path'
+        '-i', '--inventory', dest='inventory_path',
+        help='Inventory file path. Defaults to <path parameter>/inventory/inventory.cfg'
     )
 
     # prepare
@@ -157,7 +160,8 @@ if __name__ == '__main__':
         '--security-group-name', dest='security_group_name', help='AWS security group Name'
     )
     sg_group.add_argument(
-        '--security-group-id', dest='security_group_id', help='AWS security group ID'
+        '--security-group-id', dest='security_group_id',
+        help='AWS security group ID. Uses the "default" security group if not specified.'
     )
     aws_parser.add_argument(
         '--assign-public-ip', default=None, dest='assign_public_ip', action='store_true',
@@ -167,9 +171,9 @@ if __name__ == '__main__':
         '--use-private-ip', default=None, dest='use_private_ip', action='store_true',
          help='If set to true, using the private ip for SSH connection'
     )
-    aws_parser.add_argument('--vpc-id', dest='aws_vpc_id', help='EC2 VPC id')
+    aws_parser.add_argument('--vpc-id', dest='aws_vpc_id', help='EC2 VPC ID')
     aws_parser.add_argument(
-        '--vpc-subnet', dest='vpc_subnet_id', help='EC2 VPC regional subnet'
+        '--vpc-subnet', dest='vpc_subnet_id', help='EC2 VPC subnet ID'
     )
     aws_parser.add_argument('--ami', dest='ami', help='AWS AMI')
     aws_parser.add_argument(
@@ -312,6 +316,10 @@ if __name__ == '__main__':
         help='Create GCE machines and generate inventory'
     )
     deploy_parser.add_argument(
+        '--verbose', default=False, action='store_true',
+        help="Run Ansible playbook in verbose mode '-vvvv'"
+    )
+    deploy_parser.add_argument(
         '-k', '--sshkey', dest='ssh_key',
         help='ssh key for authentication on remote servers'
     )
@@ -326,6 +334,10 @@ if __name__ == '__main__':
     deploy_parser.add_argument(
         '-P', '--prompt-passwd', default=False, action='store_true', dest='prompt_pwd',
         help="Set the 'kube' passwd to authenticate to the API (Interactive mode)"
+    )
+    deploy_parser.add_argument(
+        '-V', '--kube-version', dest='kube_version',
+        help='Choose the kubernetes version to be installed'
     )
     deploy_parser.add_argument(
         '-N', '--kube-network', dest='kube_network',
