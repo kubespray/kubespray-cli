@@ -83,6 +83,29 @@ frequently </br>
 
 Basic usage
 -----------
+**Note**: You may want to choose the architecture of your cluster. </br>
+Here are 3 examples:
+* 3 vms, all 3 have etcd installed, all 3 are nodes (running pods), 2 of them run master components
+```
+kargo [prepare|aws|gce] --nodes 3 --nodes-instance-type t2.small
+```
+
+![3nodes](https://s32.postimg.org/8q7gns8ut/3nodes.png)
+* 6 vms, 2 are nodes and masters, 1 is node only and a distinct etcd cluster
+```
+kargo [prepare|aws|gce] --nodes 3 --etcds 3 --etcds-instance-type t2.micro
+```
+
+![3nodes3etcds](https://s32.postimg.org/hphgxcjmt/3nodes_3etcds.png)
+* 8 vms, 2 distinct masters, 3 nodes and 3 etcds
+```
+kargo [prepare|aws|gce] --nodes 3 --etcds 3 --masters 2
+```
+
+![3nodes3etcds2masters](https://s31.postimg.org/h4gdu4qjv/3nodes_2masters_3etcds.png)
+
+You should have at least 3 nodes but you can spawn only one instance for
+tests purposes.
 
 ### Generate inventory for a baremetal cluster
 
@@ -91,40 +114,17 @@ The command below will just clone the git repository and creates the
 inventory.
 The hostvars must be separated by a **comma without spaces**
 
-    kargo prepare --nodes node1[ansible_ssh_host=10.99.21.1] node2[ansible_ssh_host=10.99.21.2] node3[ansible_ssh_host=10.99.21.3]
+    kargo prepare --nodes node1[ansible_ssh_host=10.99.21.1] node2[ansible_ssh_host=10.99.21.2] node3[ansible_ssh_host=10.99.21.3] [--etcds N+] [--masters N+]
 
 ### Run instances and generate the inventory on Clouds
 
-**Note**: You may want to choose the architecture of your cluster. </br>
-Here are 3 examples:
-* 3 vms, all 3 have etcd installed, all 3 are nodes (running pods), 2 of them run master components
-```
-kargo aws --nodes 3 --nodes-instance-type t2.small
-```
-
-![3nodes](https://s32.postimg.org/8q7gns8ut/3nodes.png)
-* 6 vms, 2 are nodes and masters, 1 is node only and a distinct etcd cluster
-```
-kargo aws --nodes 3 --etcds 3 --etcds-instance-type t2.micro
-```
-
-![3nodes3etcds](https://s32.postimg.org/hphgxcjmt/3nodes_3etcds.png)
-* 8 vms, 2 distinct masters, 3 nodes and 3 etcds
-```
-kargo aws --nodes 3 --etcds 3 --masters 2
-```
-
-![3nodes3etcds2masters](https://s31.postimg.org/h4gdu4qjv/3nodes_2masters_3etcds.png)
-
-You should have at least 3 nodes but you can spawn only one instance for
-tests purposes.
 
 **AWS**
 
 In order to create vms on AWS you can either edit the config file */etc/kargo/kargo.yml* or set the options with the argument **aws**
 if the config file is filled with the proper information you just need to run the following command
 
-    kargo aws --nodes 3
+    kargo aws --nodes 3 [--etcds N+] [masters N+] [--nodes-instance-type m4.large]
 
 Another example which download kargo's repo in a defined directory and set the cluster name
 

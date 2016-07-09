@@ -26,6 +26,7 @@ Deploy a kubernetes cluster. Run the ansible-playbbook
 import re
 import sys
 import os
+import yaml
 import signal
 import netaddr
 from subprocess import PIPE, STDOUT, Popen, check_output, CalledProcessError
@@ -122,6 +123,8 @@ class RunPlaybook(object):
             '-b', '--become-user=root', '-m', 'ping', 'all',
             '-i', self.inventorycfg
         ]
+        if 'sshkey' in self.options.keys():
+            cmd = cmd + ['--private-key', self.options['sshkey']]
         if self.options['coreos']:
             cmd = cmd + ['-e', 'ansible_python_interpreter=/opt/bin/python']
         rcode, emsg = run_command('SSH ping hosts', cmd)
@@ -178,6 +181,26 @@ class RunPlaybook(object):
         svc_network = list(net.subnet(svc_pfx))[0]
         return(svc_network, pods_network)
 
+    def read_kube_versions(self):
+        """
+        Read the kubernetes versions from karo's vars file
+        """
+        kube_vers_file = os.path.join(
+            self.options['kargo_path'] + '/roles/download/vars/kube_versions.yml'
+        )
+        try:
+            with open(kube_vers_file, "r") as f:
+                kube_versions_vars = yaml.load(f)
+        except IOError as e:
+            display.error('Cannot read kube_versions file %s: %s'
+                          % (kube_vers_file, e)
+                          )
+            sys.exit(1)
+        kube_versions = list()
+        for i in kube_versions_vars['kube_checksum']:
+            kube_versions.append(i)
+        return kube_versions
+
     def deploy_kubernetes(self):
         '''
         Run the ansible playbook command
@@ -190,9 +213,9 @@ class RunPlaybook(object):
         ]
         # Configure network plugin if defined
         if 'network_plugin' in self.options.keys():
-            cmd = cmd + [ '-e',
+            cmd = cmd + ['-e',
                 'kube_network_plugin=%s' % self.options['network_plugin']
-            ]
+                ]
         # Configure the network subnets pods and k8s services
         if 'kube_network' in self.options.keys():
             if not validate_cidr(self.options['kube_network'], version=4):
@@ -204,9 +227,22 @@ class RunPlaybook(object):
                 '-e', 'kube_service_addresses=%s' % svc_network.cidr,
                 '-e', 'kube_pods_subnet=%s' % pods_network
             ]
+        # Set kubernetes version
+        if 'kube_version' in self.options.keys():
+            available_kube_versions = self.read_kube_versions()
+            if self.options['kube_version'] not in available_kube_versions:
+                display.error(
+                    'Kubernetes version %s is not supported, available versions = %s' %
+                    (self.options['kube_version'], ','.join(available_kube_versions))
+                )
+                sys.exit(1)
+            cmd = cmd + ['-e', 'kube_version=%s' % self.options['kube_version']]
         # Add root password for the apiserver
         if 'k8s_passwd' in self.options.keys():
             cmd = cmd + ['-e', 'kube_api_pwd=%s' % self.options['k8s_passwd']]
+        # Ansible verbose mode
+        if 'verbose' in self.options.keys() and self.options['verbose']:
+            cmd = cmd + ['-vvvv']
         # Add any additionnal Ansible option
         if 'ansible_opts' in self.options.keys():
             cmd = cmd + self.options['ansible_opts'].split(' ')

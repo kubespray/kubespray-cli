@@ -55,7 +55,7 @@ class Config(object):
     def default_values(self, args, config):
         # Set kargo_path
         if 'kargo_path' not in config.keys() and args.kargo_path is None:
-            config['kargo_path'] = os.path.join(os.path.expanduser("~"), 'kargo')
+            config['kargo_path'] = os.path.join(os.path.expanduser("~"), '.kargo')
         arguments = dict(args._get_kwargs())
         for key, value in arguments.items():
             if value is not None:

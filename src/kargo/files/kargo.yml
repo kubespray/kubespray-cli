@@ -1,7 +1,7 @@
 ---
 # Path where the kargo ansible playbooks will be installed
 # Defaults to current user's home directory if not set
-# kargo_path: "/tmp"
+# kargo_path: "~/.kargo"
 
 # Default inventory path
 kargo_git_repo: "https://github.com/kubespray/kargo.git"
