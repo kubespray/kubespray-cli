@@ -59,6 +59,9 @@ frequently </br>
     # masters_instance_type: "<masters_instance_type>"
     # nodes_instance_type: "<nodes_instance_type>"
     # etcds_instance_type: "<etcds_instance_type>"
+    # masters_instance_profile_name: "<master_instance_profile_name>"
+    # nodes_instance_profile_name: "<nodes_instance_profile_name>"
+    # etcds_instance_profile_name: "<etcds_instance_profile_name>"
     # security_group_name: "<security_group_name>"
     # security_group_id: "<security_group_id>"
     # assign_public_ip: True
