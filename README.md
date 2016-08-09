@@ -146,7 +146,7 @@ Another example if you already have a kargo repository in your home dir
 **OpenStack**
 
 In order to create vms on a OpenStack cluster you can either edit the config file */etc/kargo/kargo.yml* or set the options with the argument **openstack**.
-The options **network** and **sshkey** are required and need to be created before running kargo, you can either create them using the OpenStack Dashboard or the OpenStack CLI clients.
+The options **network** and **sshkey** are required and need to be created before running kargo, you can either create them using the OpenStack Dashboard or the OpenStack CLI clients. Running the ansible routines that kargo will invoke requires to have installed the [openstack cli tools](http://docs.openstack.org/user-guide/common/cli_install_openstack_command_line_clients.html) and openstack [shade](http://docs.openstack.org/infra/shade/installation.html).
 
 
 Create a network using the OpenStack Neutron client
@@ -170,7 +170,7 @@ Create a network using the OpenStack Neutron client
     +-----------------+--------------------------------------+
 
     # create subnet
-    $ neutron subnet-create --name k8s-subnet --enable-dhcp --allocation_pool "start=192.168.0.100,end=192.168.0.200" k8s-network 192.168.0.0/24
+    $ neutron subnet-create --name k8s-subnet --dns-nameserver 8.8.8.8 --enable-dhcp --allocation_pool "start=192.168.0.100,end=192.168.0.200" k8s-network 192.168.0.0/24 
 
     Created a new subnet:
     +-------------------+----------------------------------------------------+
