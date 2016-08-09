@@ -170,7 +170,7 @@ class AWS(Cloud):
                 self.options['instance_tags'][k] = v
         ec2_options = [
             'aws_access_key', 'aws_secret_key', 'count', 'group_id',
-            'group', 'instance_type', 'key_name', 'vpc_subnet_id',
+            'group', 'instance_type', 'instance_profile_name', 'key_name', 'vpc_subnet_id',
             'image', 'instance_tags', 'assign_public_ip', 'region'
         ]
         # Define EC2 task
@@ -185,6 +185,7 @@ class AWS(Cloud):
                         ec2_task['ec2'].update(d)
                 ec2_task['ec2'].update({'count': self.options['%s_count' % role]})
                 ec2_task['ec2'].update({'instance_type': self.options['%s_instance_type' % role]})
+                ec2_task['ec2'].update({'instance_profile_name': self.options['%s_instance_profile_name' % role]})
                 ec2_task['ec2'].update({'wait': True})
                 self.pbook_content[0]['tasks'].append(ec2_task)
                 # Write ec2 instances json
