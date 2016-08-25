@@ -12,10 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
-
-import "github.com/smana/kargo-cli/cmd"
-
-func main() {
-	cmd.Execute()
-}
+package cloud

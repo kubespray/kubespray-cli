@@ -18,14 +18,21 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 var (
+	redPrint      = color.New(color.FgHiRed).SprintFunc()
+	yellowPrint   = color.New(color.FgHiYellow).SprintFunc()
+	greenPrint    = color.New(color.FgHiGreen).SprintFunc()
 	cfgFile       string
 	kargoPath     string
 	inventoryPath string
+	etcdCount     uint16
+	masterCount   uint16
+	nodeCount     uint16
 )
 
 // RootCmd represents the base command when called without any subcommands
@@ -54,6 +61,28 @@ func init() {
 	RootCmd.PersistentFlags().BoolP("assumeyes", "y", false, "When a yes/no prompt would be presented, assume that the user entered 'yes'")
 }
 
+//Set default configuration values
+func loadDefaultSettings() {
+	//AWS
+	viper.SetDefault("awsMasterType", "t2.medium")
+	viper.SetDefault("awsNodeType", "t2.large")
+	viper.SetDefault("awsEtcdType", "t2.small")
+	viper.SetDefault("awsVpcID", "default")
+	viper.SetDefault("awsSubnetID", "default")
+	viper.SetDefault("awsSGName", "default")
+	//GCE
+	viper.SetDefault("gceMasterType", "n1-standard-2")
+	viper.SetDefault("gceNodeType", "n1-standard-4")
+	viper.SetDefault("gceEtcdType", "n1-standard-1")
+}
+
+//Bind flags values to viper config
+func bindFlags() {
+	viper.BindPFlag("aws-access-key", awsCmd.Flags().Lookup("aws-access-key"))
+	viper.BindPFlag("aws-secret-key", awsCmd.Flags().Lookup("aws-secret-key"))
+	viper.BindPFlag("masters-instance-type", awsCmd.Flags().Lookup("masters-instance-type"))
+}
+
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	if cfgFile != "" { // enable ability to specify config file via flag
@@ -66,8 +95,12 @@ func initConfig() {
 
 	err := viper.ReadInConfig() // Find and read the config file
 	if err != nil {             // Handle errors reading the config file
-		panic(fmt.Errorf("Fatal error config file: %s \n", err))
+		panic(fmt.Errorf("%s Fatal error config file: %s \n", redPrint("ERROR:"), err))
 	}
+
+	loadDefaultSettings()
+
+	bindFlags()
 }
 
 func runHelp(cmd *cobra.Command, args []string) {

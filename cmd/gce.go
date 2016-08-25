@@ -14,10 +14,18 @@
 
 package cmd
 
-import (
-	"fmt"
+import "github.com/spf13/cobra"
 
-	"github.com/spf13/cobra"
+var (
+	gcePemFile     string
+	gceZone        string
+	gceImage       string
+	gceMasterType  string
+	gceNodeType    string
+	gceEtcdType    string
+	gceProjectID   string
+	gceSvcAccEmail string
+	gceTags        []string
 )
 
 // gceCmd represents the gce command
@@ -25,23 +33,21 @@ var gceCmd = &cobra.Command{
 	Use:   "gce",
 	Short: "Run instances on Google Compute Engine",
 	Long:  "",
-	Run: func(cmd *cobra.Command, args []string) {
-		// TODO: Work your own magic here
-		fmt.Println("gce called")
-	},
+	Run:   runHelp,
 }
 
 func init() {
 	RootCmd.AddCommand(gceCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// gceCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// gceCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
+	gceCmd.Flags().StringVar(&gcePemFile, "pem-file", "", "GCE pem file path")
+	gceCmd.Flags().StringVar(&gceZone, "zone", "", "GCE Zone where the machines will be started")
+	gceCmd.Flags().StringVar(&gceImage, "image", "", "GCE machine image")
+	gceCmd.Flags().StringVar(&gceMasterType, "masters-machine-type", "", "GCE machine type for Masters (default: n1-standard-2)")
+	gceCmd.Flags().StringVar(&gceNodeType, "nodes-machine-type", "", "GCE machine type for Nodes (default: n1-standard-4)")
+	gceCmd.Flags().StringVar(&gceEtcdType, "etcds-machine-type", "", "GCE machine type for Etcds members (default: n1-standard-1)")
+	gceCmd.Flags().StringVar(&gceProjectID, "project", "", "GCE project ID")
+	gceCmd.Flags().StringVar(&gceSvcAccEmail, "email", "", "GCE service account email")
+	gceCmd.Flags().Uint16Var(&etcdCount, "etcds", 0, "Number of etcd, these instances will just act as etcd members")
+	gceCmd.Flags().Uint16Var(&masterCount, "masters", 0, "Number of masters, these instances will not run workloads, master components only")
+	gceCmd.Flags().Uint16Var(&nodeCount, "nodes", 0, "Number of worker nodes")
+	gceCmd.Flags().StringSliceVar(&gceTags, "tags", []string{}, "List of tags")
 }
