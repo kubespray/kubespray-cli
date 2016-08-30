@@ -16,37 +16,55 @@ package cmd
 
 import (
 	"fmt"
+	"log"
+	"os/user"
 
 	"github.com/spf13/cobra"
+)
+
+var (
+	PromptPasswd bool
+	AWS          bool
+	GCE          bool
+	CoreOS       bool
+	Passwd       string
+	User         string
+	KubeVersion  string
+	NetPlugin    string
+	AnsibleUser  string
+	SSHKey       string
 )
 
 // deployCmd represents the deploy command
 var deployCmd = &cobra.Command{
 	Use:   "deploy",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Deploy the Kubernetes cluster using Ansible",
+	Long:  "",
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		// TODO: Work your own magic here
-		fmt.Println("deploy called")
-	},
+	Run: runDeploy,
 }
 
 func init() {
 	RootCmd.AddCommand(deployCmd)
+	deployCmd.Flags().BoolVarP(&PromptPasswd, "prompt-passwd", "P", false, "Set 'kube' user passwd to authenticate to the API (Interactive mode)")
+	deployCmd.Flags().BoolVar(&AWS, "aws", false, "Instances are running on AWS")
+	deployCmd.Flags().BoolVar(&GCE, "gce", false, "Instances are running on GCE")
+	deployCmd.Flags().BoolVar(&CoreOS, "coreos", false, "bootstrap python on CoreOS")
+	deployCmd.Flags().StringVar(&Passwd, "passwd", "", "Set 'kube' user passwd to authenticate to the API (default: 'changeme')")
+	deployCmd.Flags().StringVarP(&KubeVersion, "kube-version", "V", "", "Choose the kubernetes version to be installed")
+	deployCmd.Flags().StringVarP(&NetPlugin, "network-plugin", "n", "", "Choose the kubernetes version to be installed (default: 'flannel')")
+	deployCmd.Flags().StringVarP(&AnsibleUser, "user", "u", "", "Ansible SSH user (remote user, default is the current username")
+	deployCmd.Flags().StringVarP(&SSHKey, "sshkey", "k", "", "SSH key to use to authenticate to remote hosts (default: ''~/.ssh/id.rsa')")
+}
 
-	// Here you will define your flags and configuration settings.
+func runDeploy(cmd *cobra.Command, args []string) {
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// deployCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// deployCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
+	if User == "" {
+		usr, err := user.Current()
+		if err != nil {
+			log.Fatal(err)
+		}
+		username := usr.Username
+		fmt.Println(username)
+	}
 }

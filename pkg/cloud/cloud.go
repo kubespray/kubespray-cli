@@ -13,3 +13,13 @@
 // limitations under the License.
 
 package cloud
+
+import "fmt"
+
+type Cloud struct {
+	Name string
+}
+
+func (c *Cloud) WriteInventory() {
+	fmt.Println("do something")
+}

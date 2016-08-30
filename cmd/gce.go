@@ -14,18 +14,22 @@
 
 package cmd
 
-import "github.com/spf13/cobra"
+import (
+	"fmt"
+
+	"github.com/spf13/cobra"
+)
 
 var (
-	gcePemFile     string
-	gceZone        string
-	gceImage       string
-	gceMasterType  string
-	gceNodeType    string
-	gceEtcdType    string
-	gceProjectID   string
-	gceSvcAccEmail string
-	gceTags        []string
+	GcePemFile     string
+	GceZone        string
+	GceImage       string
+	GceMasterType  string
+	GceNodeType    string
+	GceEtcdType    string
+	GceProjectID   string
+	GceSvcAccEmail string
+	GceTags        []string
 )
 
 // gceCmd represents the gce command
@@ -33,21 +37,28 @@ var gceCmd = &cobra.Command{
 	Use:   "gce",
 	Short: "Run instances on Google Compute Engine",
 	Long:  "",
-	Run:   runHelp,
+	Run:   runGCE,
 }
 
 func init() {
 	RootCmd.AddCommand(gceCmd)
-	gceCmd.Flags().StringVar(&gcePemFile, "pem-file", "", "GCE pem file path")
-	gceCmd.Flags().StringVar(&gceZone, "zone", "", "GCE Zone where the machines will be started")
-	gceCmd.Flags().StringVar(&gceImage, "image", "", "GCE machine image")
-	gceCmd.Flags().StringVar(&gceMasterType, "masters-machine-type", "", "GCE machine type for Masters (default: n1-standard-2)")
-	gceCmd.Flags().StringVar(&gceNodeType, "nodes-machine-type", "", "GCE machine type for Nodes (default: n1-standard-4)")
-	gceCmd.Flags().StringVar(&gceEtcdType, "etcds-machine-type", "", "GCE machine type for Etcds members (default: n1-standard-1)")
-	gceCmd.Flags().StringVar(&gceProjectID, "project", "", "GCE project ID")
-	gceCmd.Flags().StringVar(&gceSvcAccEmail, "email", "", "GCE service account email")
+	gceCmd.Flags().StringVar(&GcePemFile, "pem-file", "", "GCE pem file path")
+	gceCmd.Flags().StringVar(&GceZone, "zone", "", "GCE Zone where the machines will be started")
+	gceCmd.Flags().StringVar(&GceImage, "image", "", "GCE machine image")
+	gceCmd.Flags().StringVar(&GceMasterType, "masters-machine-type", "", "GCE machine type for Masters (default: n1-standard-2)")
+	gceCmd.Flags().StringVar(&GceNodeType, "nodes-machine-type", "", "GCE machine type for Nodes (default: n1-standard-4)")
+	gceCmd.Flags().StringVar(&GceEtcdType, "etcds-machine-type", "", "GCE machine type for Etcds members (default: n1-standard-1)")
+	gceCmd.Flags().StringVar(&GceProjectID, "project", "", "GCE project ID")
+	gceCmd.Flags().StringVar(&GceSvcAccEmail, "email", "", "GCE service account email")
 	gceCmd.Flags().Uint16Var(&etcdCount, "etcds", 0, "Number of etcd, these instances will just act as etcd members")
 	gceCmd.Flags().Uint16Var(&masterCount, "masters", 0, "Number of masters, these instances will not run workloads, master components only")
 	gceCmd.Flags().Uint16Var(&nodeCount, "nodes", 0, "Number of worker nodes")
-	gceCmd.Flags().StringSliceVar(&gceTags, "tags", []string{}, "List of tags")
+	gceCmd.Flags().StringSliceVar(&GceTags, "tags", []string{}, "List of tags")
+}
+
+func runGCE(cmd *cobra.Command, args []string) {
+	if nodeCount == 0 {
+		cmd.Help()
+		fmt.Printf("\n%s Option 'nodes' is required. Number of nodes to run.\n\n", redPrint("ERROR:"))
+	}
 }

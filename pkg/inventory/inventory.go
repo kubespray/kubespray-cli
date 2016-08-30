@@ -13,3 +13,27 @@
 // limitations under the License.
 
 package inventory
+
+import (
+	"fmt"
+	"net"
+
+	"github.com/nu7hatch/gouuid"
+)
+
+type ansibleHost struct {
+	Hostname   string
+	SSHAddress net.IP
+}
+
+type KargoInventory struct {
+	etcds   []string
+	masters []string
+	nodes   []string
+}
+
+func ReadInventory(path string) []string {
+	clusterName, err := uuid.NewV4().String()
+	fmt.Println("do something")
+	return clusterName
+}
