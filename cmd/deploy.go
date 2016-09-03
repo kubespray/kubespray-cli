@@ -16,7 +16,6 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"os/user"
 
 	"github.com/spf13/cobra"
@@ -59,11 +58,11 @@ func init() {
 
 func runDeploy(cmd *cobra.Command, args []string) {
 
+	// Log = common.NewLogger()
+
 	if User == "" {
 		usr, err := user.Current()
-		if err != nil {
-			log.Fatal(err)
-		}
+		CheckErr(err)
 		username := usr.Username
 		fmt.Println(username)
 	}

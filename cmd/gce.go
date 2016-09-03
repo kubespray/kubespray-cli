@@ -14,11 +14,7 @@
 
 package cmd
 
-import (
-	"fmt"
-
-	"github.com/spf13/cobra"
-)
+import "github.com/spf13/cobra"
 
 var (
 	GcePemFile     string
@@ -59,6 +55,6 @@ func init() {
 func runGCE(cmd *cobra.Command, args []string) {
 	if nodeCount == 0 {
 		cmd.Help()
-		fmt.Printf("\n%s Option 'nodes' is required. Number of nodes to run.\n\n", redPrint("ERROR:"))
+		Log.Fatal("Option 'nodes' is required. Number of nodes to run")
 	}
 }

@@ -14,7 +14,7 @@
 
 package main
 
-import "github.com/smana/kargo-cli/cmd"
+import "github.com/smana/kargo/cmd"
 
 func main() {
 	cmd.Execute()
