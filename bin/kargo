@@ -363,6 +363,10 @@ if __name__ == '__main__':
         help='bootstrap python on CoreOS'
     )
     deploy_parser.add_argument(
+            '--ubuntu', default=False, action='store_true',
+            help='bootstrap python on Ubuntu 16.04 and newer'
+    )
+    deploy_parser.add_argument(
         '--ansible-opts', dest='ansible_opts',
         help='Ansible options'
     )
