@@ -14,7 +14,14 @@
 
 package cmd
 
-import "github.com/spf13/cobra"
+import (
+	"fmt"
+	"os"
+
+	"github.com/smana/kargo/common"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+)
 
 var (
 	floatingIP     bool
@@ -39,6 +46,7 @@ var openstackCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(openstackCmd)
 	openstackCmd.Flags().BoolVar(&floatingIP, "floating-ip", false, "If set to true, assign public IP")
+	openstackCmd.Flags().BoolVar(&noClone, "noclone", false, "Do not clone the git repo. Useful when the repo is already downloaded")
 	openstackCmd.Flags().StringVar(&OSAuthURL, "os-auth-url", "", "OpenStack authentication URL")
 	openstackCmd.Flags().StringVar(&OSUsername, "os-username", "", "OpenStack username")
 	openstackCmd.Flags().StringVar(&OSPassword, "os-password", "", "OpenStack password")
@@ -53,6 +61,20 @@ func init() {
 }
 
 func runOpenStack(cmd *cobra.Command, args []string) {
+	// Clone Kargo repository
+	if !noClone {
+		if common.PathExists(viper.GetString("KargoPath")) {
+			if !common.AskForConfirmation("Kargo directory exists, do you want to overwrite it ?") {
+				fmt.Printf("%s Aborted, not cloning kargo repository \n ", YellowPrint("WARN:"))
+				os.Exit(2)
+			}
+			os.RemoveAll(viper.GetString("KargoPath"))
+		}
+		fmt.Printf("%s Cloning kargo repository into %s ... \n ", GreenPrint("INFO:"), viper.GetString("KargoPath"))
+		common.GitClone("https://github.com/kubespray/kargo", viper.GetString("KargoPath"))
+	} else {
+		fmt.Printf("%s Kargo repository %s already exists, not cloning it. \n ", YellowPrint("WARN:"), viper.GetString("KargoPath"))
+	}
 	if nodeCount == 0 {
 		cmd.Help()
 		Log.Fatal("Option 'nodes' is required. Number of nodes to run")

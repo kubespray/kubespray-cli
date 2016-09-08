@@ -27,9 +27,9 @@ import (
 )
 
 var (
-	redPrint      = color.New(color.FgHiRed).SprintFunc()
-	yellowPrint   = color.New(color.FgHiYellow).SprintFunc()
-	greenPrint    = color.New(color.FgHiGreen).SprintFunc()
+	RedPrint      = color.New(color.FgHiRed).SprintFunc()
+	YellowPrint   = color.New(color.FgHiYellow).SprintFunc()
+	GreenPrint    = color.New(color.FgHiGreen).SprintFunc()
 	CfgFile       string
 	KargoPath     string
 	InventoryPath string
@@ -97,7 +97,8 @@ func bindFlags() {
 	viper.BindPFlag("aws-access-key", awsCmd.Flags().Lookup("aws-access-key"))
 	viper.BindPFlag("aws-secret-key", awsCmd.Flags().Lookup("aws-secret-key"))
 	viper.BindPFlag("masters-instance-type", awsCmd.Flags().Lookup("masters-instance-type"))
-	viper.BindPFlag("LogFile", awsCmd.Flags().Lookup("logfile"))
+	viper.BindPFlag("LogFile", RootCmd.PersistentFlags().Lookup("logfile"))
+	viper.BindPFlag("KargoPath", RootCmd.PersistentFlags().Lookup("path"))
 }
 
 func CheckErr(err error) {

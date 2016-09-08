@@ -41,6 +41,27 @@ func BinLookup(binary string) bool {
 	return true
 }
 
+// PathExists returns whether the given file or directory exists or not
+func PathExists(path string) bool {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true
+	}
+	if os.IsNotExist(err) {
+		return false
+	}
+	return true
+}
+
+func GitClone(url string, path string) {
+	if !BinLookup("git") {
+		Log.Fatal("Unable to find git binary")
+	}
+	cmd := exec.Command("git", "clone", url, path)
+	err := cmd.Run()
+	checkErr(err)
+}
+
 // AskForConfirmation asks the user for confirmation. A user must type in "yes" or "no" and
 // then press enter. It has fuzzy matching, so "y", "Y", "yes", "YES", and "Yes" all count as
 // confirmations. If the input is not recognized, it will ask again. The function does not return

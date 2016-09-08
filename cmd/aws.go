@@ -14,7 +14,14 @@
 
 package cmd
 
-import "github.com/spf13/cobra"
+import (
+	"fmt"
+	"os"
+
+	"github.com/smana/kargo/common"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+)
 
 var (
 	usePrivIP      bool
@@ -45,6 +52,7 @@ func init() {
 	RootCmd.AddCommand(awsCmd)
 	awsCmd.Flags().BoolVar(&usePrivIP, "use-private-ip", false, "If set to true, using the private ip for SSH connection")
 	awsCmd.Flags().BoolVar(&assignPublicIP, "assign-public-ip", false, "when provisioning within vpc, assign a public IP address")
+	awsCmd.Flags().BoolVar(&noClone, "noclone", false, "Do not clone the git repo. Useful when the repo is already downloaded")
 	awsCmd.Flags().StringVar(&AwsAccessKey, "aws-access-key", "", "AWS access key")
 	awsCmd.Flags().StringVar(&AwsSecretKey, "aws-secret-key", "", "AWS secret key")
 	awsCmd.Flags().StringVar(&AwsAmi, "ami", "", "Amazon Machine Image ")
@@ -63,6 +71,20 @@ func init() {
 }
 
 func runAWS(cmd *cobra.Command, args []string) {
+	// Clone Kargo repository
+	if !noClone {
+		if common.PathExists(viper.GetString("KargoPath")) {
+			if !common.AskForConfirmation("Kargo directory exists, do you want to overwrite it ?") {
+				fmt.Printf("%s Aborted, not cloning kargo repository \n ", YellowPrint("WARN:"))
+				os.Exit(2)
+			}
+			os.RemoveAll(viper.GetString("KargoPath"))
+		}
+		fmt.Printf("%s Cloning kargo repository into %s ... \n ", GreenPrint("INFO:"), viper.GetString("KargoPath"))
+		common.GitClone("https://github.com/kubespray/kargo", viper.GetString("KargoPath"))
+	} else {
+		fmt.Printf("%s Kargo repository %s already exists, not cloning it. \n ", YellowPrint("WARN:"), viper.GetString("KargoPath"))
+	}
 	if nodeCount == 0 {
 		cmd.Help()
 		Log.Fatal("Option 'nodes' is required. Number of nodes to run")
