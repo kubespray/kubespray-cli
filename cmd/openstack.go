@@ -14,10 +14,18 @@
 
 package cmd
 
-import (
-	"fmt"
+import "github.com/spf13/cobra"
 
-	"github.com/spf13/cobra"
+var (
+	floatingIP     bool
+	OSAuthURL      string
+	OSUsername     string
+	OSPassword     string
+	OSProjectName  string
+	OSNetwork      string
+	OSEtcdFlavor   string
+	OSNodeFlavor   string
+	OSMasterFlavor string
 )
 
 // openstackCmd represents the openstack command
@@ -25,23 +33,28 @@ var openstackCmd = &cobra.Command{
 	Use:   "openstack",
 	Short: "Run instances on Openstack",
 	Long:  "",
-	Run: func(cmd *cobra.Command, args []string) {
-		// TODO: Work your own magic here
-		fmt.Println("openstack called")
-	},
+	Run:   runOpenStack,
 }
 
 func init() {
 	RootCmd.AddCommand(openstackCmd)
+	gceCmd.Flags().BoolVar(&floatingIP, "floating-ip", false, "If set to true, assign public IP")
+	gceCmd.Flags().StringVar(&OSAuthURL, "os-auth-url", "", "OpenStack authentication URL")
+	gceCmd.Flags().StringVar(&OSUsername, "os-username", "", "OpenStack username")
+	gceCmd.Flags().StringVar(&OSPassword, "os-password", "", "OpenStack password")
+	gceCmd.Flags().StringVar(&OSProjectName, "os-project-name", "", "OpenStack project name")
+	gceCmd.Flags().StringVar(&OSNetwork, "neutron-network", "", "Neutron network name")
+	gceCmd.Flags().StringVar(&OSEtcdFlavor, "etcds-flavor", "", "OpenStack instance flavor for Etcd")
+	gceCmd.Flags().StringVar(&OSNodeFlavor, "nodes-flavor", "", "OpenStack instance flavor for Nodes")
+	gceCmd.Flags().StringVar(&OSMasterFlavor, "masters-flavor", "", "OpenStack instance flavor for Masters")
+	gceCmd.Flags().Uint16Var(&etcdCount, "etcds", 0, "Number of etcd, these instances will just act as etcd members")
+	gceCmd.Flags().Uint16Var(&masterCount, "masters", 0, "Number of masters, these instances will not run workloads, master components only")
+	gceCmd.Flags().Uint16Var(&nodeCount, "nodes", 0, "Number of worker nodes")
+}
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// openstackCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// openstackCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
+func runOpenStack(cmd *cobra.Command, args []string) {
+	if nodeCount == 0 {
+		cmd.Help()
+		Log.Fatal("Option 'nodes' is required. Number of nodes to run")
+	}
 }
