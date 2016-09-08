@@ -38,18 +38,18 @@ var openstackCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(openstackCmd)
-	gceCmd.Flags().BoolVar(&floatingIP, "floating-ip", false, "If set to true, assign public IP")
-	gceCmd.Flags().StringVar(&OSAuthURL, "os-auth-url", "", "OpenStack authentication URL")
-	gceCmd.Flags().StringVar(&OSUsername, "os-username", "", "OpenStack username")
-	gceCmd.Flags().StringVar(&OSPassword, "os-password", "", "OpenStack password")
-	gceCmd.Flags().StringVar(&OSProjectName, "os-project-name", "", "OpenStack project name")
-	gceCmd.Flags().StringVar(&OSNetwork, "neutron-network", "", "Neutron network name")
-	gceCmd.Flags().StringVar(&OSEtcdFlavor, "etcds-flavor", "", "OpenStack instance flavor for Etcd")
-	gceCmd.Flags().StringVar(&OSNodeFlavor, "nodes-flavor", "", "OpenStack instance flavor for Nodes")
-	gceCmd.Flags().StringVar(&OSMasterFlavor, "masters-flavor", "", "OpenStack instance flavor for Masters")
-	gceCmd.Flags().Uint16Var(&etcdCount, "etcds", 0, "Number of etcd, these instances will just act as etcd members")
-	gceCmd.Flags().Uint16Var(&masterCount, "masters", 0, "Number of masters, these instances will not run workloads, master components only")
-	gceCmd.Flags().Uint16Var(&nodeCount, "nodes", 0, "Number of worker nodes")
+	openstackCmd.Flags().BoolVar(&floatingIP, "floating-ip", false, "If set to true, assign public IP")
+	openstackCmd.Flags().StringVar(&OSAuthURL, "os-auth-url", "", "OpenStack authentication URL")
+	openstackCmd.Flags().StringVar(&OSUsername, "os-username", "", "OpenStack username")
+	openstackCmd.Flags().StringVar(&OSPassword, "os-password", "", "OpenStack password")
+	openstackCmd.Flags().StringVar(&OSProjectName, "os-project-name", "", "OpenStack project name")
+	openstackCmd.Flags().StringVar(&OSNetwork, "neutron-network", "", "Neutron network name")
+	openstackCmd.Flags().StringVar(&OSEtcdFlavor, "etcds-flavor", "", "OpenStack instance flavor for Etcd")
+	openstackCmd.Flags().StringVar(&OSNodeFlavor, "nodes-flavor", "", "OpenStack instance flavor for Nodes")
+	openstackCmd.Flags().StringVar(&OSMasterFlavor, "masters-flavor", "", "OpenStack instance flavor for Masters")
+	openstackCmd.Flags().Uint16Var(&etcdCount, "etcds", 0, "Number of etcd, these instances will just act as etcd members")
+	openstackCmd.Flags().Uint16Var(&masterCount, "masters", 0, "Number of masters, these instances will not run workloads, master components only")
+	openstackCmd.Flags().Uint16Var(&nodeCount, "nodes", 0, "Number of worker nodes")
 }
 
 func runOpenStack(cmd *cobra.Command, args []string) {
