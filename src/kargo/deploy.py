@@ -127,6 +127,7 @@ class RunPlaybook(object):
             cmd = cmd + ['--private-key', self.options['sshkey']]
         if self.options['coreos']:
             cmd = cmd + ['-e', 'ansible_python_interpreter=/opt/bin/python']
+        display.display(cmd)
         rcode, emsg = run_command('SSH ping hosts', cmd)
         if rcode != 0:
             self.logger.critical('Cannot connect to hosts: %s' % emsg)
@@ -136,31 +137,9 @@ class RunPlaybook(object):
 
     def coreos_bootstrap(self):
         '''
-        Install python dependencies on CoreOS
+        (Deprecated) Install python dependencies on CoreOS
         '''
-        cmd = [
-            playbook_exec, '--ssh-extra-args', '-o StrictHostKeyChecking=no',
-            '-e', 'ansible_python_interpreter=/opt/bin/python',
-            '-u',  '%s' % self.options['ansible_user'],
-            '-b', '--become-user=root', '-i', self.inventorycfg,
-            os.path.join(self.options['kargo_path'], 'coreos-bootstrap.yml')
-        ]
-        display.display(' '.join(cmd), color='bright blue')
-        if not self.options['assume_yes']:
-            if not query_yes_no(
-                'Bootstrap CoreOS servers with python ?'
-            ):
-                display.display('Aborted', color='red')
-                sys.exit(1)
-        display.banner('BOOTSTRAP COREOS')
-        self.logger.info(
-            'Bootstrapping CoreOS with the command: %s' % cmd
-        )
-        rcode, emsg = run_command('Bootstrapping CoreOS', cmd)
-        if rcode != 0:
-            self.logger.critical('Deployment failed: %s' % emsg)
-            self.kill_ssh_agent()
-            sys.exit(1)
+        self.logger.warn('Bootstrap is now part of main cluster deployment.')
 
     def get_subnets(self):
         '''Check the subnet value and split into 2 distincts subnets'''
