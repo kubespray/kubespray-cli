@@ -1,0 +1,49 @@
+
+# This references the default golang container from
+# the Docker Hub: https://registry.hub.docker.com/u/library/golang/
+# If you want Google's container you would reference google/golang
+# Read more about containers on our dev center
+# http://devcenter.wercker.com/docs/containers/index.html
+box: golang
+# This is the build pipeline. Pipelines are the core of wercker
+# Read more about pipelines on our dev center
+# http://devcenter.wercker.com/docs/pipelines/index.html
+
+# You can also use services such as databases. Read more on our dev center:
+# http://devcenter.wercker.com/docs/services/index.html
+# services:
+    # - postgres
+    # http://devcenter.wercker.com/docs/services/postgresql.html
+
+    # - mongo
+    # http://devcenter.wercker.com/docs/services/mongodb.html
+build:
+  steps:
+    # Sets the go workspace and places you package
+    # at the right place in the workspace tree
+    - setup-go-workspace
+
+    # Gets the dependencies
+    - script:
+        name: go get
+        code: |
+          go get
+
+    # Build the project
+    - script:
+        name: go build
+        code: |
+          go build kargo.go
+
+    # Test the project
+    #- script:
+    #    name: go test
+    #    code: |
+    #      go test ./...
+
+deploy:
+    - internal/docker-push:
+        username: _json_key
+        password: {   "type": "service_account",   "project_id": "objenious-preprod",   "private_key_id": "7fd154914b927d3ea44a4854246da90c33afcadb",   "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDnqUGVjItg4Ema\nPNwddWyZUiNGiFp6kE8xWZ1pZuTaKoSTW8BGAyNDFliorsSN+WS2j1gtcKTHYhq7\n6xYIOx3vrVCx3hctDpAUyl+RLML79jIRNpKnbvn/WMZHSNiKe4eiwMf/B+O7xvn7\nOY3EsXeE5vORRV+iU0usFt4BCaNFdw1+S8Y0S683cyogPw4eq1SBrCwxfrVa+h5I\nwL4qfwhSMinvAgvFL+t0wDlz/z1hsKLK6PHOSkacZNf7zXmRUvMvc1XsQLMngHV8\nSZdOES8r1TqCe+TOFAZQHQTCWMbQhpqgG/X2RMdvUVameazoMZjhBKzT0hUj5k6D\nweywhLgVAgMBAAECggEAU5SoeelcPBaP15sPm31LMkIFQiRd6Ix6VgbMGUQrW18t\nt/DJfTkSltjQIgP0HHkXUhqDqNlUSi9mD9iweUXC9j9ktte3KuVvLGEbe8hXjQp1\nY+p5nPkYL317BCsPHV+WPy0ouyXAj3YpqO9J6+ZPhd7Bj+8kou9EhRE3Bc7RXnT2\n3ykdxqK7g7OeEuBud+Juc6Nzh/PYEme/bCbcRFV4BJQoZ53R0bdH2c6ieO51Vo8a\nLPSwNGiUjhcuGQNc6hq/OmYF9bPIHlfKV61Ax+NDNNlL24vkJgMsbUckqoy2vOik\nTU/UfJCnjZav0V1SSh3XBq208XCIYokxLRf1gq2HnQKBgQD5DMYR4uv8AiughuUK\nDvM/DYlxDWiLz5H7bJa1WTaEJX7hsVJ8BkYuH0kZEBDAOO7o8Cb8xXbbDwFSVT8o\nz01BpmSf1hTHvyEd0V4FjL+TtDSScUTDGB0U0+A5hIYcVOWRc4KDdpQ30eGERfhI\nwUAydnEIJx8EPLBydYpAZlGrVwKBgQDuIEGgRPBroJqt1L33G+7Mgz14rn4T6O5F\nfDmIrhlXDws0+L/A8qR5bVgSe4uuNFj1MhaT6rrKHgQlifUS0s62GkvjxJVf6efJ\nDUO3YHYt4048M4+L91ghf1EjWno1MHcXKbfRk1mDG32kqmWdBUfv7tF9eBkAm6pb\n9d3TWJlAcwKBgQDA5iTwK6wOiHvUHUd/z+6WMtz2xKTqTX7Ll+LvWcdA+W3aT6cM\nyytGhBLxJ6Fh0Xcy0vfPpv6VU3z5kW+XI2G6bK/ZoU59HEwBNW42rDqio9xoZPUW\nizHTNPyicEQT46ngS/CV9J1+0sBy3GMfrxcTPuvznaGHfZ5JOUM4+EdfhwKBgCjs\ndDrV/jeQ92ROfoM8UrLlDyhxXIuRaXmZms2plgNHO5bT9Sh0yt1vdEZg4yWCK5Og\nEw9CtO1NcUr+RZcBkbLsHAS94SoFqeb8l5mpQ0YpnWVtOwtD6+p91fTsdLo1ZRIf\nAk9LMoP8soAdJK9ym+VZNrmIbUuUdReuznum61ePAoGAMOP8yAdwkYs5WXngW1i8\nAR7f84E0zT+Cd1XzeUR8IljuUJIpYVuinpkD7Rc6C4pQ4NNyJbkGBlugIwWhTiqU\nQMnLmNo0DFMFb3NiDrR5dyNXowwxQlKF1ICjbxLC6sR4oMXzTLa92npqkY52DVnv\nIUWsxeV802PYm/rCGLhNExo=\n-----END PRIVATE KEY-----\n",   "client_email": "36727164259-compute@developer.gserviceaccount.com",   "client_id": "101542566615652264969",   "auth_uri": "https://accounts.google.com/o/oauth2/auth",   "token_uri": "https://accounts.google.com/o/oauth2/token",   "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",   "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/36727164259-compute%40developer.gserviceaccount.com" }
+        repository: gcr.io/objenious-preprod/kargogo
+        registry: https://gcr.io

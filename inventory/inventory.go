@@ -15,25 +15,56 @@
 package inventory
 
 import (
+	"encoding/json"
 	"fmt"
-	"net"
 
-	"github.com/nu7hatch/gouuid"
+	uuid "github.com/satori/go.uuid"
+	ini "gopkg.in/ini.v1"
 )
 
 type ansibleHost struct {
-	Hostname   string
-	SSHAddress net.IP
+	Name     string            `json:"name"`
+	Hostvars map[string]string `json:"hostvars"`
 }
 
-type KargoInventory struct {
-	etcds   []string
-	masters []string
-	nodes   []string
+type ansibleGroup struct {
+	Name  string                  `json:"name"`
+	Hosts map[string]*ansibleHost `json:"hosts"`
 }
 
-func ReadInventory(path string) []string {
-	clusterName, err := uuid.NewV4().String()
+func ReadInventory(path string) string {
+	clusterName := uuid.NewV4().String()
+	fmt.Println(clusterName)
 	fmt.Println("do something")
 	return clusterName
+}
+
+func WriteInventory(etcd *ansibleGroup, nodes *ansibleGroup, masters *ansibleGroup) {
+	fmt.Println("do something")
+}
+
+func main() {
+	blah := make(map[string]string)
+	blah["toto"] = "titi"
+	fmt.Printf("%s", blah["toto"])
+	pp := &ansibleHost{
+		Name: "tu",
+		Hostvars: map[string]string{
+			"john": "doe",
+			"will": "smith",
+		},
+	}
+	pp.Hostvars["salam"] = "alaykoum"
+	fmt.Println(pp)
+	masters := &ansibleGroup{
+		Name:  "masters",
+		Hosts: make(map[string]*ansibleHost),
+	}
+	masters.Hosts["pp"] = pp
+	fmt.Println(masters.Hosts["pp"])
+	b, _ := json.Marshal(masters)
+	print(string(b))
+	cfg := ini.Empty()
+	cfg.NewSection("all")
+	cfg.SaveTo("test.cfg")
 }
