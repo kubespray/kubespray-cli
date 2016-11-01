@@ -34,6 +34,7 @@ var (
 	KargoPath     string
 	InventoryPath string
 	LogFile       string
+	ClusterName   string
 	etcdCount     uint16
 	masterCount   uint16
 	nodeCount     uint16

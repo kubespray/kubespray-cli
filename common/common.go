@@ -21,6 +21,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/Pallinder/go-randomdata"
 	log "github.com/Sirupsen/logrus"
 	"github.com/rifflock/lfshook"
 )
@@ -51,6 +52,11 @@ func PathExists(path string) bool {
 		return false
 	}
 	return true
+}
+
+func SetClusterName() string {
+	ClusterName := strings.ToLower(randomdata.SillyName())
+	return ClusterName
 }
 
 func GitClone(url string, path string) {

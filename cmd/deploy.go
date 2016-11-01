@@ -51,7 +51,7 @@ func init() {
 	deployCmd.Flags().BoolVar(&CoreOS, "coreos", false, "bootstrap python on CoreOS")
 	deployCmd.Flags().StringVar(&Passwd, "passwd", "", "Set 'kube' user passwd to authenticate to the API (default: 'changeme')")
 	deployCmd.Flags().StringVarP(&KubeVersion, "kube-version", "V", "", "Choose the kubernetes version to be installed")
-	deployCmd.Flags().StringVarP(&NetPlugin, "network-plugin", "n", "", "Choose the kubernetes version to be installed (default: 'flannel')")
+	deployCmd.Flags().StringVarP(&NetPlugin, "network-plugin", "n", "", "Choose the network plugin to be installed (default: 'flannel')")
 	deployCmd.Flags().StringVarP(&AnsibleUser, "user", "u", "", "Ansible SSH user (remote user, default is the current username")
 	deployCmd.Flags().StringVarP(&SSHKey, "sshkey", "k", "", "SSH key to use to authenticate to remote hosts (default: ''~/.ssh/id.rsa')")
 }

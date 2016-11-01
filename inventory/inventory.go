@@ -32,11 +32,16 @@ type ansibleGroup struct {
 	Hosts map[string]*ansibleHost `json:"hosts"`
 }
 
-func ReadInventory(path string) string {
-	clusterName := uuid.NewV4().String()
-	fmt.Println(clusterName)
+func ReadInventory(path string) {
 	fmt.Println("do something")
-	return clusterName
+}
+
+func CreateInventory(ClusterName string, e uint16, m uint16, n uint16) uint16 {
+	for i := 1; i <= int(n); i++ {
+		hostID := uuid.NewV4().String()[:8]
+		fmt.Printf("%v-%v \n", ClusterName, hostID)
+	}
+	return n
 }
 
 func WriteInventory(etcd *ansibleGroup, nodes *ansibleGroup, masters *ansibleGroup) {

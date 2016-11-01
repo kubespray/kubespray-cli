@@ -55,6 +55,7 @@ func init() {
 	gceCmd.Flags().StringVar(&GceEtcdType, "etcds-machine-type", "", "GCE machine type for Etcds members (default: n1-standard-1)")
 	gceCmd.Flags().StringVar(&GceProjectID, "project", "", "GCE project ID")
 	gceCmd.Flags().StringVar(&GceSvcAccEmail, "email", "", "GCE service account email")
+	gceCmd.Flags().StringVar(&ClusterName, "cluster-name", "", "Cluster name, ramdom word if not set")
 	gceCmd.Flags().Uint16Var(&etcdCount, "etcds", 0, "Number of etcd, these instances will just act as etcd members")
 	gceCmd.Flags().Uint16Var(&masterCount, "masters", 0, "Number of masters, these instances will not run workloads, master components only")
 	gceCmd.Flags().Uint16Var(&nodeCount, "nodes", 0, "Number of worker nodes")

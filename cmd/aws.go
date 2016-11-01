@@ -19,6 +19,7 @@ import (
 	"os"
 
 	"github.com/smana/kargo/common"
+	"github.com/smana/kargo/inventory"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -64,6 +65,7 @@ func init() {
 	awsCmd.Flags().StringVar(&AwsSubnetID, "subnet-id", "", "AWS subnet id")
 	awsCmd.Flags().StringVar(&AwsSGName, "security-group-name", "", "AWS security group name")
 	awsCmd.Flags().StringVar(&AwsSGID, "security-group-id", "", "AwS security group id")
+	awsCmd.Flags().StringVar(&ClusterName, "cluster-name", "", "Cluster name, ramdom word if not set")
 	awsCmd.Flags().Uint16Var(&etcdCount, "etcds", 0, "Number of etcd, these instances will just act as etcd members")
 	awsCmd.Flags().Uint16Var(&masterCount, "masters", 0, "Number of masters, these instances will not run workloads, master components only")
 	awsCmd.Flags().Uint16Var(&nodeCount, "nodes", 0, "Number of worker nodes")
@@ -74,6 +76,10 @@ func runAWS(cmd *cobra.Command, args []string) {
 	// Clone Kargo repository
 	if !noClone {
 		if common.PathExists(viper.GetString("KargoPath")) {
+			if nodeCount == 0 {
+				cmd.Help()
+				Log.Fatal("Option 'nodes' is required. Number of nodes to run")
+			}
 			if !common.AskForConfirmation("Kargo directory exists, do you want to overwrite it ?") {
 				fmt.Printf("%s Aborted, not cloning kargo repository \n ", YellowPrint("WARN:"))
 				os.Exit(2)
@@ -85,8 +91,9 @@ func runAWS(cmd *cobra.Command, args []string) {
 	} else {
 		fmt.Printf("%s Kargo repository %s already exists, not cloning it. \n ", YellowPrint("WARN:"), viper.GetString("KargoPath"))
 	}
-	if nodeCount == 0 {
-		cmd.Help()
-		Log.Fatal("Option 'nodes' is required. Number of nodes to run")
+	if ClusterName == "" {
+		ClusterName := common.SetClusterName()
+		inventory.CreateInventory(ClusterName, etcdCount, masterCount, nodeCount)
 	}
+	inventory.CreateInventory(ClusterName, etcdCount, masterCount, nodeCount)
 }
