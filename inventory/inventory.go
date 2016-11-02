@@ -17,10 +17,21 @@ package inventory
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+	"os"
+	"path"
 
 	uuid "github.com/satori/go.uuid"
 	ini "gopkg.in/ini.v1"
 )
+
+var kargoPath string
+
+func checkErr(err error) {
+	if err != nil {
+		log.Fatal("ERROR:", err)
+	}
+}
 
 type ansibleHost struct {
 	Name     string            `json:"name"`
@@ -30,6 +41,14 @@ type ansibleHost struct {
 type ansibleGroup struct {
 	Name  string                  `json:"name"`
 	Hosts map[string]*ansibleHost `json:"hosts"`
+}
+
+func WritelocalInventory(kargoPath string) {
+	data := "local localhost ansible_python_interpreter=python2 ansible_connection=local"
+	localcfg := path.Join(kargoPath, "local.cfg")
+	f, err := os.Create(localcfg)
+	checkErr(err)
+	f.WriteString(data)
 }
 
 func ReadInventory(path string) {

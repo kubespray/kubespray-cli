@@ -16,26 +16,8 @@ package cloud
 
 import "fmt"
 
-var (
-	hostvar map[string]string
-)
-
-type AnsibleHost struct {
-	Name     string
-	Hostvars []string
-}
-
-type AnsibleGroup struct {
-	Name  string
-	Hosts *AnsibleHost
-}
-
 type Cloud struct {
 	Name string
-}
-
-func (c *Cloud) WriteInventory() {
-	fmt.Println("do something")
 }
 
 func (c *Cloud) CreateInstances() {

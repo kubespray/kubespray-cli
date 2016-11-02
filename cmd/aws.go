@@ -94,6 +94,8 @@ func runAWS(cmd *cobra.Command, args []string) {
 	if ClusterName == "" {
 		ClusterName := common.SetClusterName()
 		inventory.CreateInventory(ClusterName, etcdCount, masterCount, nodeCount)
+	} else {
+		inventory.CreateInventory(ClusterName, etcdCount, masterCount, nodeCount)
 	}
-	inventory.CreateInventory(ClusterName, etcdCount, masterCount, nodeCount)
+	inventory.WritelocalInventory(viper.GetString("KargoPath"))
 }
