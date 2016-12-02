@@ -20,12 +20,16 @@ import (
 	"log"
 	"os"
 	"path"
+	"strings"
 
 	uuid "github.com/satori/go.uuid"
 	ini "gopkg.in/ini.v1"
 )
 
-var kargoPath string
+var (
+	kargoPath string
+	host      string
+)
 
 func checkErr(err error) {
 	if err != nil {
@@ -44,7 +48,7 @@ type ansibleGroup struct {
 }
 
 func WritelocalInventory(kargoPath string) {
-	data := "local localhost ansible_python_interpreter=python2 ansible_connection=local"
+	data := "local ansible_ssh_host=localhost ansible_python_interpreter=python2 ansible_connection=local"
 	localcfg := path.Join(kargoPath, "local.cfg")
 	f, err := os.Create(localcfg)
 	checkErr(err)
@@ -56,10 +60,33 @@ func ReadInventory(path string) {
 }
 
 func CreateInventory(ClusterName string, e uint16, m uint16, n uint16) uint16 {
+	// etcds := &ansibleGroup{
+	// 	Name:  "etcd",
+	// 	Hosts: make(map[string]*ansibleHost),
+	// }
+	masters := &ansibleGroup{
+		Name:  "master",
+		Hosts: make(map[string]*ansibleHost),
+	}
+	// nodes := &ansibleGroup{
+	// 	Name:  "node",
+	// 	Hosts: make(map[string]*ansibleHost),
+	// }
 	for i := 1; i <= int(n); i++ {
 		hostID := uuid.NewV4().String()[:8]
-		fmt.Printf("%v-%v \n", ClusterName, hostID)
+		s := []string{ClusterName, hostID}
+		hostName := strings.Join(s, "-")
+
+		host := &ansibleHost{
+			Name: hostName,
+			Hostvars: map[string]string{
+				"var1": "value1",
+			},
+		}
+		masters.Hosts[hostName] = host
 	}
+	b, _ := json.Marshal(masters)
+	fmt.Println(string(b))
 	return n
 }
 

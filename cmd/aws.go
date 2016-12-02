@@ -98,4 +98,5 @@ func runAWS(cmd *cobra.Command, args []string) {
 		inventory.CreateInventory(ClusterName, etcdCount, masterCount, nodeCount)
 	}
 	inventory.WritelocalInventory(viper.GetString("KargoPath"))
+
 }

@@ -17,8 +17,10 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"encoding/json"
 
 	"github.com/smana/kargo/common"
+	"github.com/smana/kargo/cloud"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -81,4 +83,36 @@ func runGCE(cmd *cobra.Command, args []string) {
 		cmd.Help()
 		Log.Fatal("Option 'nodes' is required. Number of nodes to run")
 	}
+
+	gceTask := &cloud.AnsibleGCETask{
+		MachineType: "n1-standard-1",
+		ProjectID: "kargo-ci-1",
+		InstanceNames: "vm1,vm2",
+		ServiceAccountEmail: "foo@bar.com",
+		Image: "debian-8-kubespray",
+		Zone: "europe-west1-b",
+		PemFile: "test.pem",
+	}
+
+	copyTask := &cloud.AnsibleCopyTask{
+		Dest: "/home/smana/.kargo/nodes_instances.json",
+		Content: "test",
+	}
+
+	waitForTask := &cloud.AnsibleWaitForTask{
+		Host: "localhost",
+		Port: 22,
+		State: "started",
+		Module: "local_action",
+		Timeout: 600,
+	}
+
+	gcePlaybook := &cloud.AnsibleGCEPlaybook{
+		Become: false,
+		GatherFacts: false,
+		Hosts: "localhost",
+		Tasks: "TODO",
+	}
+	b, _ := json.Marshal(gcePlaybook)
+	fmt.Println(string(b))
 }
