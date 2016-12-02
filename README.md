@@ -1,7 +1,7 @@
 Kargo wrapper
 =============
 
-## !! Deprecated, a [go](https://github.com/Smana/kargo-cli/tree/kargogo) version is coming soon
+## !! Deprecated, a [go](https://github.com/kubespray/kargo-cli/tree/kargogo) version is coming soon
 
 This tool helps to deploy a kubernetes cluster with ansible.
 
