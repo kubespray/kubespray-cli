@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/smana/kargo/common"
+	"github.com/kubespray/kargo-cli/common"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
