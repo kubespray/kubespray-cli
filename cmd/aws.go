@@ -18,8 +18,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/smana/kargo/common"
-	"github.com/smana/kargo/inventory"
+	"github.com/kubespray/kargo-cli/common"
+	"github.com/kubespray/kargo-cli/inventory"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

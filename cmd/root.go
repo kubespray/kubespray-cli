@@ -19,7 +19,7 @@ import (
 	"path"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/smana/kargo/common"
+	"github.com/kubespray/kargo-cli/common"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
