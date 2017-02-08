@@ -314,6 +314,7 @@ class OpenStack(Cloud):
                    'auth': openstack_auth,
                    'name': os_security_group_name,
                    'description': 'Contains security rules for the Kubernetes cluster',
+                   'region_name': self.options['os_region_name'],
                    'state': 'present'}}
         )
         self.pbook_content[0]['tasks'].append(
@@ -322,6 +323,7 @@ class OpenStack(Cloud):
                    'auth': openstack_auth,
                    'security_group': os_security_group_name,
                    'protocol': '{{item}}',
+                   'region_name': self.options['os_region_name'],
                    'state': 'present'},
                'with_items': ['tcp', 'udp', 'icmp']}
         )
@@ -352,6 +354,7 @@ class OpenStack(Cloud):
                        'os_port': {
                            'auth': openstack_auth,
                            'name': '{{item}}',
+                           'region_name': self.options['os_region_name'],
                            'network': self.options['network'],
                            'allowed_address_pairs': [{'ip_address': self.options['kube_network']}],
                            'security_groups': (os_security_group_name,),
@@ -366,6 +369,7 @@ class OpenStack(Cloud):
                            'state': 'present',
                            'flavor': self.options['%s_flavor' % role],
                            'key_name': self.options['sshkey'],
+                           'region_name': self.options['os_region_name'],
                            'auto_ip': self.options['floating_ip'],
                            'security_groups': (os_security_group_name,),
                            'nics': 'port-name={{ item }}',

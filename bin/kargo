@@ -262,6 +262,10 @@ if __name__ == '__main__':
         '--os_project_name', dest='os_project_name', help='OpenStack Project Name'
     )
     openstack_parser.add_argument(
+        '--os_region_name', dest='os_region_name', help='OpenStack Region Name',
+        required=False
+    )
+    openstack_parser.add_argument(
         '--os_password', dest='os_password', help='OpenStack Password'
     )
     openstack_parser.add_argument(
