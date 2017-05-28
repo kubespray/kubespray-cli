@@ -26,10 +26,10 @@ setup(
     description="Kargo kubernetes cluster deployment",
     author="Smaine Kahlouch",
     author_email='smainklh@gmail.com',
-    url='https://github.com/kargo/kargo',
-    data_files=[
-        ('/etc/kargo', ['src/kargo/files/kargo.yml'])
-    ],
+    url='https://github.com/kubespray/kargo-cli',
+    # data_files=[
+    #     ('/etc/kargo', ['src/kargo/files/kargo.yml'])
+    # ],
     packages=find_packages('src'),
     scripts=[
         'bin/kargo'

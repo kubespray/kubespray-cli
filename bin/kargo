@@ -16,7 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '0.4.6'
+__version__ = '0.4.7'
 
 import os
 import argparse
@@ -99,7 +99,8 @@ if __name__ == '__main__':
         help='Where the Ansible playbooks are installed. Default: ~/.kargo'
     )
     parent_parser.add_argument(
-        '--config', dest='configfile', help="Config file path. Defaults to /etc/kargo/kargo.yml"
+        '--config', dest='configfile',
+        help="Config file path. Defaults to /etc/kargo/kargo.yml"
     )
     parent_parser.add_argument(
         '-y', '--assumeyes', default=False, dest='assume_yes', action='store_true',
@@ -134,7 +135,8 @@ if __name__ == '__main__':
 
     # aws
     aws_parser = subparsers.add_parser(
-        'aws', parents=[parent_parser, firststep_parser], help='Create AWS instances and generate inventory'
+        'aws', parents=[parent_parser, firststep_parser],
+        help='Create AWS instances and generate inventory'
     )
     aws_parser.add_argument(
         '--access-key', dest='aws_access_key', help='AWS access key'
@@ -143,13 +145,16 @@ if __name__ == '__main__':
         '--secret-key', dest='aws_secret_key', help='AWS secret key'
     )
     aws_parser.add_argument(
-        '--masters-instance-type', dest='masters_instance_type', help='AWS instance type for Masters (default: t2.medium)'
+        '--masters-instance-type', dest='masters_instance_type',
+        help='AWS instance type for Masters (default: t2.medium)'
     )
     aws_parser.add_argument(
-        '--nodes-instance-type', dest='nodes_instance_type', help='AWS instance type for Nodes (default: t2.large)'
+        '--nodes-instance-type', dest='nodes_instance_type',
+        help='AWS instance type for Nodes (default: t2.large)'
     )
     aws_parser.add_argument(
-        '--etcds-instance-type', dest='etcds_instance_type', help='AWS instance type for Etcd members (default: t2.small)'
+        '--etcds-instance-type', dest='etcds_instance_type',
+        help='AWS instance type for Etcd members (default: t2.small)'
     )
     aws_parser.add_argument(
         '--keypair', dest='key_name', help='AWS key pair name'
@@ -157,7 +162,8 @@ if __name__ == '__main__':
     aws_parser.add_argument('--region', dest='region', help='AWS region')
     sg_group = aws_parser.add_mutually_exclusive_group()
     sg_group.add_argument(
-        '--security-group-name', dest='security_group_name', help='AWS security group Name'
+        '--security-group-name', dest='security_group_name',
+        help='AWS security group Name'
     )
     sg_group.add_argument(
         '--security-group-id', dest='security_group_id',
@@ -201,22 +207,29 @@ if __name__ == '__main__':
     # gce
     gce_parser = subparsers.add_parser(
         'gce', parents=[parent_parser, firststep_parser],
-         help='Create GCE machines and generate inventory'
+        help='Create GCE machines and generate inventory'
     )
     gce_parser.add_argument(
         '--pem_file', dest='pem_file', help='GCE ssh pem file path'
     )
     gce_parser.add_argument(
+        '--credentials_file', dest='credentials_file',
+        help='GCE credentials json file path'
+    )
+    gce_parser.add_argument(
         '--zone', dest='zone', help='GCE zone'
     )
     gce_parser.add_argument(
-        '--masters-machine-type', dest='masters_machine_type', help='GCE machine type for Masters (default: n1-standard-2)'
+        '--masters-machine-type', dest='masters_machine_type',
+        help='GCE machine type for Masters (default: n1-standard-2)'
     )
     gce_parser.add_argument(
-        '--nodes-machine-type', dest='nodes_machine_type', help='GCE machine type for Nodes (default: n1-standard-4)'
+        '--nodes-machine-type', dest='nodes_machine_type',
+        help='GCE machine type for Nodes (default: n1-standard-4)'
     )
     gce_parser.add_argument(
-        '--etcds-machine-type', dest='etcds_machine_type', help='GCE machine type for Etcd members (default: n1-standard-1)'
+        '--etcds-machine-type', dest='etcds_machine_type',
+        help='GCE machine type for Etcd members (default: n1-standard-1)'
     )
     gce_parser.add_argument('--image', dest='image', help='GCE image')
     gce_parser.add_argument(
@@ -259,7 +272,8 @@ if __name__ == '__main__':
         '--os_username', dest='os_username', help='OpenStack Username'
     )
     openstack_parser.add_argument(
-        '--os_project_name', dest='os_project_name', help='OpenStack Project Name'
+        '--os_project_name', dest='os_project_name',
+        help='OpenStack Project Name'
     )
     openstack_parser.add_argument(
         '--os_region_name', dest='os_region_name', help='OpenStack Region Name',
@@ -296,13 +310,16 @@ if __name__ == '__main__':
         '--network', dest='network', help='Neutron network name'
     )
     openstack_parser.add_argument(
-        '--masters-flavor', dest='masters_flavor', help='OpenStack instance flavor for Masters'
+        '--masters-flavor', dest='masters_flavor',
+        help='OpenStack instance flavor for Masters'
     )
     openstack_parser.add_argument(
-        '--nodes-flavor', dest='nodes_flavor', help='OpenStack instance flavor for Nodes'
+        '--nodes-flavor', dest='nodes_flavor',
+        help='OpenStack instance flavor for Nodes'
     )
     openstack_parser.add_argument(
-        '--etcds-flavor', dest='etcds_flavor', help='OpenStack instance flavor for Etcd members'
+        '--etcds-flavor', dest='etcds_flavor',
+        help='OpenStack instance flavor for Etcd members'
     )
     openstack_parser.add_argument('--image', dest='image', help='Instance boot image')
     openstack_parser.add_argument(
@@ -379,7 +396,10 @@ if __name__ == '__main__':
     # Parse arguments
     args = parser.parse_args()
     if args.configfile is None:
-        args.configfile = '/etc/kargo/kargo.yml'
+        default_config_dir = os.path.join(os.path.expanduser("~"), ".config")
+        if not os.path.isdir(default_config_dir):
+            os.makedirs(default_config_dir)
+        args.configfile = os.path.join(default_config_dir, "kargo.yml")
     # Read configfile and update options dict
     C = Config(args.configfile)
     configfile_content = C.parse_configfile
