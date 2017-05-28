@@ -135,6 +135,33 @@ class RunPlaybook(object):
             sys.exit(1)
         display.display('All hosts are reachable', color='green')
 
+    def ubuntu_bootstrap(self):
+        '''
+        Install python dependencies on Ubuntu 16.04 LTS and newer
+        '''
+        cmd = [
+            playbook_exec, '--ssh-extra-args', '-o StrictHostKeyChecking=no',
+            '-u',  '%s' % self.options['ansible_user'],
+            '-b', '--become-user=root', '-i', self.inventorycfg,
+            os.path.join(self.options['kargo_path'], 'ubuntu-bootstrap.yml')
+        ]
+        display.display(' '.join(cmd), color='bright blue')
+        if not self.options['assume_yes']:
+            if not query_yes_no(
+                'Bootstrap Ubuntu servers with python ?'
+            ):
+                display.display('Aborted', color='red')
+                sys.exit(1)
+        display.banner('BOOTSTRAP UBUNTU')
+        self.logger.info(
+            'Bootstrapping Ubuntu with the command: %s' % cmd
+        )
+        rcode, emsg = run_command('Bootstrapping Ubuntu', cmd)
+        if rcode != 0:
+            self.logger.critical('Deployment failed: %s' % emsg)
+            self.kill_ssh_agent()
+            sys.exit(1)
+
     def coreos_bootstrap(self):
         '''
         (Deprecated) Install python dependencies on CoreOS
@@ -228,7 +255,10 @@ class RunPlaybook(object):
         for cloud in ['aws', 'gce']:
             if self.options[cloud]:
                 cmd = cmd + ['-e', 'cloud_provider=%s' % cloud]
-        if not self.options['coreos']:
+        if not self.options['coreos'] and not self.options['ubuntu']:
+            self.check_ping()
+        if self.options['ubuntu']:
+            self.ubuntu_bootstrap()
             self.check_ping()
         if self.options['coreos']:
             self.coreos_bootstrap()
