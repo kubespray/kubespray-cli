@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-
+import os
 from setuptools import setup, find_packages
 
 requirements = [
@@ -20,16 +20,18 @@ test_requirements = [
     # TODO: put package test requirements here
 ]
 
+my_homedir = os.path.expanduser("~")
+
 setup(
     name='kargo',
-    version='0.4.6',
+    version='0.4.8',
     description="Kargo kubernetes cluster deployment",
     author="Smaine Kahlouch",
     author_email='smainklh@gmail.com',
     url='https://github.com/kubespray/kargo-cli',
-    # data_files=[
-    #     ('/etc/kargo', ['src/kargo/files/kargo.yml'])
-    # ],
+    data_files=[
+        (my_homedir, ['src/kargo/files/.kargo.yml'])
+    ],
     packages=find_packages('src'),
     scripts=[
         'bin/kargo'

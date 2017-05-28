@@ -16,7 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '0.4.7'
+__version__ = '0.4.8'
 
 import os
 import argparse
@@ -368,8 +368,8 @@ if __name__ == '__main__':
     )
     deploy_parser.add_argument(
         '-n', '--network-plugin',
-        choices=['flannel', 'weave', 'calico'],
-        help='Inventory defaults to flannel'
+        choices=['flannel', 'weave', 'calico', 'contiv'],
+        help='Inventory defaults to calico'
     )
     deploy_parser.add_argument(
         '--aws', default=False, action='store_true',
@@ -396,10 +396,10 @@ if __name__ == '__main__':
     # Parse arguments
     args = parser.parse_args()
     if args.configfile is None:
-        default_config_dir = os.path.join(os.path.expanduser("~"), ".config")
+        default_config_dir = os.path.expanduser("~")
         if not os.path.isdir(default_config_dir):
             os.makedirs(default_config_dir)
-        args.configfile = os.path.join(default_config_dir, "kargo.yml")
+        args.configfile = os.path.join(default_config_dir, ".kargo.yml")
     # Read configfile and update options dict
     C = Config(args.configfile)
     configfile_content = C.parse_configfile
