@@ -1,0 +1,64 @@
+---
+# Path where the kargo ansible playbooks will be installed
+# Defaults to current user's home directory if not set
+# kargo_path: "~/.kargo"
+
+# Default inventory path
+kargo_git_repo: "https://github.com/kubespray/kargo.git"
+
+# Logging options
+loglevel: "info"
+
+# The following options would be overwritten by the command line
+# ---------------------------------------------------------
+#
+# Amazon web services options
+# ---
+# aws_access_key: "<key>"
+# aws_secret_key: "<secret_key>"
+# key_name: "<keypair_name>"
+# ami: "<aws_ami>"
+# masters_instance_type: "<masters_instance_type>"
+# nodes_instance_type: "<nodes_instance_type>"
+# etcds_instance_type: "<etcds_instance_type>"
+# security_group_name: "<security_group_name>"
+# security_group_id: "<security_group_id>"
+# assign_public_ip: True
+# vpc_subnet_id: "<vpc_id>"
+# region: "<aws_region>"
+# tags:
+#   - type: k8s
+#
+# Google Compute Engine options
+# ---
+# image: "<cloud_image>"
+# masters_machine_type: "<masters_type>
+# nodes_machine_type: "<masters_type>
+# etcds_machine_type: "<masters_type>
+# service_account_email: "<gce_service_account_email>"
+# pem_file: "<gce_pem_file>"
+# project_id: "<gce_project_id>"
+# zone: "<cloud_region>"
+# tags:
+#   - k8s
+#
+# OpenStack options
+# ---
+# os_auth_url: "<os_auth_url>"
+# os_username: "<os_username>"
+# os_password: "<os_password>"
+# os_project_name: "<os_project_name>"
+# masters_flavor: "<os_flavor_name_or_id>"
+# nodes_flavor: "<os_flavor_name_or_id>"
+# etcds_flavor: "<os_flavor_name_or_id>"
+# image: "<os_image_name_or_id>"
+# network: "<os_network_name_or_id>"
+# sshkey: "<os_ssh_key_name>"
+#
+# All the options to be passed to the 'ansible-playbook' command line
+# ansible-opts:
+#   - '-vvv'
+#   - '-e'
+#   - 'myvar1=bar'
+#   - '-e'
+#   - 'myvar2=foo'
