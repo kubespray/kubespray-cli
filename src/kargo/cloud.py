@@ -227,7 +227,7 @@ class GCE(Cloud):
         # Options list of ansible GCE module
         gce_options = [
             'machine_type', 'image', 'zone', 'service_account_email',
-            'pem_file', 'project_id', 'tags'
+            'pem_file', 'credentials_file', 'project_id', 'tags'
         ]
         # Define instance names
         cluster_name = 'k8s-' + get_cluster_name()

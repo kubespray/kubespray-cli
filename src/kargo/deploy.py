@@ -127,7 +127,7 @@ class RunPlaybook(object):
             cmd = cmd + ['--private-key', self.options['sshkey']]
         if self.options['coreos']:
             cmd = cmd + ['-e', 'ansible_python_interpreter=/opt/bin/python']
-        display.display(cmd)
+        display.display(' '.join(cmd))
         rcode, emsg = run_command('SSH ping hosts', cmd)
         if rcode != 0:
             self.logger.critical('Cannot connect to hosts: %s' % emsg)
