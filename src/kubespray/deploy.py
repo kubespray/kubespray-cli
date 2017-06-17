@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 #
-# This file is part of Kargo.
+# This file is part of Kubespray.
 #
 #    Foobar is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-kargo.deploy
+kubespray.deploy
 ~~~~~~~~~~~~
 
 Deploy a kubernetes cluster. Run the ansible-playbbook
@@ -30,7 +30,7 @@ import yaml
 import signal
 import netaddr
 from subprocess import PIPE, STDOUT, Popen, check_output, CalledProcessError
-from kargo.common import get_logger, query_yes_no, run_command, which, validate_cidr
+from kubespray.common import get_logger, query_yes_no, run_command, which, validate_cidr
 from ansible.utils.display import Display
 display = Display()
 playbook_exec = which('ansible-playbook')
@@ -159,7 +159,7 @@ class RunPlaybook(object):
         Read the kubernetes versions from karo's vars file
         """
         kube_vers_file = os.path.join(
-            self.options['kargo_path'] + '/roles/download/vars/kube_versions.yml'
+            self.options['kubespray_path'] + '/roles/download/vars/kube_versions.yml'
         )
         try:
             with open(kube_vers_file, "r") as f:
@@ -182,7 +182,7 @@ class RunPlaybook(object):
             playbook_exec, '--ssh-extra-args', '-o StrictHostKeyChecking=no',
             '-u',  '%s' % self.options['ansible_user'],
             '-b', '--become-user=root', '-i', self.inventorycfg,
-            os.path.join(self.options['kargo_path'], 'cluster.yml')
+            os.path.join(self.options['kubespray_path'], 'cluster.yml')
         ]
         # Configure network plugin if defined
         if 'network_plugin' in self.options.keys():

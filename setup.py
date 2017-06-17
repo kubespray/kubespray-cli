@@ -23,25 +23,25 @@ test_requirements = [
 my_homedir = os.path.expanduser("~")
 
 setup(
-    name='kargo',
+    name='kubespray',
     version='0.4.8',
-    description="Kargo kubernetes cluster deployment",
+    description="Kubespray kubernetes cluster deployment",
     author="Smaine Kahlouch",
     author_email='smainklh@gmail.com',
-    url='https://github.com/kubespray/kargo-cli',
+    url='https://github.com/kubespray/kubespray-cli',
     data_files=[
-        (my_homedir, ['src/kargo/files/.kargo.yml'])
+        (my_homedir, ['src/kubespray/files/.kubespray.yml'])
     ],
     packages=find_packages('src'),
     scripts=[
-        'bin/kargo'
+        'bin/kubespray'
     ],
     package_dir={'': 'src'},
-    package_data={'kargo': ['files/*.yml'], },
+    package_data={'kubespray': ['files/*.yml'], },
     install_requires=requirements,
     license="GPLv3",
     zip_safe=False,
-    keywords='kargo',
+    keywords='kubespray',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',

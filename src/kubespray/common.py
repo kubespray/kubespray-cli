@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# This file is part of Kargo.
+# This file is part of Kubespray.
 #
 #    Foobar is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -105,12 +105,12 @@ def get_cluster_name():
     return(cluster_name.lower())
 
 
-def clone_kargo_git_repo(options):
+def clone_kubespray_git_repo(options):
     if not options['add_node']:
-        if (os.path.isdir(options['kargo_path']) and not options['assume_yes']
+        if (os.path.isdir(options['kubespray_path']) and not options['assume_yes']
                 and not options['noclone']):
             display.warning(
-                'A directory %s already exists' % options['kargo_path']
+                'A directory %s already exists' % options['kubespray_path']
             )
             if not query_yes_no(
                     'Are you sure to overwrite it ?'
@@ -119,7 +119,7 @@ def clone_kargo_git_repo(options):
                     sys.exit(1)
         if not options['noclone']:
             clone_git_repo(
-                'kargo', options['kargo_path'], options['kargo_git_repo']
+                'kubespray', options['kubespray_path'], options['kubespray_git_repo']
             )
 
 
@@ -131,9 +131,9 @@ def clone_git_repo(name, directory, git_repo):
         shutil.rmtree(directory)
     display.banner('CLONING %s GIT REPO' % name.upper())
     cmd = ["git", "clone", git_repo, directory]
-    rcode, emsg = run_command('Clone kargo repository from github', cmd)
+    rcode, emsg = run_command('Clone kubespray repository from github', cmd)
     if rcode != 0:
-        display.error('Cannot clone kargo repository from github')
+        display.error('Cannot clone kubespray repository from github')
         sys.exit(1)
     display.display('%s repo cloned' % name, color='green')
 

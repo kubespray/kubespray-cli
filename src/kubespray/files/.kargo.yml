@@ -1,10 +1,10 @@
 ---
-# Path where the kargo ansible playbooks will be installed
+# Path where the kubespray ansible playbooks will be installed
 # Defaults to current user's home directory if not set
-# kargo_path: "~/.kargo"
+# kubespray_path: "~/.kubespray"
 
 # Default inventory path
-kargo_git_repo: "https://github.com/kubespray/kargo.git"
+kubespray_git_repo: "https://github.com/kubespray/kubespray.git"
 
 # Logging options
 loglevel: "info"
