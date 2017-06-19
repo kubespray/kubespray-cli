@@ -213,6 +213,10 @@ class RunPlaybook(object):
         # Bootstrap
         if 'coreos' in self.options.keys() and self.options['coreos']:
             cmd = cmd + ['-e', 'bootstrap_os=coreos']
+        elif 'redhat' in self.options.keys() and self.options['redhat']:
+            cmd = cmd + [
+                '-e', 'bootstrap_os=redhat', '-e', 'ansible_os_family=RedHat'
+            ]
         elif 'ubuntu' in self.options.keys() and self.options['ubuntu']:
             cmd = cmd + ['-e', 'bootstrap_os=ubuntu']
         # Add root password for the apiserver
