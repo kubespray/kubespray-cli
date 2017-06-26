@@ -1,4 +1,4 @@
-Kargo wrapper
+Kubespray wrapper
 =============
 
 ## !! Deprecated, a [go](https://github.com/kubespray/kargo-cli/tree/kargogo) version is coming soon
