@@ -1,8 +1,6 @@
 Kubespray wrapper
 =============
 
-## !! Deprecated, a [go](https://github.com/kubespray/kubespray-cli/tree/kubespraygo) version is coming soon
-
 This tool helps to deploy a kubernetes cluster with ansible.
 
 
@@ -25,13 +23,6 @@ Installation
 
     sudo pip2 install kubespray
 
-
-### Docker image
-Alternatively you can use the docker image `k8s-kubespraycli` as follows:
-
-    docker run -it -v /home/smana/kubesprayconf:/etc/kubespray quay.io/smana/k8s-kubespraycli:latest /bin/bash
-
-The mounted directory contains kubespray's configuration as well as keys
 
 Config file
 -----------
