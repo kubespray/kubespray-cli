@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# This file is part of Kargo.
+# This file is part of Kubespray.
 #
-#    Kargo is free software: you can redistribute it and/or modify
+#    Kubespray is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
 #
-#    Kargo is distributed in the hope that it will be useful,
+#    Kubespray is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
@@ -17,16 +17,16 @@
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-kargo.configure
+kubespray.configure
 ~~~~~~~~~~~~
 
-Configuration management for Kargo
+Configuration management for Kubespray
 """
 import sys
 import os
 import yaml
 from ansible.utils.display import Display
-from kargo.common import read_password
+from kubespray.common import read_password
 
 
 class Config(object):
@@ -53,9 +53,9 @@ class Config(object):
         return config
 
     def default_values(self, args, config):
-        # Set kargo_path
-        if 'kargo_path' not in config.keys() and args.kargo_path is None:
-            config['kargo_path'] = os.path.join(os.path.expanduser("~"), '.kargo')
+        # Set kubespray_path
+        if 'kubespray_path' not in config.keys() and args.kubespray_path is None:
+            config['kubespray_path'] = os.path.join(os.path.expanduser("~"), '.kubespray')
         arguments = dict(args._get_kwargs())
         for key, value in arguments.items():
             if value is not None:
@@ -63,11 +63,11 @@ class Config(object):
         # Set inventory_path
         if 'inventory_path' not in config.keys() and args.inventory_path is None:
             config['inventory_path'] = os.path.join(
-                config['kargo_path'], 'inventory/inventory.cfg'
+                config['kubespray_path'], 'inventory/inventory.cfg'
             )
         # Set logfile
         if 'logfile' not in config.keys():
-            config['logfile'] = os.path.join(config['kargo_path'], 'kargo.log')
+            config['logfile'] = os.path.join(config['kubespray_path'], 'kubespray.log')
         # Set default bool
         for v in ['use_private_ip', 'assign_public_ip']:
             if v not in config.keys():

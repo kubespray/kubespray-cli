@@ -1,7 +1,7 @@
 Kubespray wrapper
 =============
 
-## !! Deprecated, a [go](https://github.com/kubespray/kargo-cli/tree/kargogo) version is coming soon
+## !! Deprecated, a [go](https://github.com/kubespray/kubespray-cli/tree/kubespraygo) version is coming soon
 
 This tool helps to deploy a kubernetes cluster with ansible.
 
@@ -23,20 +23,20 @@ Installation
 
 ### Python pip
 
-    sudo pip2 install kargo
+    sudo pip2 install kubespray
 
 
 ### Docker image
-Alternatively you can use the docker image `k8s-kargocli` as follows:
+Alternatively you can use the docker image `k8s-kubespraycli` as follows:
 
-    docker run -it -v /home/smana/kargoconf:/etc/kargo quay.io/smana/k8s-kargocli:latest /bin/bash
+    docker run -it -v /home/smana/kubesprayconf:/etc/kubespray quay.io/smana/k8s-kubespraycli:latest /bin/bash
 
-The mounted directory contains kargo's configuration as well as keys
+The mounted directory contains kubespray's configuration as well as keys
 
 Config file
 -----------
 
-A config file can be updated (yaml). (default: *~/.kargo.yml* ) </br>
+A config file can be updated (yaml). (default: *~/.kubespray.yml* ) </br>
 This file contains default values for some parameters that don't change
 frequently </br>
 **Note** these values are **overwritten** by the command line.
@@ -44,11 +44,11 @@ frequently </br>
 
     # Common options
     # ---------------
-    # Path where the kargo ansible playbooks will be installed
+    # Path where the kubespray ansible playbooks will be installed
     # Defaults to current user's home directory if not set
-    # kargo_path: "/tmp"
+    # kubespray_path: "/tmp"
     # Default inventory path
-    kargo_git_repo: "https://github.com/kubespray/kargo.git"
+    kubespray_git_repo: "https://github.com/kubespray/kubespray.git"
     # Logging options
     loglevel: "info"
 
@@ -92,19 +92,19 @@ Basic usage
 Here are 3 examples:
 * 3 vms, all 3 have etcd installed, all 3 are nodes (running pods), 2 of them run master components
 ```
-kargo [prepare|aws|gce] --nodes 3
+kubespray [prepare|aws|gce] --nodes 3
 ```
 
 ![3nodes](https://s32.postimg.org/8q7gns8ut/3nodes.png)
 * 6 vms, 2 are nodes and masters, 1 is node only and a distinct etcd cluster
 ```
-kargo [prepare|aws|gce] --nodes 3 --etcds 3
+kubespray [prepare|aws|gce] --nodes 3 --etcds 3
 ```
 
 ![3nodes3etcds](https://s32.postimg.org/hphgxcjmt/3nodes_3etcds.png)
 * 8 vms, 2 distinct masters, 3 nodes and 3 etcds
 ```
-kargo [prepare|aws|gce] --nodes 3 --etcds 3 --masters 2
+kubespray [prepare|aws|gce] --nodes 3 --etcds 3 --masters 2
 ```
 
 ![3nodes3etcds2masters](https://s31.postimg.org/h4gdu4qjv/3nodes_2masters_3etcds.png)
@@ -119,39 +119,39 @@ The command below will just clone the git repository and creates the
 inventory.
 The hostvars must be separated by a **comma without spaces**
 
-    kargo prepare --nodes node1[ansible_ssh_host=10.99.21.1] node2[ansible_ssh_host=10.99.21.2] node3[ansible_ssh_host=10.99.21.3] [--etcds N+] [--masters N+]
+    kubespray prepare --nodes node1[ansible_ssh_host=10.99.21.1] node2[ansible_ssh_host=10.99.21.2] node3[ansible_ssh_host=10.99.21.3] [--etcds N+] [--masters N+]
 
 ### Run instances and generate the inventory on Clouds
 
 
 **AWS**
 
-In order to create vms on AWS you can either edit the config file *~/.kargo.yml* or set the options with the argument **aws**
+In order to create vms on AWS you can either edit the config file *~/.kubespray.yml* or set the options with the argument **aws**
 if the config file is filled with the proper information you just need to run the following command
 
-    kargo aws --nodes 3 [--etcds N+] [masters N+] [--nodes-instance-type m4.large]
+    kubespray aws --nodes 3 [--etcds N+] [masters N+] [--nodes-instance-type m4.large]
 
-Another example which download kargo's repo in a defined directory and set the cluster name
+Another example which download kubespray's repo in a defined directory and set the cluster name
 
-    kargo aws --nodes 3 -p /tmp/mykargo --cluster-name foobar
+    kubespray aws --nodes 3 -p /tmp/mykubespray --cluster-name foobar
 
 
 **GCE**
 
-In order to create vms on GCE you can either edit the config file */etc/kargo/kargo.yml* or set the options with the argument **gce**
+In order to create vms on GCE you can either edit the config file */etc/kubespray/kubespray.yml* or set the options with the argument **gce**
 if the config file is filled with the proper information you just need to run the following command
 
-    kargo gce --nodes 3
+    kubespray gce --nodes 3
 
-Another example if you already have a kargo repository in your home dir
+Another example if you already have a kubespray repository in your home dir
 
-    kargo gce --nodes 3 --noclone --cluster-name foobar [--nodes-machine-type n1-standard-4]
+    kubespray gce --nodes 3 --noclone --cluster-name foobar [--nodes-machine-type n1-standard-4]
 
 
 **OpenStack**
 
-In order to create vms on a OpenStack cluster you can either edit the config file *~/.kargo.yml* or set the options with the argument **openstack**.
-The options **network** and **sshkey** are required and need to be created before running kargo, you can either create them using the OpenStack Dashboard or the OpenStack CLI clients. Running the ansible routines that kargo will invoke requires to have installed the [openstack cli tools](http://docs.openstack.org/user-guide/common/cli_install_openstack_command_line_clients.html) and openstack [shade](http://docs.openstack.org/infra/shade/installation.html).
+In order to create vms on a OpenStack cluster you can either edit the config file *~/.kubespray.yml* or set the options with the argument **openstack**.
+The options **network** and **sshkey** are required and need to be created before running kubespray, you can either create them using the OpenStack Dashboard or the OpenStack CLI clients. Running the ansible routines that kubespray will invoke requires to have installed the [openstack cli tools](http://docs.openstack.org/user-guide/common/cli_install_openstack_command_line_clients.html) and openstack [shade](http://docs.openstack.org/infra/shade/installation.html).
 
 
 Create a network using the OpenStack Neutron client
@@ -230,7 +230,7 @@ Upload a ssh key in order to connect to the vms using the OpenStack Nova client
     $ nova keypair-add --pub-key id_rsa.pub k8s-pub-key
 
 
-Once the preparation have been completed you can enter the required options to the config file */etc/kargo/kargo.yml*:
+Once the preparation have been completed you can enter the required options to the config file */etc/kubespray/kubespray.yml*:
 
     ...
 
@@ -242,11 +242,11 @@ Once the preparation have been completed you can enter the required options to t
 
 If the config file is filled with the proper information you just need to run the following command
 
-    kargo openstack --masters 2 --nodes 2 --etcds 3
+    kubespray openstack --masters 2 --nodes 2 --etcds 3
 
-Another example if you already have a kargo repository in your home dir
+Another example if you already have a kubespray repository in your home dir
 
-    kargo openstack --masters 2 --nodes 2 --etcds 3 --noclone --cluster-name foobar
+    kubespray openstack --masters 2 --nodes 2 --etcds 3 --noclone --cluster-name foobar
 
 
 **Add a node to an existing cluster**
@@ -255,7 +255,7 @@ these newly added nodes will act as node only (no etcd, no master components)
 
 Add a node
 
-    kargo [aws|gce] --add --nodes 1
+    kubespray [aws|gce] --add --nodes 1
 
 Then deploy the cluster with the same options as the running cluster.
 
@@ -266,8 +266,8 @@ The last step is to run the cluster deployment.
 
 **Note**:
 -   default network plugin : flannel (vxlan) default
--   default kargo\_path : "/home/\<current\_user\>/kargo"
--   inventory path : "\<kargo\_path\>/inventory/inventory.cfg".
+-   default kubespray\_path : "/home/\<current\_user\>/kubespray"
+-   inventory path : "\<kubespray\_path\>/inventory/inventory.cfg".
 -   The option `--inventory` allows to use an existing inventory (file or dynamic)
 -   On coreos (--coreos) the directory **/opt/bin** must be writable
 - You can use all Ansible's variables with
@@ -277,12 +277,12 @@ some examples:
 
 Deploy with the default options on baremetal
 
-    kargo deploy
+    kubespray deploy
 
-Deploy on AWS using a specific kargo directory and set the api password
+Deploy on AWS using a specific kubespray directory and set the api password
 
-    kargo deploy --aws --passwd secret -p /tmp/mykargo -n weave
+    kubespray deploy --aws --passwd secret -p /tmp/mykubespray -n weave
 
 Deploy a kubernetes cluster on CoreOS servers located on GCE
 
-    kargo deploy -u core -p /kargo-dc1 --gce --coreos --cluster-name mykube --kube-network 10.42.0.0/16
+    kubespray deploy -u core -p /kubespray-dc1 --gce --coreos --cluster-name mykube --kube-network 10.42.0.0/16
