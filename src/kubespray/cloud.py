@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# This file is part of Kargo.
+# This file is part of Kubespray.
 #
-#    Kargo is free software: you can redistribute it and/or modify
+#    Kubespray is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
@@ -17,7 +17,7 @@
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-kargo.cloud
+kubespray.cloud
 ~~~~~~~~~~~~
 
 Run Instances on cloud providers and generate inventory
@@ -27,8 +27,8 @@ import sys
 import os
 import yaml
 import json
-from kargo.inventory import CfgInventory
-from kargo.common import get_logger, query_yes_no, run_command, which, id_generator, get_cluster_name
+from kubespray.inventory import CfgInventory
+from kubespray.common import get_logger, query_yes_no, run_command, which, id_generator, get_cluster_name
 from ansible.utils.display import Display
 display = Display()
 playbook_exec = which('ansible-playbook')
@@ -47,26 +47,26 @@ class Cloud(object):
         self.options = options
         self.cloud = cloud
         self.inventorycfg = options['inventory_path']
-        self.playbook = os.path.join(options['kargo_path'], 'local.yml')
+        self.playbook = os.path.join(options['kubespray_path'], 'local.yml')
         self.cparser = configparser.ConfigParser(allow_no_value=True)
         self.Cfg = CfgInventory(options, cloud)
         self.localcfg = os.path.join(
-            options['kargo_path'],
+            options['kubespray_path'],
             'inventory/local.cfg'
         )
         self.instances = {'masters':
                           {'file': os.path.join(
-                           options['kargo_path'], 'masters_instances.json'),
+                           options['kubespray_path'], 'masters_instances.json'),
                            'json': None
                            },
                           'nodes':
                           {'file': os.path.join(
-                           options['kargo_path'], 'nodes_instances.json'),
+                           options['kubespray_path'], 'nodes_instances.json'),
                            'json': None
                            },
                           'etcds':
                           {'file': os.path.join(
-                           options['kargo_path'], 'etcds_instances.json'),
+                           options['kubespray_path'], 'etcds_instances.json'),
                            'json': None
                            },
                           }

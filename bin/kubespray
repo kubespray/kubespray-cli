@@ -1,9 +1,9 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 #
-# This file is part of Kargo.
+# This file is part of Kubespray.
 #
-#    Kargo is free software: you can redistribute it and/or modify
+#    Kubespray is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
@@ -25,16 +25,16 @@ try:
     from ansible.utils.display import Display
 except ImportError:
     raise ImportError('Cannot find Ansible: Please check your installation (required version 2)')
-from kargo.common import clone_kargo_git_repo
-from kargo.configure import Config
-from kargo.inventory import CfgInventory
-from kargo.deploy import RunPlaybook
-from kargo.cloud import AWS, GCE, OpenStack
+from kubespray.common import clone_kubespray_git_repo
+from kubespray.configure import Config
+from kubespray.inventory import CfgInventory
+from kubespray.deploy import RunPlaybook
+from kubespray.cloud import AWS, GCE, OpenStack
 display = Display()
 
 
 def prepare(options):
-    clone_kargo_git_repo(options)
+    clone_kubespray_git_repo(options)
     Cfg = CfgInventory(options, 'metal')
     Cfg.write_inventory(
         options['masters_list'],
@@ -44,7 +44,7 @@ def prepare(options):
 
 
 def aws(options):
-    clone_kargo_git_repo(options)
+    clone_kubespray_git_repo(options)
     A = AWS(options)
     A.gen_ec2_playbook()
     A.create_instances()
@@ -52,7 +52,7 @@ def aws(options):
 
 
 def gce(options):
-    clone_kargo_git_repo(options)
+    clone_kubespray_git_repo(options)
     G = GCE(options)
     G.gen_gce_playbook()
     G.create_instances()
@@ -60,7 +60,7 @@ def gce(options):
 
 
 def openstack(options):
-    clone_kargo_git_repo(options)
+    clone_kubespray_git_repo(options)
     O = OpenStack(options)
     O.gen_openstack_playbook()
     O.create_instances()
@@ -75,7 +75,7 @@ def deploy(options):
 if __name__ == '__main__':
     # Main parser
     parser = argparse.ArgumentParser(
-        prog='kargo',
+        prog='kubespray',
         description='%(prog)s Kubernetes cluster deployment tool',
         add_help=False
     )
@@ -95,12 +95,12 @@ if __name__ == '__main__':
     # Options shared by all subparsers
     parent_parser = argparse.ArgumentParser(add_help=False)
     parent_parser.add_argument(
-        '-p', '--path', dest='kargo_path',
-        help='Where the Ansible playbooks are installed. Default: ~/.kargo'
+        '-p', '--path', dest='kubespray_path',
+        help='Where the Ansible playbooks are installed. Default: ~/.kubespray'
     )
     parent_parser.add_argument(
         '--config', dest='configfile',
-        help="Config file path. Defaults to /etc/kargo/kargo.yml"
+        help="Config file path. Defaults to /etc/kubespray/kubespray.yml"
     )
     parent_parser.add_argument(
         '-y', '--assumeyes', default=False, dest='assume_yes', action='store_true',
@@ -403,7 +403,7 @@ if __name__ == '__main__':
         default_config_dir = os.path.expanduser("~")
         if not os.path.isdir(default_config_dir):
             os.makedirs(default_config_dir)
-        args.configfile = os.path.join(default_config_dir, ".kargo.yml")
+        args.configfile = os.path.join(default_config_dir, ".kubespray.yml")
     # Read configfile and update options dict
     C = Config(args.configfile)
     configfile_content = C.parse_configfile

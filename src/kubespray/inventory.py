@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# This file is part of Kargo.
+# This file is part of Kubespray.
 #
-#    Kargo is free software: you can redistribute it and/or modify
+#    Kubespray is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
@@ -17,15 +17,15 @@
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-kargo.inventory
+kubespray.inventory
 ~~~~~~~~~~~~
 
-Ansible inventory management for Kargo
+Ansible inventory management for Kubespray
 """
 
 import sys
 import re
-from kargo.common import get_logger, id_generator, get_cluster_name
+from kubespray.common import get_logger, id_generator, get_cluster_name
 from ansible.utils.display import Display
 display = Display()
 
