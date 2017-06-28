@@ -380,6 +380,10 @@ if __name__ == '__main__':
         help='Kubernetes deployment on GCE'
     )
     deploy_parser.add_argument(
+        '--redhat', default=False, action='store_true',
+        help='bootstrap python on RHEL 7 and newer'
+    )    
+    deploy_parser.add_argument(
         '--coreos', default=False, action='store_true',
         help='bootstrap python on CoreOS'
     )
