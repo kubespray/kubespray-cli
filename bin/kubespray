@@ -345,6 +345,10 @@ if __name__ == '__main__':
         help='ssh key for authentication on remote servers'
     )
     deploy_parser.add_argument(
+        '-K', '--ask-become-pass', default=False, action='store_true', dest='ask_become_pass',
+        help='ask for privilege escalation password'
+    )
+    deploy_parser.add_argument(
         '-u', '--user', dest='ansible_user', default=getpass.getuser(),
         help='Ansible SSH user (remote user)'
     )
@@ -382,7 +386,7 @@ if __name__ == '__main__':
     deploy_parser.add_argument(
         '--redhat', default=False, action='store_true',
         help='bootstrap python on RHEL 7 and newer'
-    )    
+    )
     deploy_parser.add_argument(
         '--coreos', default=False, action='store_true',
         help='bootstrap python on CoreOS'
