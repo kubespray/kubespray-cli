@@ -357,7 +357,7 @@ class OpenStack(Cloud):
                            'region_name': self.options['os_region_name'],
                            'network': self.options['network'],
                            'allowed_address_pairs': [{'ip_address': self.options['kube_network']}],
-                           'security_groups': (os_security_group_name,),
+                           'security_groups': [os_security_group_name],
                            'state': 'present'},
                        'with_items': os_instance_names}
                 )
@@ -371,7 +371,7 @@ class OpenStack(Cloud):
                            'key_name': self.options['sshkey'],
                            'region_name': self.options['os_region_name'],
                            'auto_ip': self.options['floating_ip'],
-                           'security_groups': (os_security_group_name,),
+                           'security_groups': [os_security_group_name],
                            'nics': 'port-name={{ item }}',
                            'image': self.options['image']},
                        'register': 'os_%s' % role,
