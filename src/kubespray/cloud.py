@@ -299,6 +299,9 @@ class OpenStack(Cloud):
         for cred_arg in openstack_credential_args:
             openstack_auth.update({cred_arg: self.options['os_%s' % cred_arg]})
 
+        if 'os_domain_name' in self.options:
+            openstack_auth.update({'domain_name': self.options[os_domain_name]})
+
         if self.options['floating_ip']:
             ip_type = 'public'
         else:
