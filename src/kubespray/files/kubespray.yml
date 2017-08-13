@@ -61,7 +61,9 @@ loglevel: "info"
 # sshkey: "<os_ssh_key_name>"
 #
 # All the options to be passed to the 'ansible-playbook' command line
+# Note: 'serial=1' ansible option is a workaround for bug https://github.com/ansible/ansible/issues/17935 which causes installation to hang due to SSH multiplexing
 # ansible-opts:
+#   - 'serial=1'
 #   - '-vvv'
 #   - '-e'
 #   - 'myvar1=bar'
