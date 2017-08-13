@@ -227,7 +227,7 @@ class GCE(Cloud):
         # Options list of ansible GCE module
         gce_options = [
             'machine_type', 'image', 'zone', 'service_account_email',
-            'pem_file', 'credentials_file', 'project_id', 'tags'
+            'pem_file', 'credentials_file', 'project_id', 'tags', 'network', 'subnetwork'
         ]
         # Define instance names
         cluster_name = 'k8s-' + get_cluster_name()
@@ -271,8 +271,13 @@ class GCE(Cloud):
                           'content': '{{gce_%s.instance_data}}' % role}}
                 )
                 # Wait for ssh task
+                if self.options['use_private_ip']:
+                    instance_ip = '{{ item.private_ip }}'
+                else:
+                    instance_ip = '{{ item.public_ip }}'
+
                 self.pbook_content[0]['tasks'].append(
-                    {'local_action': {'host': '{{ item.public_ip }}',
+                    {'local_action': {'host': '%s' % instance_ip,
                                       'module': 'wait_for',
                                       'port': 22,
                                       'state': 'started',

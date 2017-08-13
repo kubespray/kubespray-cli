@@ -24,6 +24,7 @@ loglevel: "info"
 # security_group_name: "<security_group_name>"
 # security_group_id: "<security_group_id>"
 # assign_public_ip: True
+# use_private_ip: true
 # vpc_subnet_id: "<vpc_id>"
 # region: "<aws_region>"
 # tags:
@@ -38,6 +39,9 @@ loglevel: "info"
 # service_account_email: "<gce_service_account_email>"
 # pem_file: "<gce_pem_file>"
 # project_id: "<gce_project_id>"
+# network: "<gce_network_name>"
+# subnetwork: "<gce_subnetwork_name>"
+# use_private_ip: true
 # zone: "<cloud_region>"
 # tags:
 #   - k8s
