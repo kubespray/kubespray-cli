@@ -24,6 +24,7 @@ loglevel: "info"
 # security_group_name: "<security_group_name>"
 # security_group_id: "<security_group_id>"
 # assign_public_ip: True
+# use_private_ip: true
 # vpc_subnet_id: "<vpc_id>"
 # region: "<aws_region>"
 # tags:
@@ -38,6 +39,9 @@ loglevel: "info"
 # service_account_email: "<gce_service_account_email>"
 # pem_file: "<gce_pem_file>"
 # project_id: "<gce_project_id>"
+# network: "<gce_network_name>"
+# subnetwork: "<gce_subnetwork_name>"
+# use_private_ip: true
 # zone: "<cloud_region>"
 # tags:
 #   - k8s
@@ -58,7 +62,9 @@ loglevel: "info"
 # sshkey: "<os_ssh_key_name>"
 #
 # All the options to be passed to the 'ansible-playbook' command line
+# Note: 'serial=1' ansible option is a workaround for bug https://github.com/ansible/ansible/issues/17935 which causes installation to hang due to SSH multiplexing
 # ansible-opts:
+#   - 'serial=1'
 #   - '-vvv'
 #   - '-e'
 #   - 'myvar1=bar'
