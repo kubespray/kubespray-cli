@@ -98,6 +98,8 @@ class RunPlaybook(object):
         except CalledProcessError as e:
             display.error('Failed to store ssh identity : %s' % e.output)
             sys.exit(1)
+        except IOError:
+            display.error('Could not find SSH key. Have you run ssh-keygen?')
         try:
             check_output(['ssh-add', '-l'])
         except CalledProcessError as e:
