@@ -127,6 +127,8 @@ class RunPlaybook(object):
         ]
         if 'sshkey' in self.options.keys():
             cmd = cmd + ['--private-key', self.options['sshkey']]
+        if self.options['ask_become_pass']:
+            cmd = cmd + ['--ask-become-pass']
         if self.options['coreos']:
             cmd = cmd + ['-e', 'ansible_python_interpreter=/opt/bin/python']
         display.display(' '.join(cmd))
@@ -227,6 +229,9 @@ class RunPlaybook(object):
         # Ansible verbose mode
         if 'verbose' in self.options.keys() and self.options['verbose']:
             cmd = cmd + ['-vvvv']
+        # Add privilege escalation password
+        if self.options['ask_become_pass']:
+            cmd = cmd + ['--ask-become-pass']
         # Add any additionnal Ansible option
         if 'ansible_opts' in self.options.keys():
             cmd = cmd + self.options['ansible_opts'].split(' ')
