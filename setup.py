@@ -24,7 +24,7 @@ my_homedir = os.path.expanduser("~")
 
 setup(
     name='kubespray',
-    version='0.4.9',
+    version='0.5.0',
     description="Kubespray kubernetes cluster deployment",
     author="Smaine Kahlouch",
     author_email='smainklh@gmail.com',
