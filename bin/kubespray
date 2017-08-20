@@ -16,7 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '0.5.0'
+__version__ = '0.5.1'
 
 import os
 import argparse
@@ -372,8 +372,13 @@ if __name__ == '__main__':
     )
     deploy_parser.add_argument(
         '-n', '--network-plugin',
-        choices=['flannel', 'weave', 'calico', 'contiv'],
+        choices=['flannel', 'weave', 'calico', 'canal', 'contiv', 'cloud'],
         help='Inventory defaults to calico'
+    )
+    deploy_parser.add_argument(
+        '--apps', dest='apps_enabled', metavar='N', nargs='+', default=[],
+        help='''List of optional applications to be installed,
+             Possible values: helm, netchecker, efk'''
     )
     deploy_parser.add_argument(
         '--aws', default=False, action='store_true',
@@ -382,10 +387,6 @@ if __name__ == '__main__':
     deploy_parser.add_argument(
         '--gce', default=False, action='store_true',
         help='Kubernetes deployment on GCE'
-    )
-    deploy_parser.add_argument(
-        '--openstack', default=False, action='store_true',
-        help='Kubernetes deployment on OpenStack'
     )
     deploy_parser.add_argument(
         '--redhat', default=False, action='store_true',
