@@ -235,7 +235,7 @@ class RunPlaybook(object):
         # Add any additionnal Ansible option
         if 'ansible_opts' in self.options.keys():
             cmd = cmd + self.options['ansible_opts'].split(' ')
-        for cloud in ['aws', 'gce']:
+        for cloud in ['aws', 'gce', 'openstack']:
             if self.options[cloud]:
                 cmd = cmd + ['-e', 'cloud_provider=%s' % cloud]
         self.check_ping()
