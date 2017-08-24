@@ -204,6 +204,19 @@ class RunPlaybook(object):
                 '-e', 'kube_service_addresses=%s' % svc_network.cidr,
                 '-e', 'kube_pods_subnet=%s' % pods_network
             ]
+        # Check optional apps
+        if 'apps_enabled' in self.options.keys():
+            for app in self.options['apps_enabled']:
+                if app not in ['helm', 'netchecker', 'efk']:
+                    display.error(
+                        'The application %s is not available, possible values = %s' %
+                        (app, ','.join(self.options['apps_enabled']))
+                    )
+                    sys.exit(1)
+                if app == "netchecker":
+                    cmd = cmd + ['-e', 'deploy_netchecker=true']
+                else:
+                    cmd = cmd + ['-e', '%s_enabled=true' % app]
         # Set kubernetes version
         if 'kube_version' in self.options.keys():
             available_kube_versions = self.read_kube_versions()
