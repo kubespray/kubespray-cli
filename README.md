@@ -10,7 +10,7 @@ Example on GCE:
 Requirements
 ============
 
--   **Ansible v2.x**
+-   **Ansible v2.3 (or newer)**
 -   The current user must have its ssh **public key** installed on the
     remote servers.
 -   The remote user (option --user) must be in the sudoers with no
