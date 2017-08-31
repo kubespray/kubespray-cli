@@ -314,6 +314,8 @@ class OpenStack(Cloud):
 
         # Define instance names
         cluster_name = 'k8s-' + get_cluster_name()
+        if 'cluster_name' in self.options.keys():
+            cluster_name = 'k8s-' + self.options['cluster_name']
         os_security_group_name = cluster_name + '-%s' % id_generator()
 
         self.pbook_content[0]['tasks'].append(
@@ -348,11 +350,6 @@ class OpenStack(Cloud):
                         os_instance_names.append(
                             cluster_name + '-%s' % id_generator()
                         )
-                    elif 'cluster_name' in self.options.keys():
-                        os_instance_names.append(
-                            self.options['cluster_name'] + '-%s' % id_generator()
-                        )
-                        os_security_group_name = self.options['cluster_name'] + '-%s' % id_generator()
                     else:
                         os_instance_names.append(
                             cluster_name + '-%s' % id_generator()
