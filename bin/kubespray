@@ -100,7 +100,7 @@ if __name__ == '__main__':
     )
     parent_parser.add_argument(
         '--config', dest='configfile',
-        help="Config file path. Defaults to /etc/kubespray/kubespray.yml"
+        help="Config file path. Defaults to ~/.kubespray.yml"
     )
     parent_parser.add_argument(
         '-y', '--assumeyes', default=False, dest='assume_yes', action='store_true',
