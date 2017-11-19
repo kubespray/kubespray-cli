@@ -39,7 +39,7 @@ frequently </br>
     # Defaults to current user's home directory if not set
     # kubespray_path: "/tmp"
     # Default inventory path
-    kubespray_git_repo: "https://github.com/kubespray/kubespray.git"
+    kubespray_git_repo: "https://github.com/kubernetes-incubator/kubespray.git"
     # Logging options
     loglevel: "info"
 
